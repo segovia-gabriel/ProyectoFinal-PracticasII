@@ -1,0 +1,240 @@
+/*
+  ============================================================
+  Hoja de estilos unica de todo el sistema (Qt Style Sheets).
+  Se carga una sola vez desde main.py con app.setStyleSheet(...), como mostro
+  el profesor, para que los 8 modulos se vean iguales sin repetir estilos.
+
+  Qt Style Sheets no soporta variables (nada de var()), asi que los "tokens"
+  van documentados aca y se aplican como valor en cada selector. Si hay que
+  cambiar un color, se busca y reemplaza el hex en este unico archivo.
+
+  PALETA (azul profesional, estilo panel de datos)
+    primary        #2563EB   azul principal (botones, encabezados de tabla)
+    primary-hover  #1D4ED8
+    primary-press  #1E40AF
+    background      #F8FAFC   fondo de ventanas
+    surface         #FFFFFF   fondo de campos, tablas y tarjetas
+    foreground      #0F172A   texto principal
+    muted           #64748B   texto secundario / ayudas
+    border          #E2E8F0   bordes y lineas de tabla
+    success         #059669   confirmaciones / estados OK
+    warning         #D97706   avisos (ej. renovacion de precio proxima)
+    danger          #DC2626   errores y acciones destructivas
+    ring            #2563EB   resaltado del campo con foco
+
+  TIPOGRAFIA
+    familia: la del sistema (San Francisco en Mac, Segoe UI en Windows) para
+    no depender de fuentes externas y verse nativo en ambas maquinas.
+    escala:  titulo 20pt / subtitulo 14pt / cuerpo 11pt (minimo exigido) /
+             ayuda 10pt.  Peso 700 en titulos, 600 en labels, 400 en cuerpo.
+  ============================================================
+*/
+
+/* ---------- Base ---------- */
+QWidget {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+    font-size: 11pt;
+}
+
+/* Titulo de pantalla (un QLabel con objectName label_titulo por ventana). */
+QLabel#label_titulo {
+    font-size: 20pt;
+    font-weight: bold;
+    color: #0f172a;
+}
+
+/* Subtitulo o nombre de seccion. */
+QLabel#label_subtitulo {
+    font-size: 14pt;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Texto de ayuda / secundario. */
+QLabel[class="ayuda"] {
+    color: #64748b;
+    font-size: 10pt;
+}
+
+/* Mensajes de validacion (labels label_error_<campo>): rojo, chico. */
+QLabel[objectName^="label_error"] {
+    color: #dc2626;
+    font-size: 10pt;
+}
+
+/* Aviso destacado (ej. renovacion de precio proxima): naranja y en negrita. */
+QLabel[class="aviso"] {
+    color: #d97706;
+    font-weight: 600;
+}
+
+/* ---------- Campos de entrada ---------- */
+/* Mismo alto, borde y radio para todos los tipos, asi los formularios quedan
+   alineados sin importar el widget (regla: widget correcto por tipo de dato). */
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QDateEdit, QTimeEdit, QPlainTextEdit, QTextEdit {
+    background-color: #ffffff;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 6px 9px;
+    selection-background-color: #2563eb;
+    selection-color: #ffffff;
+}
+
+/* Foco: anillo azul de 2px, requisito de accesibilidad (navegacion por teclado). */
+QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus,
+QDateEdit:focus, QTimeEdit:focus, QPlainTextEdit:focus, QTextEdit:focus {
+    border: 2px solid #2563eb;
+    padding: 5px 8px;   /* compensa el borde mas grueso para que no salte */
+}
+
+/* Campo con error: se marca poniendo la property dinamica 'error' en true
+   desde el controlador (widget.setProperty("error", True) + repolish). */
+QLineEdit[error="true"], QComboBox[error="true"], QSpinBox[error="true"],
+QDoubleSpinBox[error="true"], QDateEdit[error="true"], QTimeEdit[error="true"] {
+    border: 2px solid #dc2626;
+    padding: 5px 8px;
+}
+
+/* Campo deshabilitado / solo lectura: apagado y sin foco. */
+QLineEdit:disabled, QComboBox:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled,
+QDateEdit:disabled, QTimeEdit:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+}
+
+/* Flechita de los combos y spin, para que no se vean cortados. */
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    selection-background-color: #2563eb;
+    selection-color: #ffffff;
+}
+
+/* ---------- Botones ---------- */
+/* Boton primario: uno solo por pantalla (la accion principal, ej. Guardar). */
+QPushButton {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-weight: 600;
+}
+QPushButton:hover { background-color: #1d4ed8; }
+QPushButton:pressed { background-color: #1e40af; }
+QPushButton:disabled { background-color: #cbd5e1; color: #eef2f7; }
+
+/* Boton secundario (Cancelar, Volver): subordinado, contorno gris. */
+QPushButton#pushButton_cancelar, QPushButton#pushButton_volver {
+    background-color: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+QPushButton#pushButton_cancelar:hover, QPushButton#pushButton_volver:hover {
+    background-color: #f1f5f9;
+}
+
+/* Boton destructivo (Eliminar): rojo, para que se lea que es peligroso. */
+QPushButton#pushButton_eliminar {
+    background-color: #dc2626;
+}
+QPushButton#pushButton_eliminar:hover { background-color: #b91c1c; }
+
+/* ---------- Menu lateral de la ventana principal ---------- */
+/* Botones de navegacion: mas planos que un boton de accion, para no competir
+   con el CTA primario de cada pantalla. Se marca el panel por objectName. */
+QWidget#widget_menu {
+    background-color: #0f172a;   /* barra oscura, contraste con el contenido */
+}
+QWidget#widget_menu QPushButton {
+    background-color: transparent;
+    color: #e2e8f0;
+    text-align: left;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+QWidget#widget_menu QPushButton:hover { background-color: #1e293b; }
+QWidget#widget_menu QPushButton:pressed { background-color: #2563eb; }
+QWidget#widget_menu QLabel { color: #94a3b8; }
+
+/* Tarjeta de perfil (arriba del menu): avatar circular + nombre + rol. */
+QLabel#label_avatar {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-radius: 21px;   /* mitad de 42px => circulo perfecto */
+    font-size: 15pt;
+    font-weight: bold;
+}
+QLabel#label_nombreUsuario {
+    color: #f8fafc;
+    font-size: 12pt;
+    font-weight: 600;
+}
+QLabel#label_rolUsuario {
+    color: #64748b;
+    font-size: 9pt;
+}
+/* Linea separadora debajo del perfil, tenue sobre la barra oscura. */
+QWidget#widget_menu Line, QFrame#linea_perfil {
+    color: #1e293b;
+    background-color: #1e293b;
+    max-height: 1px;
+}
+
+/* ---------- Tablas (listados de cada modulo) ---------- */
+QTableWidget, QTableView {
+    background-color: #ffffff;
+    alternate-background-color: #f8fafc;   /* filas alternadas: mas legible */
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    gridline-color: #eef2f7;
+}
+QTableWidget::item, QTableView::item {
+    padding: 4px 6px;
+}
+QTableWidget::item:selected, QTableView::item:selected {
+    background-color: #dbeafe;   /* seleccion en azul claro, texto sigue legible */
+    color: #0f172a;
+}
+QHeaderView::section {
+    background-color: #2563eb;
+    color: #ffffff;
+    padding: 7px;
+    border: none;
+    font-weight: 600;
+}
+
+/* Pestanas (QTabWidget), usadas en Estadisticas. */
+QTabWidget::pane {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    top: -1px;
+}
+QTabBar::tab {
+    background-color: #e2e8f0;
+    color: #334155;
+    padding: 7px 16px;
+    margin-right: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+QTabBar::tab:selected {
+    background-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Barras de scroll finas y sobrias, para no ensuciar el listado. */
+QScrollBar:vertical { background: #f1f5f9; width: 11px; margin: 0; }
+QScrollBar::handle:vertical { background: #cbd5e1; border-radius: 5px; min-height: 24px; }
+QScrollBar::handle:vertical:hover { background: #94a3b8; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }

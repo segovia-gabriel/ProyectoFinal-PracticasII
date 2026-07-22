@@ -1,0 +1,15 @@
+# Credenciales locales de MySQL (cada uno tiene la suya, va config.ini.example)
+config.ini
+
+# Entorno virtual de Python
+venv/
+
+# Cache de Python
+__pycache__/
+*.pyc
+
+# Logs de la app (se generan al correr)
+logs/*.log
+
+# Basura de macOS
+.DS_Store
