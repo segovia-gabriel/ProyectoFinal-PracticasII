@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QDialog, QHeaderView, QMainWindow, QMessageBox, QTab
 
 from controlador.mesas_controlador import MesasControlador
 from vista.mesas.grupo_mesa_form_ventana import DialogoGrupoMesa
+from utilidades import formato
 
 RUTA_UI = Path(__file__).resolve().parent / "grupos_mesa.ui"
 
@@ -27,6 +28,8 @@ class VentanaGruposMesa(QMainWindow):
         self.tableWidget_grupos.verticalHeader().setVisible(False)
         self.tableWidget_grupos.horizontalHeader().setStretchLastSection(True)
 
+        self.pushButton_buscar.clicked.connect(self.cargar_grupos)
+        self.lineEdit_filtro.returnPressed.connect(self.cargar_grupos)
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
         self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionado)
@@ -36,7 +39,8 @@ class VentanaGruposMesa(QMainWindow):
         self.cargar_grupos()
 
     def cargar_grupos(self):
-        exito, resultado = self.controlador.listar_grupos()
+        filtro = self.lineEdit_filtro.text().strip() or None
+        exito, resultado = self.controlador.listar_grupos(filtro)
         if not exito:
             QMessageBox.warning(self, "Error", resultado)
             return
@@ -49,9 +53,9 @@ class VentanaGruposMesa(QMainWindow):
             item_nombre.setData(Qt.UserRole, grupo["id"])
             tabla.setItem(fila, 0, item_nombre)
             valor_2h = float(grupo["valor"])
-            tabla.setItem(fila, 1, QTableWidgetItem(f"$ {valor_2h:,.2f}"))
+            tabla.setItem(fila, 1, QTableWidgetItem(formato.moneda(valor_2h)))
             # El valor de 3h no se guarda: es 125% del de 2h, calculado al vuelo.
-            tabla.setItem(fila, 2, QTableWidgetItem(f"$ {valor_2h * 1.25:,.2f}"))
+            tabla.setItem(fila, 2, QTableWidgetItem(formato.moneda(valor_2h * 1.25)))
 
     def _id_seleccionado(self):
         fila = self.tableWidget_grupos.currentRow()

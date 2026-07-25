@@ -16,9 +16,9 @@ from utilidades.sesion import Sesion
 
 class ClientesControlador:
 
-    def listar(self, filtro_nombre=None, filtro_dni=None):
+    def listar(self, filtro_nombre=None, filtro_dni=None, fecha_desde=None, fecha_hasta=None):
         try:
-            return True, cliente_modelo.listar(filtro_nombre, filtro_dni)
+            return True, cliente_modelo.listar(filtro_nombre, filtro_dni, fecha_desde, fecha_hasta)
         except Error:
             return False, "No se pudieron cargar los clientes."
 

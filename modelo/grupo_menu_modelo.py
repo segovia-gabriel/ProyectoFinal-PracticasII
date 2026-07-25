@@ -8,12 +8,20 @@ from modelo.conexion import abrir_conexion
 from utilidades.logger import registrar
 
 
-def listar():
+def listar(filtro_nombre=None):
+    # El filtro por nombre lo usa la pantalla de grupos; los combos la llaman
+    # sin filtro para traerlos todos.
     conexion = None
     try:
         conexion = abrir_conexion()
         cursor = conexion.cursor(dictionary=True)
-        cursor.execute("SELECT id, nombre FROM grupos_menu ORDER BY nombre")
+        sql = "SELECT id, nombre FROM grupos_menu"
+        parametros = ()
+        if filtro_nombre:
+            sql += " WHERE nombre LIKE %s"
+            parametros = (f"%{filtro_nombre}%",)
+        sql += " ORDER BY nombre"
+        cursor.execute(sql, parametros)
         return cursor.fetchall()
     except Error as error:
         registrar(error, "error")

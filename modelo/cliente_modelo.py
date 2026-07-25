@@ -10,7 +10,9 @@ from modelo.conexion import abrir_conexion
 from utilidades.logger import registrar
 
 
-def listar(filtro_nombre=None, filtro_dni=None):
+def listar(filtro_nombre=None, filtro_dni=None, fecha_desde=None, fecha_hasta=None):
+    # Los tres filtros que pide el enunciado: nombre, codigo de registro (el DNI,
+    # que es lo que identifica al cliente) y rango de fecha de registro.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -26,6 +28,12 @@ def listar(filtro_nombre=None, filtro_dni=None):
         if filtro_dni:
             condiciones.append("dni LIKE %s")
             parametros.append(f"%{filtro_dni}%")
+        if fecha_desde:
+            condiciones.append("fecha_registro >= %s")
+            parametros.append(fecha_desde)
+        if fecha_hasta:
+            condiciones.append("fecha_registro <= %s")
+            parametros.append(fecha_hasta)
         if condiciones:
             sql += " WHERE " + " AND ".join(condiciones)
         sql += " ORDER BY apellido, nombre"

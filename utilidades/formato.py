@@ -33,6 +33,20 @@ def hora(valor):
     return f"{total // 3600:02d}:{(total % 3600) // 60:02d}"
 
 
+def moneda(valor):
+    # Importes con formato argentino: punto para los miles y coma para los
+    # decimales ($ 37.900,00). Se hace en un solo lugar porque los precios se
+    # muestran en Mesas, Menu, Reservas, Consumo y Estadisticas, y antes estaba
+    # el mismo f-string repetido en cada pantalla.
+    if valor is None:
+        return "—"
+    # se formatea al estilo ingles (1,234.56) y despues se dan vuelta los
+    # separadores, que es la forma mas corta de no depender de locale (locale
+    # varia entre la Mac y la maquina con Windows).
+    texto = f"{float(valor):,.2f}"
+    return "$ " + texto.replace(",", "_").replace(".", ",").replace("_", ".")
+
+
 # DAYNAME de MySQL viene en ingles; lo pasamos a espanol y damos el orden natural
 # de la semana para poder ordenar las filas de estadisticas.
 _DIAS = {

@@ -7,7 +7,8 @@ Se abre desde Menú; al cerrarse vuelve a Menú.
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.menu_controlador import MenuControlador
 from utilidades import formato
@@ -26,7 +27,9 @@ class VentanaPrecios(QMainWindow):
         self.label_titulo.setText(f"Precios — {item['nombre']}")
 
         self.tableWidget_precios.verticalHeader().setVisible(False)
-        self.tableWidget_precios.horizontalHeader().setStretchLastSection(True)
+        # Columnas parejas: son todas cortas (importes y fechas) y asi no queda
+        # scroll horizontal ni una ultima columna desproporcionada.
+        self.tableWidget_precios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
         self.pushButton_volver.clicked.connect(self.close)
@@ -44,9 +47,9 @@ class VentanaPrecios(QMainWindow):
         tabla.setRowCount(0)
         for i, fila in enumerate(filas):
             tabla.insertRow(i)
-            tabla.setItem(i, 0, QTableWidgetItem(f"$ {float(fila['precio_lista']):,.2f}"))
+            tabla.setItem(i, 0, QTableWidgetItem(formato.moneda(fila['precio_lista'])))
             if fila["precio_especial"] is not None:
-                especial = f"$ {float(fila['precio_especial']):,.2f}"
+                especial = formato.moneda(fila['precio_especial'])
                 medio = formato.medio_pago(fila["medio_pago_especial"])
             else:
                 especial = "—"

@@ -45,13 +45,26 @@ def top_clientes(limite=5):
             conexion.close()
 
 
-def reservas_futuras():
+def reservas_actuales_y_futuras():
+    # El enunciado pide "reservas actuales y futuras": se devuelven separadas
+    # (actuales = las de hoy, futuras = de manana en adelante) y la pantalla
+    # muestra las dos y el total.
     conexion = None
     try:
         conexion = abrir_conexion()
-        cursor = conexion.cursor()
-        cursor.execute("SELECT COUNT(*) FROM reservas WHERE fecha >= CURDATE()")
-        return cursor.fetchone()[0]
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT "
+            "SUM(CASE WHEN fecha = CURDATE() THEN 1 ELSE 0 END) AS actuales, "
+            "SUM(CASE WHEN fecha > CURDATE() THEN 1 ELSE 0 END) AS futuras "
+            "FROM reservas"
+        )
+        fila = cursor.fetchone()
+        # SUM devuelve NULL si la tabla esta vacia; lo pasamos a 0.
+        return {
+            "actuales": int(fila["actuales"] or 0),
+            "futuras": int(fila["futuras"] or 0),
+        }
     except Error as error:
         registrar(error, "error")
         raise

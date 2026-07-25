@@ -5,6 +5,8 @@ from pathlib import Path
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QHeaderView, QTableWidgetItem
 
+from utilidades import formato
+
 RUTA_UI = Path(__file__).resolve().parent / "consumo_detalle.ui"
 
 
@@ -30,6 +32,6 @@ class DialogoDetalleConsumo(QDialog):
             tabla.insertRow(fila)
             tabla.setItem(fila, 0, QTableWidgetItem(linea["nombre"]))
             tabla.setItem(fila, 1, QTableWidgetItem(str(linea["cantidad"])))
-            tabla.setItem(fila, 2, QTableWidgetItem(f"$ {precio:,.2f}"))
-            tabla.setItem(fila, 3, QTableWidgetItem(f"$ {subtotal:,.2f}"))
-        self.label_total.setText(f"Total: $ {total:,.2f}")
+            tabla.setItem(fila, 2, QTableWidgetItem(formato.moneda(precio)))
+            tabla.setItem(fila, 3, QTableWidgetItem(formato.moneda(subtotal)))
+        self.label_total.setText(f"Total: {formato.moneda(total)}")

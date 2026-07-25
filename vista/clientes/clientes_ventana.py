@@ -6,7 +6,7 @@ a la vista de reservas de cada cliente. Al cerrarse vuelve la principal.
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
 
 from controlador.clientes_controlador import ClientesControlador
@@ -26,6 +26,9 @@ class VentanaClientes(QMainWindow):
         self.tableWidget_clientes.verticalHeader().setVisible(False)
         self.tableWidget_clientes.horizontalHeader().setStretchLastSection(True)
 
+        # "Hasta" arranca en hoy: no hay clientes registrados a futuro.
+        self.dateEdit_hasta.setDate(QDate.currentDate())
+
         self.pushButton_buscar.clicked.connect(self.cargar_clientes)
         self.lineEdit_filtroNombre.returnPressed.connect(self.cargar_clientes)
         self.lineEdit_filtroDni.returnPressed.connect(self.cargar_clientes)
@@ -41,7 +44,9 @@ class VentanaClientes(QMainWindow):
     def cargar_clientes(self):
         filtro_nombre = self.lineEdit_filtroNombre.text().strip() or None
         filtro_dni = self.lineEdit_filtroDni.text().strip() or None
-        exito, resultado = self.controlador.listar(filtro_nombre, filtro_dni)
+        desde = self.dateEdit_desde.date().toPyDate()
+        hasta = self.dateEdit_hasta.date().toPyDate()
+        exito, resultado = self.controlador.listar(filtro_nombre, filtro_dni, desde, hasta)
         if not exito:
             QMessageBox.warning(self, "Error", resultado)
             return

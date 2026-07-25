@@ -38,6 +38,27 @@
      </widget>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="layout_filtro">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_filtro">
+        <property name="placeholderText">
+         <string>Buscar por nombre</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_buscar">
+        <property name="text">
+         <string>Buscar</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QTableWidget" name="tableWidget_grupos">
       <property name="alternatingRowColors">
        <bool>true</bool>

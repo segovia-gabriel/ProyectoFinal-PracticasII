@@ -111,9 +111,9 @@ class MenuControlador:
 
     # ---------------- Grupos de menu ----------------
 
-    def listar_grupos(self):
+    def listar_grupos(self, filtro_nombre=None):
         try:
-            return True, grupo_menu_modelo.listar()
+            return True, grupo_menu_modelo.listar(filtro_nombre)
         except Error:
             return False, "No se pudieron cargar los grupos."
 

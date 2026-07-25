@@ -22,6 +22,8 @@ class VentanaGruposMenu(QMainWindow):
         self.tableWidget_grupos.verticalHeader().setVisible(False)
         self.tableWidget_grupos.horizontalHeader().setStretchLastSection(True)
 
+        self.pushButton_buscar.clicked.connect(self.cargar_grupos)
+        self.lineEdit_filtro.returnPressed.connect(self.cargar_grupos)
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
         self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionado)
@@ -31,7 +33,8 @@ class VentanaGruposMenu(QMainWindow):
         self.cargar_grupos()
 
     def cargar_grupos(self):
-        exito, resultado = self.controlador.listar_grupos()
+        filtro = self.lineEdit_filtro.text().strip() or None
+        exito, resultado = self.controlador.listar_grupos(filtro)
         if not exito:
             QMessageBox.warning(self, "Error", resultado)
             return

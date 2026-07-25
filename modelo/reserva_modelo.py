@@ -36,7 +36,9 @@ def listar(filtro_nombre=None, fecha_desde=None, fecha_hasta=None):
             parametros.append(fecha_hasta)
         if condiciones:
             sql += " WHERE " + " AND ".join(condiciones)
-        sql += " ORDER BY r.fecha DESC, r.hora_inicio DESC"
+        # De la mas proxima a la mas lejana: la pantalla arranca mostrando la
+        # semana en curso, asi que arriba queda lo que esta por pasar.
+        sql += " ORDER BY r.fecha ASC, r.hora_inicio ASC"
         cursor.execute(sql, tuple(parametros))
         return cursor.fetchall()
     except Error as error:
@@ -146,6 +148,30 @@ def actualizar_estado(reserva_id, estado_asistencia):
             (estado_asistencia, reserva_id),
         )
         conexion.commit()
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
+def obtener_para_consumo(reserva_id):
+    # Datos de una reserva puntual para mostrarla en el combo de Consumo cuando
+    # el dialogo se abre ya apuntando a ella (desde el salon o el panel).
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT r.id, r.fecha, c.nombre, c.apellido, m.codigo AS mesa_codigo "
+            "FROM reservas r "
+            "JOIN clientes c ON c.id = r.cliente_id "
+            "JOIN mesas m ON m.id = r.mesa_id "
+            "WHERE r.id = %s",
+            (reserva_id,),
+        )
+        return cursor.fetchone()
     except Error as error:
         registrar(error, "error")
         raise

@@ -18,8 +18,8 @@ from pathlib import Path
 
 # --- Paso 1: version de Python ---
 print(f"Python: {sys.version.split()[0]}")
-if sys.version_info < (3, 10):
-    print("ATENCION: se recomienda Python 3.10 o superior.")
+if sys.version_info < (3, 8):
+    print("ATENCION: se necesita Python 3.8 o superior.")
 
 # --- Paso 2: que las librerias esten instaladas ---
 try:

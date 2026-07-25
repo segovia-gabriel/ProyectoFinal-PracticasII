@@ -8,7 +8,8 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import QDate, Qt
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.reservas_controlador import ReservasControlador
 from utilidades import formato
@@ -28,10 +29,17 @@ class VentanaReservas(QMainWindow):
         self.controlador = ReservasControlador()
 
         self.tableWidget_reservas.verticalHeader().setVisible(False)
-        self.tableWidget_reservas.horizontalHeader().setStretchLastSection(True)
-        # "Hasta" arranca un ano adelante para que se vean tambien las reservas
-        # futuras (son las mas relevantes); igual se puede acotar el rango.
-        self.dateEdit_hasta.setDate(QDate.currentDate().addYears(1))
+        # El cliente se queda con el ancho sobrante y el resto de las columnas
+        # se ajusta a su contenido, asi no aparece scroll horizontal.
+        cabecera = self.tableWidget_reservas.horizontalHeader()
+        cabecera.setSectionResizeMode(QHeaderView.ResizeToContents)
+        cabecera.setSectionResizeMode(0, QHeaderView.Stretch)
+        # Al entrar se muestra la semana de trabajo: de ayer a 7 dias adelante.
+        # Ayer entra a proposito, porque es la reserva que todavia puede faltar
+        # marcarle la asistencia. Para ver el historial completo se corre el
+        # "Desde" hacia atras.
+        self.dateEdit_desde.setDate(QDate.currentDate().addDays(-1))
+        self.dateEdit_hasta.setDate(QDate.currentDate().addDays(7))
 
         self.pushButton_buscar.clicked.connect(self.cargar_reservas)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_reservas)
@@ -66,7 +74,7 @@ class VentanaReservas(QMainWindow):
             horario = f"{formato.hora(reserva['hora_inicio'])} - {formato.hora(reserva['hora_fin'])}"
             tabla.setItem(fila, 3, QTableWidgetItem(horario))
             tabla.setItem(fila, 4, QTableWidgetItem(_DURACION_TEXTO.get(reserva["duracion_tipo"], reserva["duracion_tipo"])))
-            tabla.setItem(fila, 5, QTableWidgetItem(f"$ {float(reserva['precio_mesa_aplicado']):,.2f}"))
+            tabla.setItem(fila, 5, QTableWidgetItem(formato.moneda(reserva['precio_mesa_aplicado'])))
             tabla.setItem(fila, 6, QTableWidgetItem(formato.estado_asistencia(reserva["estado_asistencia"])))
 
     def _id_seleccionado(self):

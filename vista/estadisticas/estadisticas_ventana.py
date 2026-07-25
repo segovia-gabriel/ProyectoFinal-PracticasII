@@ -9,7 +9,8 @@ from datetime import date
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QHeaderView, QMainWindow, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.estadisticas_controlador import EstadisticasControlador
 from utilidades import formato
@@ -27,7 +28,9 @@ class VentanaEstadisticas(QMainWindow):
         for tabla in (self.tableWidget_topClientes, self.tableWidget_reservasMes,
                       self.tableWidget_ingresos, self.tableWidget_topItems):
             tabla.verticalHeader().setVisible(False)
-            tabla.horizontalHeader().setStretchLastSection(True)
+            # Columnas repartidas en partes iguales: con stretch solo en la
+            # ultima, la primera quedaba angosta y cortaba los apellidos.
+            tabla.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # Selector de periodo de la pestana Consumo: meses y ano actual.
         hoy = date.today()
@@ -61,7 +64,11 @@ class VentanaEstadisticas(QMainWindow):
         if not exito:
             QMessageBox.warning(self, "Error", datos)
             return
-        self.label_reservasFuturas.setText(f"Reservas actuales y futuras: {datos['futuras']}")
+        self.label_reservasFuturas.setText(
+            f"Reservas actuales (hoy): {datos['actuales']}   |   "
+            f"Reservas futuras: {datos['futuras']}   |   "
+            f"Total: {datos['total']}"
+        )
         tabla = self.tableWidget_reservasMes
         tabla.setRowCount(0)
         for fila, registro in enumerate(datos["por_mes"]):
@@ -82,7 +89,7 @@ class VentanaEstadisticas(QMainWindow):
         for fila, (dia, ingreso) in enumerate(datos["ingresos"]):
             tabla_ing.insertRow(fila)
             tabla_ing.setItem(fila, 0, QTableWidgetItem(dia))
-            tabla_ing.setItem(fila, 1, QTableWidgetItem(f"$ {ingreso:,.2f}"))
+            tabla_ing.setItem(fila, 1, QTableWidgetItem(formato.moneda(ingreso)))
 
         tabla_top = self.tableWidget_topItems
         tabla_top.setRowCount(0)

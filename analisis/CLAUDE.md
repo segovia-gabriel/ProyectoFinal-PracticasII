@@ -126,8 +126,8 @@ El profesor evalúa explícitamente "uso correcto del lenguaje de la materia" y 
 
 ## Stack y entorno
 
-- Python 3.11+, PyQt5, `mysql-connector-python`, `bcrypt`.
-- MySQL 8 vía MySQL Workbench, base `restaurante_db` (ver `analisis/schema.sql`).
+- Python 3.8 o superior, PyQt5, `mysql-connector-python`, `bcrypt`. La consigna no fija versión de Python, solo pide "Python + PyQt"; en Windows el proyecto corre sobre 3.8.10 y en Mac sobre 3.12.
+- MySQL 8 (Mac, vía MySQL Workbench) o MariaDB 10.4 de XAMPP (Windows, vía phpMyAdmin). Base `restaurante_db` (ver `analisis/schema.sql`), compatible con ambos.
 - Sin frameworks web, sin ORM — acceso a datos con SQL directo y `mysql-connector-python`, es lo que se vio en la cátedra.
 
 ## División de trabajo (ver `PLAN_4_DIAS.md` para el detalle día a día)

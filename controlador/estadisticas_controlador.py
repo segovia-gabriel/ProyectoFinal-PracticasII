@@ -22,12 +22,17 @@ class EstadisticasControlador:
 
     def reservas(self):
         try:
-            futuras = estadisticas_modelo.reservas_futuras()
+            conteo = estadisticas_modelo.reservas_actuales_y_futuras()
             por_mes = estadisticas_modelo.reservas_por_mes()
             # agregamos el nombre del mes en espanol para mostrarlo
             for fila in por_mes:
                 fila["mes_nombre"] = formato.nombre_mes(fila["mes"])
-            return True, {"futuras": futuras, "por_mes": por_mes}
+            return True, {
+                "actuales": conteo["actuales"],
+                "futuras": conteo["futuras"],
+                "total": conteo["actuales"] + conteo["futuras"],
+                "por_mes": por_mes,
+            }
         except Error:
             return False, "No se pudieron cargar las estadísticas de reservas."
 

@@ -10,6 +10,8 @@ from PyQt5 import uic
 from PyQt5.QtCore import QDate, QTime
 from PyQt5.QtWidgets import QDialog
 
+from utilidades import formato
+
 RUTA_UI = Path(__file__).resolve().parent / "reserva_form.ui"
 
 _DURACIONES = [("2 horas", "2h"), ("3 horas", "3h")]
@@ -81,7 +83,7 @@ class DialogoReserva(QDialog):
         # Precio (puede ser None si todavia no hay mesas cargadas)
         if mesa_id is not None:
             precio = self.controlador.calcular_precio(mesa_id, duracion)
-            self.lineEdit_precio.setText(f"$ {float(precio):,.2f}" if precio is not None else "—")
+            self.lineEdit_precio.setText(formato.moneda(precio))
         else:
             self.lineEdit_precio.setText("—")
 

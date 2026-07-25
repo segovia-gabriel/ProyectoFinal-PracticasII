@@ -29,10 +29,12 @@ class VentanaLogin(QWidget):
             sys.exit(1)
 
         self.controlador = LoginControlador()
+        self.label_error.setText("")
 
         # Conexion de senales a mano (no autogeneradas), como en sistema_ejemplo.
         self.pushButton_ingresar.clicked.connect(self.ingresar)
-        # Enter en la contrasena tambien envia el formulario, es lo que uno espera.
+        # Enter en el usuario pasa a la contrasena y Enter ahi envia el formulario.
+        self.lineEdit_usuario.returnPressed.connect(self.lineEdit_contrasena.setFocus)
         self.lineEdit_contrasena.returnPressed.connect(self.ingresar)
 
     def ingresar(self):
@@ -42,8 +44,17 @@ class VentanaLogin(QWidget):
         exito, mensaje = self.controlador.intentar_ingresar(nombre_usuario, contrasena)
 
         if not exito:
-            QMessageBox.warning(self, "No se pudo ingresar", mensaje)
+            # El error se muestra en la misma pantalla (no solo en un cartel) y
+            # se marcan los campos en rojo, que es la retroalimentacion visual
+            # que pide la catedra.
+            self.label_error.setText(mensaje)
+            self._marcar_error(True)
+            self.lineEdit_contrasena.clear()
+            self.lineEdit_contrasena.setFocus()
             return
+
+        self.label_error.setText("")
+        self._marcar_error(False)
 
         # Login OK: abrimos la ventana principal y cerramos la de login.
         from vista.principal_ventana import VentanaPrincipal
@@ -51,3 +62,12 @@ class VentanaLogin(QWidget):
         self.ventana_principal = VentanaPrincipal()
         self.ventana_principal.show()
         self.close()
+
+    def _marcar_error(self, hay_error):
+        # Prende o apaga la property dinamica 'error' que style.css usa para
+        # pintar el borde rojo. Hay que repolish para que Qt vuelva a aplicar
+        # la hoja de estilos despues de cambiar la property.
+        for campo in (self.lineEdit_usuario, self.lineEdit_contrasena):
+            campo.setProperty("error", hay_error)
+            campo.style().unpolish(campo)
+            campo.style().polish(campo)

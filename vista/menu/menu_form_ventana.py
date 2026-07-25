@@ -42,10 +42,24 @@ class DialogoItemMenu(QDialog):
                 self.comboBox_grupo.setCurrentIndex(indice)
             if item["imagen_path"]:
                 self._mostrar_preview(RAIZ / item["imagen_path"])
+            self._mostrar_aviso_renovacion()
 
         self.pushButton_imagen.clicked.connect(self.seleccionar_imagen)
         self.pushButton_guardar.clicked.connect(self.guardar)
         self.pushButton_cancelar.clicked.connect(self.reject)
+
+    def _mostrar_aviso_renovacion(self):
+        # El enunciado pide avisar al ver los datos de un item cuando faltan 10
+        # dias o menos para que venza su precio. El calculo esta en el
+        # controlador (mismo que usa la pantalla de precios), aca solo se muestra.
+        aviso = self.controlador.aviso_renovacion(self.item_id)
+        if not aviso:
+            self.label_aviso.setText("")
+            return
+        self.label_aviso.setText("⚠ " + aviso)
+        self.label_aviso.setProperty("class", "aviso")
+        self.label_aviso.style().unpolish(self.label_aviso)
+        self.label_aviso.style().polish(self.label_aviso)
 
     def seleccionar_imagen(self):
         ruta, _ = QFileDialog.getOpenFileName(

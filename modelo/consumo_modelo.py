@@ -11,12 +11,14 @@ from modelo.conexion import abrir_conexion
 from utilidades.logger import registrar
 
 
-def listar():
+def listar(filtro_nombre=None, fecha_desde=None, fecha_hasta=None):
+    # Filtros que pide el enunciado para todos los listados: por nombre (del
+    # cliente o el codigo de mesa) y por rango de fechas del consumo.
     conexion = None
     try:
         conexion = abrir_conexion()
         cursor = conexion.cursor(dictionary=True)
-        cursor.execute(
+        sql = (
             "SELECT co.id, co.fecha, co.medio_pago, co.precio_total, "
             "c.nombre AS cliente_nombre, c.apellido AS cliente_apellido, "
             "m.codigo AS mesa_codigo, r.fecha AS reserva_fecha "
@@ -24,8 +26,21 @@ def listar():
             "JOIN reservas r ON r.id = co.reserva_id "
             "JOIN clientes c ON c.id = r.cliente_id "
             "JOIN mesas m ON m.id = r.mesa_id "
-            "ORDER BY co.fecha DESC"
+            "WHERE 1 = 1"
         )
+        parametros = []
+        if filtro_nombre:
+            sql += " AND (c.nombre LIKE %s OR c.apellido LIKE %s OR m.codigo LIKE %s)"
+            patron = f"%{filtro_nombre}%"
+            parametros += [patron, patron, patron]
+        if fecha_desde:
+            sql += " AND DATE(co.fecha) >= %s"
+            parametros.append(fecha_desde)
+        if fecha_hasta:
+            sql += " AND DATE(co.fecha) <= %s"
+            parametros.append(fecha_hasta)
+        sql += " ORDER BY co.fecha DESC"
+        cursor.execute(sql, tuple(parametros))
         return cursor.fetchall()
     except Error as error:
         registrar(error, "error")
@@ -36,7 +51,11 @@ def listar():
 
 
 def reservas_sin_consumo():
-    # Reservas que todavia no tienen un consumo cargado (para el combo de alta).
+    # Reservas a las que todavia se les puede cargar el consumo. El enunciado
+    # dice que el consumo lo hacen "las personas que asistieron a la reserva",
+    # asi que solo entran las que ya ocurrieron y en las que el cliente estuvo
+    # (asistio o llego tarde). Quedan afuera las futuras, las de hoy que siguen
+    # en espera y aquellas en las que el cliente falto.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -48,6 +67,8 @@ def reservas_sin_consumo():
             "JOIN mesas m ON m.id = r.mesa_id "
             "LEFT JOIN consumos co ON co.reserva_id = r.id "
             "WHERE co.id IS NULL "
+            "AND r.fecha <= CURDATE() "
+            "AND r.estado_asistencia IN ('asistio', 'tardanza') "
             "ORDER BY r.fecha DESC"
         )
         return cursor.fetchall()

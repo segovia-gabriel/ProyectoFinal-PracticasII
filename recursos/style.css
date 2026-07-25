@@ -38,6 +38,14 @@ QWidget {
     font-size: 11pt;
 }
 
+/* Los QLabel no llevan fondo propio: sin esto heredan el gris de la regla de
+   arriba y se ven como recuadros dentro de las tarjetas blancas y de la barra
+   lateral oscura. Los pocos labels que si necesitan fondo (el avatar, el icono
+   de marca) lo piden por objectName, que le gana a este selector. */
+QLabel {
+    background-color: transparent;
+}
+
 /* Titulo de pantalla (un QLabel con objectName label_titulo por ventana). */
 QLabel#label_titulo {
     font-size: 20pt;
@@ -55,13 +63,16 @@ QLabel#label_subtitulo {
 /* Texto de ayuda / secundario. */
 QLabel[class="ayuda"] {
     color: #64748b;
-    font-size: 10pt;
+    font-size: 11pt;
 }
 
-/* Mensajes de validacion (labels label_error_<campo>): rojo, chico. */
+/* Mensajes de validacion (labels label_error_<campo>): rojo y en negrita.
+   Van en 11pt como el resto: la catedra pide minimo 11 para los textos de
+   formulario, y un mensaje de error es justamente lo que hay que poder leer. */
 QLabel[objectName^="label_error"] {
     color: #dc2626;
-    font-size: 10pt;
+    font-size: 11pt;
+    font-weight: 600;
 }
 
 /* Aviso destacado (ej. renovacion de precio proxima): naranja y en negrita. */
@@ -105,10 +116,16 @@ QDateEdit:disabled, QTimeEdit:disabled {
     color: #94a3b8;
 }
 
-/* Flechita de los combos y spin, para que no se vean cortados. */
-QComboBox::drop-down {
+/* Flechita de los combos y de los campos de fecha/hora, para que no se vean
+   cortados ni con el marco gris que les pone Windows por defecto. */
+QComboBox::drop-down, QDateEdit::drop-down, QTimeEdit::drop-down {
     border: none;
+    background: transparent;
     width: 22px;
+}
+/* Ancho minimo para que dd/MM/yyyy entre entero y no lo tape la flecha. */
+QDateEdit, QTimeEdit {
+    min-width: 112px;
 }
 QComboBox QAbstractItemView {
     background-color: #ffffff;
@@ -116,6 +133,30 @@ QComboBox QAbstractItemView {
     selection-background-color: #2563eb;
     selection-color: #ffffff;
 }
+
+/* Botoncitos de los spin: sin borde, para que el campo se lea como una caja
+   limpia igual que los demas. */
+QSpinBox::up-button, QSpinBox::down-button,
+QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+    border: none;
+    background: transparent;
+    width: 18px;
+}
+
+/* Calendario emergente de los QDateEdit (calendarPopup). */
+QCalendarWidget QWidget { background-color: #ffffff; }
+QCalendarWidget QAbstractItemView:enabled {
+    background-color: #ffffff;
+    color: #0f172a;
+    selection-background-color: #2563eb;
+    selection-color: #ffffff;
+}
+QCalendarWidget QToolButton {
+    background-color: transparent;
+    color: #0f172a;
+    font-weight: 600;
+}
+QCalendarWidget QToolButton:hover { background-color: #e2e8f0; }
 
 /* ---------- Botones ---------- */
 /* Boton primario: uno solo por pantalla (la accion principal, ej. Guardar). */
@@ -147,6 +188,41 @@ QPushButton#pushButton_eliminar {
 }
 QPushButton#pushButton_eliminar:hover { background-color: #b91c1c; }
 
+/* ---------- Pantalla de login ---------- */
+/* Se divide en dos: a la izquierda el panel oscuro con la marca, a la derecha
+   el formulario sobre blanco. Es la primera pantalla que se ve, asi que fija el
+   tono visual del resto del sistema. */
+QWidget#widget_marca {
+    background-color: #0f172a;
+}
+QLabel#label_marcaIcono {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-radius: 12px;
+    font-size: 24pt;
+    font-weight: bold;
+}
+QLabel#label_marcaTitulo {
+    color: #f8fafc;
+    font-size: 22pt;
+    font-weight: bold;
+}
+QLabel#label_marcaTexto {
+    color: #94a3b8;
+    font-size: 11pt;
+}
+QLabel#label_pie {
+    color: #475569;
+    font-size: 10pt;
+}
+QWidget#widget_formulario {
+    background-color: #ffffff;
+}
+QLabel#label_bienvenida {
+    color: #64748b;
+    font-size: 11pt;
+}
+
 /* ---------- Menu lateral de la ventana principal ---------- */
 /* Botones de navegacion: mas planos que un boton de accion, para no competir
    con el CTA primario de cada pantalla. Se marca el panel por objectName. */
@@ -155,38 +231,225 @@ QWidget#widget_menu {
 }
 QWidget#widget_menu QPushButton {
     background-color: transparent;
-    color: #e2e8f0;
+    color: #cbd5e1;
     text-align: left;
-    padding: 10px 14px;
+    padding: 10px 12px;
     border-radius: 6px;
     font-weight: 500;
 }
-QWidget#widget_menu QPushButton:hover { background-color: #1e293b; }
-QWidget#widget_menu QPushButton:pressed { background-color: #2563eb; }
+QWidget#widget_menu QPushButton:hover {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+QWidget#widget_menu QPushButton:pressed {
+    background-color: #2563eb;
+    color: #ffffff;
+}
 QWidget#widget_menu QLabel { color: #94a3b8; }
 
-/* Tarjeta de perfil (arriba del menu): avatar circular + nombre + rol. */
+/* Marca del sistema, arriba de todo: cuadrado azul con la inicial + nombre. */
+QLabel#label_marcaIcono {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 15pt;
+    font-weight: bold;
+}
+/* Los labels sueltos de la barra llevan fondo transparente uno por uno: la
+   regla base QWidget les pone el gris claro del contenido y quedarian como
+   recuadros blancos sobre la barra oscura. Se hace por objectName y no con un
+   selector generico para no pisarle el fondo al avatar ni al icono de marca. */
+QLabel#label_marca {
+    background-color: transparent;
+    color: #f8fafc;
+    font-size: 13pt;
+    font-weight: bold;
+}
+QLabel#label_marcaSub {
+    background-color: transparent;
+    color: #64748b;
+    font-size: 10pt;
+}
+
+/* Tarjeta de perfil: recuadro apenas mas claro que la barra, con borde sutil.
+   Asi el usuario logueado se lee como una ficha y no como texto suelto. */
+QFrame#frame_perfil {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
 QLabel#label_avatar {
     background-color: #2563eb;
     color: #ffffff;
-    border-radius: 21px;   /* mitad de 42px => circulo perfecto */
+    border-radius: 20px;   /* mitad de 40px => circulo perfecto */
     font-size: 15pt;
     font-weight: bold;
 }
 QLabel#label_nombreUsuario {
+    background-color: transparent;
     color: #f8fafc;
     font-size: 12pt;
     font-weight: 600;
 }
 QLabel#label_rolUsuario {
-    color: #64748b;
-    font-size: 9pt;
+    background-color: transparent;
+    color: #94a3b8;
+    font-size: 10pt;
 }
-/* Linea separadora debajo del perfil, tenue sobre la barra oscura. */
-QWidget#widget_menu Line, QFrame#linea_perfil {
-    color: #1e293b;
-    background-color: #1e293b;
-    max-height: 1px;
+
+/* Encabezado de la lista de modulos: etiqueta chica en mayusculas. */
+QLabel#label_seccionModulos {
+    background-color: transparent;
+    color: #64748b;
+    font-size: 10pt;
+    font-weight: bold;
+    padding: 14px 12px 4px 12px;
+}
+
+/* Cerrar sesion: se distingue del resto del menu por el color, sin gritar. */
+QWidget#widget_menu QPushButton#pushButton_cerrarSesion {
+    color: #f87171;
+}
+QWidget#widget_menu QPushButton#pushButton_cerrarSesion:hover {
+    background-color: #7f1d1d;
+    color: #ffffff;
+}
+
+/* ---------- Panel principal (resumen del dia) ---------- */
+/* Fecha debajo del saludo. */
+QLabel#label_fecha {
+    color: #64748b;
+    font-size: 11pt;
+}
+
+/* Tarjetas de indicadores: fondo blanco, borde suave y una linea azul arriba
+   que las une visualmente con el resto del sistema. */
+QFrame#frame_tarjetaReservasHoy, QFrame#frame_tarjetaReservasFuturas,
+QFrame#frame_tarjetaClientes, QFrame#frame_tarjetaIngresos {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-top: 3px solid #2563eb;
+    border-radius: 8px;
+}
+/* Titulo de la tarjeta: chico, gris y en mayusculas (lo pone el .ui). */
+QLabel#label_tituloReservasHoy, QLabel#label_tituloReservasFuturas,
+QLabel#label_tituloClientes, QLabel#label_tituloIngresos {
+    color: #64748b;
+    font-size: 10pt;
+    font-weight: bold;
+}
+/* Numero grande: es el dato que se tiene que leer de un vistazo. */
+QLabel#label_valorReservasHoy, QLabel#label_valorReservasFuturas,
+QLabel#label_valorClientes, QLabel#label_valorIngresos {
+    color: #0f172a;
+    font-size: 24pt;
+    font-weight: bold;
+}
+/* Los ingresos son mas largos ($ 1.234.567,00), van un punto mas chicos para
+   que no desarmen el ancho de la tarjeta. */
+QLabel#label_valorIngresos {
+    font-size: 19pt;
+    color: #059669;   /* verde: es plata que entro */
+}
+
+/* Los dos paneles de abajo (agenda y pendientes) comparten estilo de tarjeta. */
+QFrame#frame_agenda, QFrame#frame_avisos {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+QLabel#label_subtituloAgenda, QLabel#label_subtituloAvisos {
+    font-size: 13pt;
+    font-weight: bold;
+    color: #0f172a;
+}
+/* Tabla y lista de adentro sin borde propio: ya lo pone la tarjeta. */
+QFrame#frame_agenda QTableWidget, QFrame#frame_avisos QListWidget {
+    border: none;
+}
+/* Cada pendiente se lee como una fila separada, con la barra naranja de aviso. */
+QListWidget#listWidget_avisos {
+    background-color: #ffffff;
+}
+QListWidget#listWidget_avisos::item {
+    background-color: #fffbeb;
+    border-left: 3px solid #d97706;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    color: #334155;
+}
+/* Se resaltan al pasar por arriba porque son accionables: con doble clic se
+   abre la pantalla donde se resuelve el pendiente. */
+QListWidget#listWidget_avisos::item:hover {
+    background-color: #fef3c7;
+    border-left: 3px solid #b45309;
+}
+QListWidget#listWidget_avisos::item:selected {
+    background-color: #fef3c7;
+    border-left: 3px solid #b45309;
+    color: #0f172a;
+}
+
+/* ---------- Plano del salon ---------- */
+/* Cada mesa es un QPushButton con una property dinamica 'estado'. El color dice
+   que esta pasando en esa mesa sin tener que leer el texto. El selector con
+   atributo le gana al QPushButton general porque es mas especifico. */
+QPushButton[class="mesa"] {
+    background-color: #ffffff;
+    color: #0f172a;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px;
+    font-weight: 500;
+    text-align: center;
+}
+QPushButton[class="mesa"]:hover { border-color: #94a3b8; }
+/* Mesa seleccionada: se marca con el borde grueso azul, sin perder su color. */
+QPushButton[class="mesa"]:checked { border: 3px solid #1e40af; }
+
+/* Reservada: el cliente todavia no llego. */
+QPushButton[estado="reservada"] {
+    background-color: #dbeafe;
+    border-color: #2563eb;
+    color: #1e3a8a;
+}
+/* Ocupada: el cliente esta en la mesa y falta cargarle el consumo. */
+QPushButton[estado="ocupada"] {
+    background-color: #d1fae5;
+    border-color: #059669;
+    color: #065f46;
+}
+/* Cerrada: ya tiene el consumo cargado, no hay nada mas que hacer. */
+QPushButton[estado="cerrada"] {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+    color: #475569;
+}
+/* No se presento. */
+QPushButton[estado="falto"] {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+}
+
+/* Panel de detalle de la mesa elegida, al costado del plano. */
+QFrame#frame_detalle {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+QLabel#label_subtituloDetalle {
+    font-size: 13pt;
+    font-weight: bold;
+}
+QLabel#label_mesaCodigo {
+    font-size: 24pt;
+    font-weight: bold;
+    color: #2563eb;
+}
+QLabel#label_resumen {
+    color: #64748b;
 }
 
 /* ---------- Tablas (listados de cada modulo) ---------- */
@@ -199,7 +462,8 @@ QTableWidget, QTableView {
     gridline-color: #eef2f7;
 }
 QTableWidget::item, QTableView::item {
-    padding: 4px 6px;
+    padding: 7px 8px;   /* filas mas aireadas: se leen mejor de lejos en la demo */
+    border-bottom: 1px solid #eef2f7;
 }
 QTableWidget::item:selected, QTableView::item:selected {
     background-color: #dbeafe;   /* seleccion en azul claro, texto sigue legible */
@@ -208,9 +472,25 @@ QTableWidget::item:selected, QTableView::item:selected {
 QHeaderView::section {
     background-color: #2563eb;
     color: #ffffff;
-    padding: 7px;
+    padding: 9px 8px;
     border: none;
+    border-right: 1px solid #3b74ee;   /* separa las columnas del encabezado */
     font-weight: 600;
+}
+QHeaderView::section:last { border-right: none; }
+
+/* ---------- Cuadros de dialogo (QMessageBox) ---------- */
+/* Los avisos de error y confirmacion son parte de la interfaz, asi que siguen
+   la misma paleta en vez del gris por defecto de Windows. */
+QMessageBox {
+    background-color: #ffffff;
+}
+QMessageBox QLabel {
+    color: #0f172a;
+    font-size: 11pt;
+}
+QMessageBox QPushButton {
+    min-width: 84px;
 }
 
 /* Pestanas (QTabWidget), usadas en Estadisticas. */

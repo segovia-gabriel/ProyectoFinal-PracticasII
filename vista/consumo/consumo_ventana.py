@@ -1,13 +1,15 @@
 """
-Ventana de Consumos. Listado de consumos cargados, alta de un consumo nuevo y
-vista de detalle. Al cerrarse vuelve la ventana principal.
+Ventana de Consumos. Listado con filtros (cliente o codigo de mesa y rango de
+fechas), alta de un consumo nuevo y vista de detalle. Al cerrarse vuelve la
+ventana principal.
 """
 
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtCore import QDate, Qt
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.consumo_controlador import ConsumoControlador
 from utilidades import formato
@@ -25,8 +27,15 @@ class VentanaConsumo(QMainWindow):
         self.controlador = ConsumoControlador()
 
         self.tableWidget_consumos.verticalHeader().setVisible(False)
-        self.tableWidget_consumos.horizontalHeader().setStretchLastSection(True)
+        cabecera = self.tableWidget_consumos.horizontalHeader()
+        cabecera.setSectionResizeMode(QHeaderView.ResizeToContents)
+        cabecera.setSectionResizeMode(0, QHeaderView.Stretch)   # Cliente
+        # "Hasta" arranca un ano adelante, igual que en Reservas, para que el
+        # rango por defecto no deje consumos afuera.
+        self.dateEdit_hasta.setDate(QDate.currentDate().addYears(1))
 
+        self.pushButton_buscar.clicked.connect(self.cargar_consumos)
+        self.lineEdit_filtro.returnPressed.connect(self.cargar_consumos)
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
         self.pushButton_detalle.clicked.connect(self.ver_detalle)
         self.pushButton_volver.clicked.connect(self.close)
@@ -35,7 +44,10 @@ class VentanaConsumo(QMainWindow):
         self.cargar_consumos()
 
     def cargar_consumos(self):
-        exito, resultado = self.controlador.listar()
+        filtro = self.lineEdit_filtro.text().strip() or None
+        desde = self.dateEdit_desde.date().toPyDate()
+        hasta = self.dateEdit_hasta.date().toPyDate()
+        exito, resultado = self.controlador.listar(filtro, desde, hasta)
         if not exito:
             QMessageBox.warning(self, "Error", resultado)
             return
@@ -50,7 +62,7 @@ class VentanaConsumo(QMainWindow):
             tabla.setItem(fila, 1, QTableWidgetItem(consumo["mesa_codigo"]))
             tabla.setItem(fila, 2, QTableWidgetItem(consumo["fecha"].strftime("%d/%m/%Y %H:%M")))
             tabla.setItem(fila, 3, QTableWidgetItem(formato.medio_pago(consumo["medio_pago"])))
-            tabla.setItem(fila, 4, QTableWidgetItem(f"$ {float(consumo['precio_total']):,.2f}"))
+            tabla.setItem(fila, 4, QTableWidgetItem(formato.moneda(consumo['precio_total'])))
 
     def _id_seleccionado(self):
         fila = self.tableWidget_consumos.currentRow()

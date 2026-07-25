@@ -11,11 +11,15 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 
+from utilidades import formato
+
 RUTA_UI = Path(__file__).resolve().parent / "consumo_form.ui"
 
 
 class DialogoConsumo(QDialog):
-    def __init__(self, controlador, parent=None):
+    def __init__(self, controlador, reserva_id=None, parent=None):
+        # reserva_id llega cuando se abre desde los pendientes del panel: en ese
+        # caso el combo arranca con esa reserva ya elegida.
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
 
@@ -27,10 +31,20 @@ class DialogoConsumo(QDialog):
         self.tableWidget_items.verticalHeader().setVisible(False)
         self.tableWidget_items.horizontalHeader().setStretchLastSection(True)
 
-        exito, reservas = self.controlador.listar_reservas_combo()
-        if exito:
-            for rid, texto in reservas:
-                self.comboBox_reserva.addItem(texto, rid)
+        if reserva_id is not None:
+            # Reserva fija: el dialogo se abrio para una mesa/reserva puntual. El
+            # combo se carga SOLO con esa reserva y se bloquea, para no cargarle
+            # el consumo a otra por error si la que se pidio no estuviera en la
+            # lista de "reservas sin consumo".
+            exito, texto = self.controlador.texto_reserva(reserva_id)
+            if exito:
+                self.comboBox_reserva.addItem(texto, reserva_id)
+            self.comboBox_reserva.setEnabled(False)
+        else:
+            exito, reservas = self.controlador.listar_reservas_combo()
+            if exito:
+                for rid, texto in reservas:
+                    self.comboBox_reserva.addItem(texto, rid)
         self.comboBox_medio.addItem("Efectivo", "efectivo")
         self.comboBox_medio.addItem("Transferencia", "transferencia")
         exito, items = self.controlador.listar_items_combo()
@@ -95,9 +109,9 @@ class DialogoConsumo(QDialog):
             item_cant = QTableWidgetItem(str(agregado["cantidad"]))
             item_cant.setTextAlignment(Qt.AlignCenter)
             tabla.setItem(fila, 1, item_cant)
-            tabla.setItem(fila, 2, QTableWidgetItem(f"$ {precio:,.2f}"))
-            tabla.setItem(fila, 3, QTableWidgetItem(f"$ {subtotal:,.2f}"))
-        self.label_total.setText(f"Total: $ {total:,.2f}")
+            tabla.setItem(fila, 2, QTableWidgetItem(formato.moneda(precio)))
+            tabla.setItem(fila, 3, QTableWidgetItem(formato.moneda(subtotal)))
+        self.label_total.setText(f"Total: {formato.moneda(total)}")
 
     def guardar(self):
         items = [(a["item_id"], a["cantidad"]) for a in self.items_agregados]

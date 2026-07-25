@@ -95,10 +95,18 @@ class ReservasControlador:
             if self.es_pasada(original):
                 return False, "No se puede modificar una reserva pasada (solo su estado de asistencia)."
 
-        # El horario no puede cruzar la medianoche (la mesa se libera ese dia).
+        # El horario no puede cruzar la medianoche: la reserva tiene una sola
+        # fecha y hora_inicio/hora_fin son TIME del mismo dia, asi que si
+        # terminara a las 00:00 o mas tarde, hora_fin quedaria ANTES que
+        # hora_inicio y la deteccion de superposicion dejaria de funcionar.
+        # Se compara en minutos para tener en cuenta tambien los minutos de
+        # inicio (22:30 + 2h termina 00:30, no 24:30).
         horas = _horas_de(duracion_tipo)
-        if hora_inicio.hour + horas > 24:
-            return False, "El horario elegido se pasa de la medianoche."
+        fin_en_minutos = hora_inicio.hour * 60 + hora_inicio.minute + horas * 60
+        if fin_en_minutos >= 24 * 60:
+            return False, ("El horario elegido se pasa de la medianoche. "
+                           f"Una reserva de {horas} horas tiene que empezar como "
+                           f"máximo a las {(24 - horas - 1):02d}:59.")
         hora_fin = self._hora_fin(hora_inicio, duracion_tipo)
 
         try:

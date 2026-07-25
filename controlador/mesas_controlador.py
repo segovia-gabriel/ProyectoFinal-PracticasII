@@ -83,9 +83,9 @@ class MesasControlador:
 
     # ---------------- Grupos de mesa ----------------
 
-    def listar_grupos(self):
+    def listar_grupos(self, filtro_nombre=None):
         try:
-            return True, grupo_mesa_modelo.listar()
+            return True, grupo_mesa_modelo.listar(filtro_nombre)
         except Error:
             return False, "No se pudieron cargar los grupos."
 

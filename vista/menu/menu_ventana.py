@@ -7,12 +7,14 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.menu_controlador import MenuControlador
 from vista.menu.menu_form_ventana import DialogoItemMenu
 from vista.menu.grupos_menu_ventana import VentanaGruposMenu
 from vista.menu.precios_ventana import VentanaPrecios
+from utilidades import formato
 
 RUTA_UI = Path(__file__).resolve().parent / "menu.ui"
 
@@ -25,7 +27,13 @@ class VentanaMenu(QMainWindow):
         self.controlador = MenuControlador()
 
         self.tableWidget_menu.verticalHeader().setVisible(False)
-        self.tableWidget_menu.horizontalHeader().setStretchLastSection(True)
+        # Nombre, grupo y precio se ajustan a su contenido; la descripcion, que
+        # es el texto mas largo, se queda con lo que sobra.
+        cabecera = self.tableWidget_menu.horizontalHeader()
+        cabecera.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        cabecera.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        cabecera.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        cabecera.setSectionResizeMode(3, QHeaderView.Stretch)
 
         self.pushButton_buscar.clicked.connect(self.cargar_items)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_items)
@@ -55,7 +63,7 @@ class VentanaMenu(QMainWindow):
             tabla.setItem(fila, 0, item_nombre)
             tabla.setItem(fila, 1, QTableWidgetItem(item["grupo_nombre"]))
             precio = item["precio_vigente"]
-            tabla.setItem(fila, 2, QTableWidgetItem(f"$ {precio:,.2f}" if precio is not None else "—"))
+            tabla.setItem(fila, 2, QTableWidgetItem(formato.moneda(precio)))
             tabla.setItem(fila, 3, QTableWidgetItem(item["descripcion"] or "—"))
 
     def _id_seleccionado(self):
