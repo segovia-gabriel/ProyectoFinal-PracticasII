@@ -10,6 +10,8 @@ from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
 
 from controlador.clientes_controlador import ClientesControlador
+from utilidades.dialogos import confirmar_eliminacion
+from utilidades.validaciones import validar_rango_fechas
 from vista.clientes.cliente_form_ventana import DialogoCliente
 from vista.clientes.cliente_reservas_ventana import DialogoReservasCliente
 
@@ -46,6 +48,11 @@ class VentanaClientes(QMainWindow):
         filtro_dni = self.lineEdit_filtroDni.text().strip() or None
         desde = self.dateEdit_desde.date().toPyDate()
         hasta = self.dateEdit_hasta.date().toPyDate()
+        # El "Desde" no puede quedar despues del "Hasta".
+        valido, mensaje = validar_rango_fechas(desde, hasta)
+        if not valido:
+            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            return
         exito, resultado = self.controlador.listar(filtro_nombre, filtro_dni, desde, hasta)
         if not exito:
             QMessageBox.warning(self, "Error", resultado)
@@ -62,6 +69,7 @@ class VentanaClientes(QMainWindow):
             tabla.setItem(fila, 2, QTableWidgetItem(cliente["dni"]))
             tabla.setItem(fila, 3, QTableWidgetItem(cliente["fecha_nacimiento"].strftime("%d/%m/%Y")))
             tabla.setItem(fila, 4, QTableWidgetItem(cliente["telefono"] or "—"))
+            tabla.setItem(fila, 5, QTableWidgetItem(cliente["fecha_registro"].strftime("%d/%m/%Y")))
 
     def _id_seleccionado(self):
         fila = self.tableWidget_clientes.currentRow()
@@ -94,11 +102,7 @@ class VentanaClientes(QMainWindow):
         if cliente_id is None:
             QMessageBox.warning(self, "Atención", "Seleccioná un cliente para eliminar.")
             return
-        confirmar = QMessageBox.question(
-            self, "Confirmar", "¿Seguro que querés eliminar este cliente?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
-        )
-        if confirmar != QMessageBox.Yes:
+        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este cliente?"):
             return
         exito, mensaje = self.controlador.eliminar(cliente_id)
         if exito:

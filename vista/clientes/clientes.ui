@@ -157,6 +157,11 @@
         <string>Teléfono</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Registro</string>
+       </property>
+      </column>
      </widget>
     </item>
     <item>

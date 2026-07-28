@@ -1,12 +1,12 @@
 """
 Controlador de Reservas. Calcula la hora de fin y el precio (2h = 100% del valor
 del grupo de la mesa, 3h = 125%), valida superposicion de horarios, y hace
-cumplir la regla de que las reservas pasadas no se modifican ni se eliminan
-(el estado de asistencia si se puede cambiar siempre). El precio se guarda como
-snapshot al crear la reserva.
+cumplir la regla de que las reservas pasadas no se modifican ni se eliminan, y
+que el estado de asistencia solo se cambia el mismo dia de la reserva. El precio
+se guarda como snapshot al crear la reserva.
 """
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 
 from mysql.connector import Error
@@ -17,9 +17,24 @@ from utilidades.sesion import Sesion
 
 ESTADOS = ("en_espera", "asistio", "tardanza", "falto")
 
+# Turnos de atencion del restaurante. La reserva puede EMPEZAR solo dentro de
+# estas franjas. El turno noche cruza la medianoche (19:00 a 02:00), por eso su
+# chequeo usa un OR en vez de un rango simple.
+_TURNO_MANANA = (time(10, 30), time(13, 30))
+_TURNO_NOCHE_DESDE = time(19, 0)
+_TURNO_NOCHE_HASTA = time(2, 0)
+
 
 def _horas_de(duracion_tipo):
     return 2 if duracion_tipo == "2h" else 3
+
+
+def _hora_en_turno(hora_inicio):
+    # True si la hora de inicio cae en el turno mañana (10:30–13:30) o en el
+    # turno noche (19:00–02:00, que pasa la medianoche).
+    if _TURNO_MANANA[0] <= hora_inicio <= _TURNO_MANANA[1]:
+        return True
+    return hora_inicio >= _TURNO_NOCHE_DESDE or hora_inicio <= _TURNO_NOCHE_HASTA
 
 
 class ReservasControlador:
@@ -37,9 +52,12 @@ class ReservasControlador:
             return False, "No se pudo obtener la reserva."
 
     def listar_clientes_combo(self):
+        # Se incluye el DNI en el texto para poder buscar el cliente por nombre o
+        # por DNI desde el buscador del formulario de reserva.
         try:
             clientes = cliente_modelo.listar()
-            return True, [(c["id"], f"{c['apellido']}, {c['nombre']}") for c in clientes]
+            return True, [(c["id"], f"{c['apellido']}, {c['nombre']} — DNI {c['dni']}")
+                          for c in clientes]
         except Error:
             return False, "No se pudieron cargar los clientes."
 
@@ -93,7 +111,12 @@ class ReservasControlador:
             if original is None:
                 return False, "La reserva ya no existe."
             if self.es_pasada(original):
-                return False, "No se puede modificar una reserva pasada (solo su estado de asistencia)."
+                return False, "No se puede modificar una reserva pasada."
+
+        # La reserva tiene que empezar dentro de un turno de atencion.
+        if not _hora_en_turno(hora_inicio):
+            return False, ("El horario elegido está fuera de los turnos de atención. "
+                           "Turno mañana: 10:30 a 13:30. Turno noche: 19:00 a 02:00.")
 
         # El horario no puede cruzar la medianoche: la reserva tiene una sola
         # fecha y hora_inicio/hora_fin son TIME del mismo dia, asi que si
@@ -133,9 +156,18 @@ class ReservasControlador:
             return False, "No se pudo guardar la reserva."
 
     def cambiar_estado(self, reserva_id, estado):
-        # Permitido siempre, incluso en reservas pasadas.
+        # El estado de asistencia solo se puede cambiar el mismo dia de la reserva
+        # (no en las de otros dias, sean pasadas o futuras).
         if estado not in ESTADOS:
             return False, "Estado de asistencia inválido."
+        try:
+            reserva = reserva_modelo.obtener_por_id(reserva_id)
+        except Error:
+            return False, "No se pudo verificar la reserva."
+        if reserva is None:
+            return False, "La reserva ya no existe."
+        if reserva["fecha"] != date.today():
+            return False, "Solo se puede cambiar el estado de las reservas del día de hoy."
         try:
             reserva_modelo.actualizar_estado(reserva_id, estado)
             registrar_accion(Sesion().usuario_id, f"Cambió estado de reserva #{reserva_id} a {estado}")

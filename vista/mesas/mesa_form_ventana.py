@@ -35,21 +35,31 @@ class DialogoMesa(QDialog):
             self.label_titulo.setText("Editar mesa")
             self.spinBox_numero.setValue(mesa["numero_mesa"])
             self.spinBox_sillas.setValue(mesa["numero_sillas"])
-            self.spinBox_piso.setValue(mesa["piso"])
+            indice_piso = self.comboBox_piso.findText(str(mesa["piso"]))
+            if indice_piso >= 0:
+                self.comboBox_piso.setCurrentIndex(indice_piso)
             indice = self.comboBox_grupo.findData(mesa["grupo_mesa_id"])
             if indice >= 0:
                 self.comboBox_grupo.setCurrentIndex(indice)
+        else:
+            # Alta: se sugiere el numero siguiente al ultimo cargado (queda
+            # editable por si el usuario quiere otro).
+            self.spinBox_numero.setValue(self.controlador.siguiente_numero_mesa())
 
         # El codigo se recalcula solo al cambiar piso o numero.
-        self.spinBox_piso.valueChanged.connect(self._actualizar_codigo)
+        self.comboBox_piso.currentIndexChanged.connect(self._actualizar_codigo)
         self.spinBox_numero.valueChanged.connect(self._actualizar_codigo)
         self._actualizar_codigo()
 
         self.pushButton_guardar.clicked.connect(self.guardar)
         self.pushButton_cancelar.clicked.connect(self.reject)
 
+    def _piso(self):
+        # El combo guarda el piso como texto ("0" o "1"); se usa como entero.
+        return int(self.comboBox_piso.currentText())
+
     def _actualizar_codigo(self):
-        codigo = _codigo_mesa(self.spinBox_piso.value(), self.spinBox_numero.value())
+        codigo = _codigo_mesa(self._piso(), self.spinBox_numero.value())
         self.lineEdit_codigo.setText(codigo)
 
     def guardar(self):
@@ -57,7 +67,7 @@ class DialogoMesa(QDialog):
             self.mesa_id,
             self.spinBox_numero.value(),
             self.spinBox_sillas.value(),
-            self.spinBox_piso.value(),
+            self._piso(),
             self.comboBox_grupo.currentData(),
         )
         if exito:

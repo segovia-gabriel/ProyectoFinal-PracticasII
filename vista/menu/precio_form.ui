@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>320</height>
+    <width>440</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -115,6 +115,40 @@
       <widget class="QComboBox" name="comboBox_medio">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_tieneFin">
+       <property name="text">
+        <string>Fin de vigencia</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QCheckBox" name="checkBox_fechaFin">
+       <property name="text">
+        <string>Tiene fecha de fin (si no, queda vigente indefinidamente)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_fin">
+       <property name="text">
+        <string>Vigente hasta</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QDateEdit" name="dateEdit_fin">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+       <property name="displayFormat">
+        <string>dd/MM/yyyy</string>
        </property>
       </widget>
      </item>

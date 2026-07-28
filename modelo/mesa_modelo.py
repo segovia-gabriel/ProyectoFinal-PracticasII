@@ -75,6 +75,24 @@ def existe_numero(numero_mesa, excluir_id=None):
             conexion.close()
 
 
+def maximo_numero():
+    # Mayor numero_mesa cargado, para sugerir el siguiente en el alta. Si no hay
+    # mesas todavia, MAX devuelve NULL y se traduce a 0.
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT MAX(numero_mesa) FROM mesas")
+        maximo = cursor.fetchone()[0]
+        return maximo if maximo is not None else 0
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
 def contar_reservas(mesa_id):
     # Para avisar antes de borrar una mesa que tiene reservas asociadas.
     conexion = None

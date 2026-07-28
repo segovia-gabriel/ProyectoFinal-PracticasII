@@ -1,7 +1,10 @@
 """
-Controlador de Consumo. Resuelve el precio de cada item segun el medio de pago
-(precio especial si el medio coincide, si no el de lista), arma el detalle con
-esos precios como snapshot y calcula el total. Un consumo por reserva.
+Controlador de Consumo. Maneja la cuenta de la mesa bajo el concepto de mesa
+abierta / cerrada: mientras esta abierta se le agregan o editan items, y al
+cerrarla la cuenta pasa al historial de ventas. Resuelve el precio de cada item
+segun el medio de pago (especial si el medio coincide, si no el de lista), arma
+el detalle con esos precios como snapshot y calcula el total. Un consumo por
+reserva.
 """
 
 from datetime import date
@@ -27,6 +30,21 @@ class ConsumoControlador:
             return True, consumo_modelo.obtener_detalle(consumo_id)
         except Error:
             return False, "No se pudo cargar el detalle del consumo."
+
+    def preparar_edicion(self, reserva_id):
+        # Trae el consumo de una reserva (si existe) con sus items, para precargar
+        # el dialogo. Devuelve (True, None) si la mesa todavia no tiene consumo
+        # (es una carga nueva).
+        try:
+            consumo = consumo_modelo.obtener_por_reserva(reserva_id)
+            if consumo is None:
+                return True, None
+            detalle = consumo_modelo.obtener_detalle(consumo["id"])
+        except Error:
+            return False, "No se pudo cargar el consumo de la mesa."
+        items = [{"item_id": d["menu_item_id"], "nombre": d["nombre"], "cantidad": d["cantidad"]}
+                 for d in detalle]
+        return True, {"medio_pago": consumo["medio_pago"], "estado": consumo["estado"], "items": items}
 
     def _texto_reserva(self, r):
         return f"{r['apellido']}, {r['nombre']} — {r['mesa_codigo']} — {r['fecha'].strftime('%d/%m/%Y')}"
@@ -69,9 +87,11 @@ class ConsumoControlador:
             return vigente["precio_especial"]
         return vigente["precio_lista"]
 
-    def guardar_consumo(self, reserva_id, medio_pago, items):
+    def guardar_consumo(self, reserva_id, medio_pago, items, cerrar=False):
         # items: lista de (item_id, cantidad). Se resuelve el precio de cada uno,
-        # se arma el detalle (snapshot) y se calcula el total.
+        # se arma el detalle (snapshot) y se calcula el total. Si la mesa todavia
+        # no tiene consumo se crea (abierta), y si ya lo tiene abierto se
+        # reemplaza el detalle. Con cerrar=True ademas se consolida la cuenta.
         if reserva_id is None:
             return False, "Seleccioná una reserva."
         if medio_pago not in ("efectivo", "transferencia"):
@@ -93,10 +113,14 @@ class ConsumoControlador:
         if reserva["estado_asistencia"] not in ("asistio", "tardanza"):
             return False, ("Primero marcá la asistencia del cliente en Reservas "
                            "(solo se cobra a quien asistió).")
-        # Un consumo por reserva: la base lo garantiza con un UNIQUE, pero se
-        # avisa antes para no mostrar el error generico de clave duplicada.
-        if reserva_modelo.contar_consumos(reserva_id) > 0:
-            return False, "Esa reserva ya tiene un consumo cargado."
+
+        # Si ya hay un consumo cerrado, la cuenta esta consolidada y no se toca.
+        try:
+            existente = consumo_modelo.obtener_por_reserva(reserva_id)
+        except Error:
+            return False, "No se pudo verificar el consumo."
+        if existente is not None and existente["estado"] == "cerrada":
+            return False, "Esa mesa ya tiene la cuenta cerrada; no se puede modificar."
 
         try:
             detalles = []
@@ -110,8 +134,21 @@ class ConsumoControlador:
                 detalles.append((item_id, cantidad, precio))
                 total += precio * cantidad
 
-            consumo_modelo.crear_consumo(reserva_id, medio_pago, total, detalles)
-            registrar_accion(Sesion().usuario_id, f"Cargó consumo de la reserva #{reserva_id}")
-            return True, "Consumo cargado correctamente."
+            if existente is None:
+                # Primera carga: nace abierta, o directamente cerrada si se cierra.
+                consumo_modelo.crear_consumo(
+                    reserva_id, medio_pago, total, detalles,
+                    "cerrada" if cerrar else "abierta")
+            else:
+                # Mesa ya abierta: se reemplaza el detalle con lo que hay ahora.
+                consumo_modelo.reemplazar_detalle(existente["id"], medio_pago, total, detalles)
+                if cerrar:
+                    consumo_modelo.cerrar(existente["id"])
+
+            if cerrar:
+                registrar_accion(Sesion().usuario_id, f"Cerró la cuenta de la reserva #{reserva_id}")
+                return True, "Mesa cerrada. La cuenta pasó al historial de ventas."
+            registrar_accion(Sesion().usuario_id, f"Guardó el consumo abierto de la reserva #{reserva_id}")
+            return True, "Consumo guardado. La mesa sigue abierta."
         except Error:
             return False, "No se pudo guardar el consumo."

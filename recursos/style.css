@@ -188,6 +188,14 @@ QPushButton#pushButton_eliminar {
 }
 QPushButton#pushButton_eliminar:hover { background-color: #b91c1c; }
 
+/* Boton de confirmacion de venta (ej. "Cerrar mesa"): verde, el mismo de los
+   ingresos, para que se lea como "consolidar la plata que entro" y no compita
+   con el primario azul de la pantalla. */
+QPushButton[class="exito"] {
+    background-color: #059669;
+}
+QPushButton[class="exito"]:hover { background-color: #047857; }
+
 /* ---------- Pantalla de login ---------- */
 /* Se divide en dos: a la izquierda el panel oscuro con la marca, a la derecha
    el formulario sobre blanco. Es la primera pantalla que se ve, asi que fija el

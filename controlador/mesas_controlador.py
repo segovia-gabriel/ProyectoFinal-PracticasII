@@ -33,6 +33,13 @@ class MesasControlador:
         except Error:
             return False, "No se pudo obtener la mesa."
 
+    def siguiente_numero_mesa(self):
+        # Sugerencia para el alta: uno mas que el ultimo numero de mesa cargado.
+        try:
+            return mesa_modelo.maximo_numero() + 1
+        except Error:
+            return 1
+
     def listar_grupos_combo(self):
         # Para el combo de grupo en el formulario de mesa.
         try:
@@ -46,6 +53,9 @@ class MesasControlador:
             return False, "El número de mesa debe ser mayor a cero."
         if numero_sillas <= 0:
             return False, "El número de sillas debe ser mayor a cero."
+        # El piso viene de un combo cerrado, pero se revalida por las dudas.
+        if piso not in (0, 1):
+            return False, "El piso solo puede ser 0 (planta baja) o 1 (primer piso)."
         if grupo_mesa_id is None:
             return False, "Seleccioná un grupo de mesa."
 

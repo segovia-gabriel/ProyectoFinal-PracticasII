@@ -4,6 +4,7 @@ la regla de que las reservas pasadas no se editan ni eliminan (pero su estado de
 asistencia si se puede cambiar). Al cerrarse vuelve la principal.
 """
 
+from datetime import date
 from pathlib import Path
 
 from PyQt5 import uic
@@ -13,12 +14,12 @@ from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
 
 from controlador.reservas_controlador import ReservasControlador
 from utilidades import formato
+from utilidades.dialogos import confirmar_eliminacion
+from utilidades.validaciones import validar_rango_fechas
 from vista.reservas.reserva_form_ventana import DialogoReserva
 from vista.reservas.estado_form_ventana import DialogoEstado
 
 RUTA_UI = Path(__file__).resolve().parent / "reservas.ui"
-
-_DURACION_TEXTO = {"2h": "2 horas", "3h": "3 horas"}
 
 
 class VentanaReservas(QMainWindow):
@@ -56,6 +57,10 @@ class VentanaReservas(QMainWindow):
         filtro = self.lineEdit_filtro.text().strip() or None
         desde = self.dateEdit_desde.date().toPyDate()
         hasta = self.dateEdit_hasta.date().toPyDate()
+        valido, mensaje = validar_rango_fechas(desde, hasta)
+        if not valido:
+            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            return
         exito, resultado = self.controlador.listar(filtro, desde, hasta)
         if not exito:
             QMessageBox.warning(self, "Error", resultado)
@@ -73,7 +78,7 @@ class VentanaReservas(QMainWindow):
             tabla.setItem(fila, 2, QTableWidgetItem(reserva["fecha"].strftime("%d/%m/%Y")))
             horario = f"{formato.hora(reserva['hora_inicio'])} - {formato.hora(reserva['hora_fin'])}"
             tabla.setItem(fila, 3, QTableWidgetItem(horario))
-            tabla.setItem(fila, 4, QTableWidgetItem(_DURACION_TEXTO.get(reserva["duracion_tipo"], reserva["duracion_tipo"])))
+            tabla.setItem(fila, 4, QTableWidgetItem(formato.duracion(reserva["duracion_tipo"])))
             tabla.setItem(fila, 5, QTableWidgetItem(formato.moneda(reserva['precio_mesa_aplicado'])))
             tabla.setItem(fila, 6, QTableWidgetItem(formato.estado_asistencia(reserva["estado_asistencia"])))
 
@@ -106,7 +111,7 @@ class VentanaReservas(QMainWindow):
         if self.controlador.es_pasada(reserva):
             QMessageBox.information(
                 self, "Reserva pasada",
-                "No se puede editar una reserva pasada. Usá 'Cambiar estado' para marcar la asistencia.",
+                "No se puede editar una reserva pasada, solo consultarla.",
             )
             return
         dialogo = DialogoReserva(self.controlador, reserva=reserva, parent=self)
@@ -119,11 +124,7 @@ class VentanaReservas(QMainWindow):
         if reserva_id is None:
             QMessageBox.warning(self, "Atención", "Seleccioná una reserva para eliminar.")
             return
-        confirmar = QMessageBox.question(
-            self, "Confirmar", "¿Seguro que querés eliminar esta reserva?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
-        )
-        if confirmar != QMessageBox.Yes:
+        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar esta reserva?"):
             return
         # El controlador revalida que no sea pasada ni tenga consumo.
         exito, mensaje = self.controlador.eliminar(reserva_id)
@@ -137,6 +138,13 @@ class VentanaReservas(QMainWindow):
         reserva = self._reserva_seleccionada()
         if reserva is None:
             QMessageBox.warning(self, "Atención", "Seleccioná una reserva para cambiar su estado.")
+            return
+        # El estado solo se cambia el mismo dia de la reserva.
+        if reserva["fecha"] != date.today():
+            QMessageBox.information(
+                self, "Solo el día de la reserva",
+                "El estado de asistencia solo se puede cambiar el mismo día de la reserva.",
+            )
             return
         dialogo = DialogoEstado(reserva["estado_asistencia"], parent=self)
         if dialogo.exec_() == QDialog.Accepted:

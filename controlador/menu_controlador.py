@@ -191,7 +191,8 @@ class MenuControlador:
             return f"El precio vigente vence en {dias} día(s) ({vigente['fecha_fin'].strftime('%d/%m/%Y')})."
         return None
 
-    def guardar_precio(self, item_id, precio_lista, tiene_especial, precio_especial, medio_pago_especial):
+    def guardar_precio(self, item_id, precio_lista, tiene_especial, precio_especial,
+                       medio_pago_especial, fecha_fin=None):
         if precio_lista <= 0:
             return False, "El precio de lista debe ser mayor a cero."
         if tiene_especial:
@@ -203,9 +204,15 @@ class MenuControlador:
             precio_especial = None
             medio_pago_especial = None
 
+        # El precio arranca hoy; si se define un fin de vigencia, no puede quedar
+        # antes de esa fecha de inicio.
+        hoy = date.today()
+        if fecha_fin is not None and fecha_fin < hoy:
+            return False, "La fecha de fin de vigencia no puede ser anterior a hoy."
+
         try:
             precio_menu_modelo.crear_precio(
-                item_id, precio_lista, precio_especial, medio_pago_especial, date.today()
+                item_id, precio_lista, precio_especial, medio_pago_especial, hoy, fecha_fin
             )
             item = menu_modelo.obtener_por_id(item_id)
             nombre = item["nombre"] if item else f"#{item_id}"

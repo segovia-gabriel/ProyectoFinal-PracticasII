@@ -75,7 +75,8 @@ def ingresos_del_mes():
         cursor = conexion.cursor()
         cursor.execute(
             "SELECT COALESCE(SUM(precio_total), 0) FROM consumos "
-            "WHERE YEAR(fecha) = YEAR(CURDATE()) AND MONTH(fecha) = MONTH(CURDATE())"
+            "WHERE estado = 'cerrada' "
+            "AND YEAR(fecha) = YEAR(CURDATE()) AND MONTH(fecha) = MONTH(CURDATE())"
         )
         return cursor.fetchone()[0]
     except Error as error:

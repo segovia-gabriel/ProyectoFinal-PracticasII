@@ -1,8 +1,10 @@
 """
-Formulario modal de alta de consumo. Se elige la reserva y el medio de pago, se
-agregan items con cantidad, y el precio de cada uno se resuelve segun el medio
-(especial si coincide, si no de lista). El total se recalcula solo, y tambien
-cuando se cambia el medio de pago. El calculo final lo confirma el controlador.
+Formulario modal de la cuenta de una mesa (consumo). Se elige la reserva y el
+medio de pago, se agregan items con cantidad, y el precio de cada uno se resuelve
+segun el medio (especial si coincide, si no de lista). El total se recalcula solo
+y tambien al cambiar el medio de pago. Mientras la mesa esta abierta se guarda con
+"Guardar (mesa abierta)"; "Cerrar mesa" consolida la cuenta y la manda al
+historial de ventas. El calculo final lo confirma el controlador.
 """
 
 from pathlib import Path
@@ -12,14 +14,17 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 
 from utilidades import formato
+from utilidades.dialogos import confirmar
 
 RUTA_UI = Path(__file__).resolve().parent / "consumo_form.ui"
 
 
 class DialogoConsumo(QDialog):
     def __init__(self, controlador, reserva_id=None, parent=None):
-        # reserva_id llega cuando se abre desde los pendientes del panel: en ese
-        # caso el combo arranca con esa reserva ya elegida.
+        # reserva_id llega cuando se abre para una mesa/reserva puntual (desde el
+        # salon, los pendientes del panel o al editar una mesa abierta): en ese
+        # caso el combo arranca con esa reserva ya elegida y, si la mesa ya tenia
+        # un consumo abierto, se precargan sus items para poder editarlos.
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
 
@@ -31,11 +36,13 @@ class DialogoConsumo(QDialog):
         self.tableWidget_items.verticalHeader().setVisible(False)
         self.tableWidget_items.horizontalHeader().setStretchLastSection(True)
 
+        # "Cerrar mesa" va en verde (consolida la venta); el primario azul de la
+        # pantalla queda para "Guardar (mesa abierta)".
+        self.pushButton_cerrar.setProperty("class", "exito")
+
         if reserva_id is not None:
-            # Reserva fija: el dialogo se abrio para una mesa/reserva puntual. El
-            # combo se carga SOLO con esa reserva y se bloquea, para no cargarle
-            # el consumo a otra por error si la que se pidio no estuviera en la
-            # lista de "reservas sin consumo".
+            # Reserva fija: el combo se carga SOLO con esa reserva y se bloquea,
+            # para no cargarle el consumo a otra por error.
             exito, texto = self.controlador.texto_reserva(reserva_id)
             if exito:
                 self.comboBox_reserva.addItem(texto, reserva_id)
@@ -52,12 +59,36 @@ class DialogoConsumo(QDialog):
             for iid, nombre in items:
                 self.comboBox_item.addItem(nombre, iid)
 
+        # Si la mesa ya tiene un consumo, se precarga para editarlo.
+        if reserva_id is not None:
+            self._precargar(reserva_id)
+
         self.pushButton_agregar.clicked.connect(self.agregar_item)
         self.pushButton_quitar.clicked.connect(self.quitar_item)
         # al cambiar el medio de pago, cambian los precios especiales
         self.comboBox_medio.currentIndexChanged.connect(self._refrescar_tabla)
         self.pushButton_guardar.clicked.connect(self.guardar)
+        self.pushButton_cerrar.clicked.connect(self.cerrar_mesa)
         self.pushButton_cancelar.clicked.connect(self.reject)
+
+    def _precargar(self, reserva_id):
+        exito, datos = self.controlador.preparar_edicion(reserva_id)
+        if not exito or datos is None:
+            return  # mesa sin consumo todavia: es una carga nueva
+        self.setWindowTitle("Cuenta de la mesa")
+        self.label_titulo.setText("Cuenta de la mesa (abierta)")
+        indice = self.comboBox_medio.findData(datos["medio_pago"])
+        if indice >= 0:
+            self.comboBox_medio.setCurrentIndex(indice)
+        self.items_agregados = [dict(i) for i in datos["items"]]
+        self._refrescar_tabla()
+        # Si por algun motivo la cuenta ya estaba cerrada, no se deja editar.
+        if datos["estado"] == "cerrada":
+            self.label_titulo.setText("Cuenta cerrada (solo lectura)")
+            self.pushButton_guardar.setEnabled(False)
+            self.pushButton_cerrar.setEnabled(False)
+            self.pushButton_agregar.setEnabled(False)
+            self.pushButton_quitar.setEnabled(False)
 
     def _medio(self):
         return self.comboBox_medio.currentData()
@@ -113,10 +144,27 @@ class DialogoConsumo(QDialog):
             tabla.setItem(fila, 3, QTableWidgetItem(formato.moneda(subtotal)))
         self.label_total.setText(f"Total: {formato.moneda(total)}")
 
+    def _items(self):
+        return [(a["item_id"], a["cantidad"]) for a in self.items_agregados]
+
     def guardar(self):
-        items = [(a["item_id"], a["cantidad"]) for a in self.items_agregados]
+        # Guarda la cuenta dejando la mesa abierta (se puede seguir editando).
         exito, mensaje = self.controlador.guardar_consumo(
-            self.comboBox_reserva.currentData(), self._medio(), items
+            self.comboBox_reserva.currentData(), self._medio(), self._items(), cerrar=False
+        )
+        if exito:
+            self.mensaje_exito = mensaje
+            self.accept()
+        else:
+            self.label_error.setText(mensaje)
+
+    def cerrar_mesa(self):
+        # Consolida la cuenta: pide confirmacion porque despues no se puede editar.
+        if not confirmar(self, "¿Cerrar la mesa y consolidar la cuenta? Después no se podrá editar.",
+                         titulo="Cerrar mesa", texto_si="Cerrar mesa"):
+            return
+        exito, mensaje = self.controlador.guardar_consumo(
+            self.comboBox_reserva.currentData(), self._medio(), self._items(), cerrar=True
         )
         if exito:
             self.mensaje_exito = mensaje

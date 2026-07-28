@@ -25,7 +25,7 @@ def mesas_en(fecha, hora):
             "r.id AS reserva_id, r.hora_inicio, r.hora_fin, r.duracion_tipo, "
             "r.estado_asistencia, r.precio_mesa_aplicado, "
             "c.nombre AS cliente_nombre, c.apellido AS cliente_apellido, "
-            "co.id AS consumo_id, co.precio_total, co.medio_pago "
+            "co.id AS consumo_id, co.precio_total, co.medio_pago, co.estado AS consumo_estado "
             "FROM mesas m "
             "JOIN grupos_mesa g ON g.id = m.grupo_mesa_id "
             "LEFT JOIN reservas r ON r.mesa_id = m.id AND r.fecha = %s "

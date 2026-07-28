@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
 
 from controlador.usuarios_controlador import UsuariosControlador
 from vista.usuarios.usuario_form_ventana import DialogoUsuario
+from utilidades.dialogos import confirmar_eliminacion
 
 RUTA_UI = Path(__file__).resolve().parent / "usuarios.ui"
 
@@ -98,11 +99,7 @@ class VentanaUsuarios(QMainWindow):
             QMessageBox.warning(self, "Atención", "Seleccioná un usuario para eliminar.")
             return
 
-        confirmar = QMessageBox.question(
-            self, "Confirmar", "¿Seguro que querés eliminar este usuario?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
-        )
-        if confirmar != QMessageBox.Yes:
+        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este usuario?"):
             return
 
         exito, mensaje = self.controlador.eliminar(usuario_id)

@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
 from controlador.mesas_controlador import MesasControlador
 from vista.mesas.mesa_form_ventana import DialogoMesa
 from vista.mesas.grupos_mesa_ventana import VentanaGruposMesa
+from utilidades.dialogos import confirmar_eliminacion
 
 RUTA_UI = Path(__file__).resolve().parent / "mesas.ui"
 
@@ -87,11 +88,7 @@ class VentanaMesas(QMainWindow):
         if mesa_id is None:
             QMessageBox.warning(self, "Atención", "Seleccioná una mesa para eliminar.")
             return
-        confirmar = QMessageBox.question(
-            self, "Confirmar", "¿Seguro que querés eliminar esta mesa?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
-        )
-        if confirmar != QMessageBox.Yes:
+        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar esta mesa?"):
             return
         exito, mensaje = self.controlador.eliminar_mesa(mesa_id)
         if exito:

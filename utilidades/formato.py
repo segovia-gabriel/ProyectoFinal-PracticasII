@@ -4,12 +4,22 @@ Consumo). Traducen los valores tecnicos de la base a texto lindo para la UI, en
 un solo lugar para no repetir los mismos diccionarios en cada modulo.
 """
 
-_ESTADOS = {
-    "en_espera": "En espera",
-    "asistio": "Asistió",
-    "tardanza": "Tardanza",
-    "falto": "Faltó",
-}
+# Estados de asistencia en orden (etiqueta visible, clave en la base). Es la
+# unica fuente: los combos de Reservas y del panel usan la lista, y las tablas
+# la traducen con estado_asistencia(). Antes esta lista estaba repetida en cada
+# formulario que arma el combo de estado.
+ESTADOS_ASISTENCIA = [
+    ("En espera", "en_espera"),
+    ("Asistió", "asistio"),
+    ("Tardanza", "tardanza"),
+    ("Faltó", "falto"),
+]
+_ESTADOS = {clave: etiqueta for etiqueta, clave in ESTADOS_ASISTENCIA}
+
+# Duraciones de reserva (etiqueta visible, clave en la base). Misma idea: unica
+# fuente para el combo del formulario y para mostrar la duracion en la tabla.
+DURACIONES = [("2 horas", "2h"), ("3 horas", "3h")]
+_DURACIONES = {clave: etiqueta for etiqueta, clave in DURACIONES}
 
 _MEDIOS_PAGO = {
     "efectivo": "Efectivo",
@@ -19,6 +29,10 @@ _MEDIOS_PAGO = {
 
 def estado_asistencia(clave):
     return _ESTADOS.get(clave, clave)
+
+
+def duracion(clave):
+    return _DURACIONES.get(clave, clave)
 
 
 def medio_pago(clave):

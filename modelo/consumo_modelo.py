@@ -1,8 +1,9 @@
 """
 Acceso a datos de consumos y su detalle. Un consumo por reserva (la columna
-reserva_id es UNIQUE). Al crear el consumo se guardan los precios ya resueltos
-(snapshot en precio_unitario_aplicado) para que el historial de ventas no cambie
-si despues se modifica el precio del item.
+reserva_id es UNIQUE). Un consumo arranca 'abierta' (mesa en curso, se le pueden
+agregar/editar items) y pasa a 'cerrada' cuando se consolida la cuenta. Los
+precios se guardan ya resueltos (snapshot en precio_unitario_aplicado) para que
+el historial de ventas no cambie si despues se modifica el precio del item.
 """
 
 from mysql.connector import Error
@@ -19,7 +20,7 @@ def listar(filtro_nombre=None, fecha_desde=None, fecha_hasta=None):
         conexion = abrir_conexion()
         cursor = conexion.cursor(dictionary=True)
         sql = (
-            "SELECT co.id, co.fecha, co.medio_pago, co.precio_total, "
+            "SELECT co.id, co.reserva_id, co.fecha, co.medio_pago, co.precio_total, co.estado, "
             "c.nombre AS cliente_nombre, c.apellido AS cliente_apellido, "
             "m.codigo AS mesa_codigo, r.fecha AS reserva_fecha "
             "FROM consumos co "
@@ -80,6 +81,27 @@ def reservas_sin_consumo():
             conexion.close()
 
 
+def obtener_por_reserva(reserva_id):
+    # Devuelve el consumo de una reserva (con su estado) o None si no tiene. Sirve
+    # para saber si la mesa ya esta abierta y para precargar el dialogo al editar.
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT id, reserva_id, medio_pago, precio_total, estado "
+            "FROM consumos WHERE reserva_id = %s",
+            (reserva_id,),
+        )
+        return cursor.fetchone()
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
 def obtener_detalle(consumo_id):
     # Items de un consumo, con el nombre del item, para la vista de detalle.
     conexion = None
@@ -87,7 +109,7 @@ def obtener_detalle(consumo_id):
         conexion = abrir_conexion()
         cursor = conexion.cursor(dictionary=True)
         cursor.execute(
-            "SELECT mi.nombre, cd.cantidad, cd.precio_unitario_aplicado "
+            "SELECT cd.menu_item_id, mi.nombre, cd.cantidad, cd.precio_unitario_aplicado "
             "FROM consumo_detalle cd JOIN menu_items mi ON mi.id = cd.menu_item_id "
             "WHERE cd.consumo_id = %s",
             (consumo_id,),
@@ -101,17 +123,18 @@ def obtener_detalle(consumo_id):
             conexion.close()
 
 
-def crear_consumo(reserva_id, medio_pago, precio_total, detalles):
+def crear_consumo(reserva_id, medio_pago, precio_total, detalles, estado="abierta"):
     # Inserta el consumo y sus detalles en una sola transaccion. 'detalles' es
-    # una lista de tuplas (menu_item_id, cantidad, precio_unitario_aplicado)
-    # con el precio ya resuelto por el controlador.
+    # una lista de tuplas (menu_item_id, cantidad, precio_unitario_aplicado) con
+    # el precio ya resuelto por el controlador. Por defecto la mesa nace 'abierta'.
     conexion = None
     try:
         conexion = abrir_conexion()
         cursor = conexion.cursor()
         cursor.execute(
-            "INSERT INTO consumos (reserva_id, medio_pago, precio_total) VALUES (%s, %s, %s)",
-            (reserva_id, medio_pago, precio_total),
+            "INSERT INTO consumos (reserva_id, medio_pago, precio_total, estado) "
+            "VALUES (%s, %s, %s, %s)",
+            (reserva_id, medio_pago, precio_total, estado),
         )
         consumo_id = cursor.lastrowid
         cursor.executemany(
@@ -121,6 +144,49 @@ def crear_consumo(reserva_id, medio_pago, precio_total, detalles):
         )
         conexion.commit()
         return consumo_id
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
+def reemplazar_detalle(consumo_id, medio_pago, precio_total, detalles):
+    # Reemplaza los items de un consumo abierto: borra los detalles anteriores y
+    # carga los nuevos, y actualiza el medio de pago y el total. Todo en una
+    # transaccion para que la cuenta nunca quede a medias.
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("DELETE FROM consumo_detalle WHERE consumo_id = %s", (consumo_id,))
+        cursor.executemany(
+            "INSERT INTO consumo_detalle (consumo_id, menu_item_id, cantidad, precio_unitario_aplicado) "
+            "VALUES (%s, %s, %s, %s)",
+            [(consumo_id, item_id, cantidad, precio) for (item_id, cantidad, precio) in detalles],
+        )
+        cursor.execute(
+            "UPDATE consumos SET medio_pago = %s, precio_total = %s WHERE id = %s",
+            (medio_pago, precio_total, consumo_id),
+        )
+        conexion.commit()
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
+def cerrar(consumo_id):
+    # Consolida la cuenta: la mesa pasa a 'cerrada' y recien ahi cuenta como venta.
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("UPDATE consumos SET estado = 'cerrada' WHERE id = %s", (consumo_id,))
+        conexion.commit()
     except Error as error:
         registrar(error, "error")
         raise

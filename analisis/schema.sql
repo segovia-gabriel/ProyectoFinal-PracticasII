@@ -131,6 +131,10 @@ CREATE TABLE reservas (
 
 -- ------------------------------------------------------------
 -- 10. CONSUMOS (uno por reserva)
+--    estado: 'abierta' mientras la mesa sigue consumiendo (se le pueden
+--    agregar/editar items) y 'cerrada' cuando se consolida la cuenta y pasa
+--    al historial de ventas. Solo los consumos cerrados cuentan como venta
+--    (estadisticas e ingresos).
 -- ------------------------------------------------------------
 CREATE TABLE consumos (
     id             INT AUTO_INCREMENT PRIMARY KEY,
@@ -138,6 +142,7 @@ CREATE TABLE consumos (
     fecha          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     medio_pago     ENUM('efectivo','transferencia') NOT NULL,
     precio_total   DECIMAL(10,2) NOT NULL DEFAULT 0,
+    estado         ENUM('abierta','cerrada') NOT NULL DEFAULT 'abierta',
     CONSTRAINT fk_consumo_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id)
 ) ENGINE=InnoDB;
 
@@ -3505,3 +3510,8 @@ DELETE co FROM consumos co
   WHERE r.fecha >= CURDATE();
 
 UPDATE reservas SET estado_asistencia = 'en_espera' WHERE fecha >= CURDATE();
+
+-- Todos los consumos de prueba que quedan son ventas ya ocurridas: se marcan
+-- como 'cerrada' para que cuenten en el historial y las estadisticas. Los
+-- consumos nuevos que cargue la app arrancan 'abierta' (mesa en curso).
+UPDATE consumos SET estado = 'cerrada';

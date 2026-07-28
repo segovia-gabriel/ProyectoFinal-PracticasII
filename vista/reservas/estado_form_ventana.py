@@ -8,10 +8,9 @@ from pathlib import Path
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 
-RUTA_UI = Path(__file__).resolve().parent / "estado_form.ui"
+from utilidades import formato
 
-_ESTADOS = [("En espera", "en_espera"), ("Asistió", "asistio"),
-            ("Tardanza", "tardanza"), ("Faltó", "falto")]
+RUTA_UI = Path(__file__).resolve().parent / "estado_form.ui"
 
 
 class DialogoEstado(QDialog):
@@ -19,7 +18,7 @@ class DialogoEstado(QDialog):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
 
-        for texto, valor in _ESTADOS:
+        for texto, valor in formato.ESTADOS_ASISTENCIA:
             self.comboBox_estado.addItem(texto, valor)
         indice = self.comboBox_estado.findData(estado_actual)
         if indice >= 0:

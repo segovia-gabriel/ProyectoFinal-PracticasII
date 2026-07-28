@@ -138,6 +138,11 @@
         <string>Total</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Estado</string>
+       </property>
+      </column>
      </widget>
     </item>
     <item>
@@ -148,7 +153,14 @@
       <item>
        <widget class="QPushButton" name="pushButton_nuevo">
         <property name="text">
-         <string>Nuevo consumo</string>
+         <string>Nueva mesa abierta</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_editar">
+        <property name="text">
+         <string>Editar / cerrar</string>
         </property>
        </widget>
       </item>

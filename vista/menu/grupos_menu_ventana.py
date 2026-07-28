@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
 
 from controlador.menu_controlador import MenuControlador
 from vista.menu.grupo_menu_form_ventana import DialogoGrupoMenu
+from utilidades.dialogos import confirmar_eliminacion
 
 RUTA_UI = Path(__file__).resolve().parent / "grupos_menu.ui"
 
@@ -77,11 +78,7 @@ class VentanaGruposMenu(QMainWindow):
         if grupo_id is None:
             QMessageBox.warning(self, "Atención", "Seleccioná un grupo para eliminar.")
             return
-        confirmar = QMessageBox.question(
-            self, "Confirmar", "¿Seguro que querés eliminar este grupo?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
-        )
-        if confirmar != QMessageBox.Yes:
+        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este grupo?"):
             return
         exito, mensaje = self.controlador.eliminar_grupo(grupo_id)
         if exito:

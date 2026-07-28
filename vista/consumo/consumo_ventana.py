@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
 
 from controlador.consumo_controlador import ConsumoControlador
 from utilidades import formato
+from utilidades.validaciones import validar_rango_fechas
 from vista.consumo.consumo_form_ventana import DialogoConsumo
 from vista.consumo.consumo_detalle_ventana import DialogoDetalleConsumo
 
@@ -25,6 +26,7 @@ class VentanaConsumo(QMainWindow):
         uic.loadUi(RUTA_UI, self)
 
         self.controlador = ConsumoControlador()
+        self._consumos = []   # lo ultimo listado, para resolver la fila elegida
 
         self.tableWidget_consumos.verticalHeader().setVisible(False)
         cabecera = self.tableWidget_consumos.horizontalHeader()
@@ -37,6 +39,7 @@ class VentanaConsumo(QMainWindow):
         self.pushButton_buscar.clicked.connect(self.cargar_consumos)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_consumos)
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
+        self.pushButton_editar.clicked.connect(self.editar_seleccionado)
         self.pushButton_detalle.clicked.connect(self.ver_detalle)
         self.pushButton_volver.clicked.connect(self.close)
         self.tableWidget_consumos.doubleClicked.connect(self.ver_detalle)
@@ -47,10 +50,15 @@ class VentanaConsumo(QMainWindow):
         filtro = self.lineEdit_filtro.text().strip() or None
         desde = self.dateEdit_desde.date().toPyDate()
         hasta = self.dateEdit_hasta.date().toPyDate()
+        valido, mensaje = validar_rango_fechas(desde, hasta)
+        if not valido:
+            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            return
         exito, resultado = self.controlador.listar(filtro, desde, hasta)
         if not exito:
             QMessageBox.warning(self, "Error", resultado)
             return
+        self._consumos = resultado
         tabla = self.tableWidget_consumos
         tabla.setRowCount(0)
         for fila, consumo in enumerate(resultado):
@@ -63,6 +71,8 @@ class VentanaConsumo(QMainWindow):
             tabla.setItem(fila, 2, QTableWidgetItem(consumo["fecha"].strftime("%d/%m/%Y %H:%M")))
             tabla.setItem(fila, 3, QTableWidgetItem(formato.medio_pago(consumo["medio_pago"])))
             tabla.setItem(fila, 4, QTableWidgetItem(formato.moneda(consumo['precio_total'])))
+            estado = "Abierta" if consumo["estado"] == "abierta" else "Cerrada"
+            tabla.setItem(fila, 5, QTableWidgetItem(estado))
 
     def _id_seleccionado(self):
         fila = self.tableWidget_consumos.currentRow()
@@ -70,8 +80,32 @@ class VentanaConsumo(QMainWindow):
             return None
         return self.tableWidget_consumos.item(fila, 0).data(Qt.UserRole)
 
+    def _consumo_seleccionado(self):
+        fila = self.tableWidget_consumos.currentRow()
+        if fila < 0 or fila >= len(self._consumos):
+            return None
+        return self._consumos[fila]
+
     def abrir_nuevo(self):
+        # Abre una mesa nueva: el dialogo lista las reservas cumplidas sin consumo.
         dialogo = DialogoConsumo(self.controlador, parent=self)
+        if dialogo.exec_() == QDialog.Accepted:
+            self.cargar_consumos()
+            QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
+
+    def editar_seleccionado(self):
+        # Editar o cerrar una mesa que sigue abierta. Las cerradas ya son ventas
+        # consolidadas: solo se pueden consultar (Ver detalle).
+        consumo = self._consumo_seleccionado()
+        if consumo is None:
+            QMessageBox.warning(self, "Atención", "Seleccioná una mesa abierta para editarla.")
+            return
+        if consumo["estado"] == "cerrada":
+            QMessageBox.information(
+                self, "Cuenta cerrada",
+                "Esa cuenta ya está cerrada. Solo se puede consultar con 'Ver detalle'.")
+            return
+        dialogo = DialogoConsumo(self.controlador, reserva_id=consumo["reserva_id"], parent=self)
         if dialogo.exec_() == QDialog.Accepted:
             self.cargar_consumos()
             QMessageBox.information(self, "Listo", dialogo.mensaje_exito)

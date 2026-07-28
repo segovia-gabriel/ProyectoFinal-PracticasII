@@ -41,12 +41,18 @@ class ClientesControlador:
         direccion = direccion.strip()
         telefono = telefono.strip()
 
+        # Nombre y apellido: obligatorios y sin numeros.
         for valor, etiqueta in ((nombre, "Nombre"), (apellido, "Apellido")):
-            valido, mensaje = validaciones.validar_texto_obligatorio(valor, etiqueta)
+            valido, mensaje = validaciones.validar_nombre_persona(valor, etiqueta)
             if not valido:
                 return False, mensaje
 
         valido, mensaje = validaciones.validar_dni(dni)
+        if not valido:
+            return False, mensaje
+
+        # Ningun dato del cliente es opcional: direccion y telefono obligatorios.
+        valido, mensaje = validaciones.validar_direccion(direccion)
         if not valido:
             return False, mensaje
 
@@ -63,10 +69,6 @@ class ClientesControlador:
                 return False, "Ya existe un cliente con ese DNI."
         except Error:
             return False, "No se pudo verificar el DNI."
-
-        # direccion y telefono son opcionales: si quedan vacios, se guardan como NULL.
-        direccion = direccion or None
-        telefono = telefono or None
 
         try:
             if cliente_id is None:

@@ -36,12 +36,32 @@ def validar_contrasena(contrasena):
 # ---------- Validadores de Clientes ----------
 
 def validar_texto_obligatorio(valor, etiqueta):
-    # Generico para nombre y apellido: no vacio y de largo razonable.
+    # Generico: no vacio y de largo razonable.
     valor = valor.strip()
     if not valor:
         return False, f"El campo {etiqueta} no puede estar vacío."
     if len(valor) > 50:
         return False, f"El campo {etiqueta} es demasiado largo."
+    return True, ""
+
+
+def validar_nombre_persona(valor, etiqueta):
+    # Nombre y apellido: obligatorios, sin numeros (un nombre no lleva digitos).
+    valido, mensaje = validar_texto_obligatorio(valor, etiqueta)
+    if not valido:
+        return False, mensaje
+    if any(c.isdigit() for c in valor):
+        return False, f"El campo {etiqueta} no puede contener números."
+    return True, ""
+
+
+def validar_direccion(direccion):
+    # La direccion tambien es obligatoria (ningun dato del cliente queda vacio).
+    direccion = direccion.strip()
+    if not direccion:
+        return False, "La dirección no puede estar vacía."
+    if len(direccion) > 150:
+        return False, "La dirección es demasiado larga."
     return True, ""
 
 
@@ -56,11 +76,25 @@ def validar_dni(dni):
 
 
 def validar_telefono(telefono):
-    # Es opcional; si viene, se aceptan numeros y separadores simples (- y espacio).
+    # Obligatorio. Se aceptan numeros y separadores simples (-, +, espacio) y se
+    # exige entre 6 y 20 digitos (formato telefonico razonable).
     telefono = telefono.strip()
     if not telefono:
-        return True, ""
+        return False, "El teléfono no puede estar vacío."
     permitidos = "0123456789-+ "
     if any(c not in permitidos for c in telefono):
         return False, "El teléfono solo puede tener números, espacios, + o -."
+    digitos = sum(1 for c in telefono if c.isdigit())
+    if digitos < 6 or digitos > 20:
+        return False, "El teléfono debe tener entre 6 y 20 dígitos."
+    return True, ""
+
+
+# ---------- Validador comun de filtros por rango de fechas ----------
+
+def validar_rango_fechas(fecha_desde, fecha_hasta):
+    # Usado por todos los listados con filtro Desde/Hasta: el "Desde" nunca puede
+    # quedar despues del "Hasta".
+    if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
+        return False, "La fecha 'Desde' no puede ser posterior a la fecha 'Hasta'."
     return True, ""

@@ -197,7 +197,7 @@
          <item>
           <widget class="QPushButton" name="pushButton_consumo">
            <property name="text">
-            <string>Cargar consumo</string>
+            <string>Cargar / editar consumo</string>
            </property>
           </widget>
          </item>

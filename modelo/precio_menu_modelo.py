@@ -73,9 +73,11 @@ def contar(item_id):
             conexion.close()
 
 
-def crear_precio(item_id, precio_lista, precio_especial, medio_pago_especial, fecha_inicio):
+def crear_precio(item_id, precio_lista, precio_especial, medio_pago_especial,
+                 fecha_inicio, fecha_fin=None):
     # Cierra el precio abierto y crea el nuevo, todo en la misma transaccion para
-    # que no quede el item con dos precios abiertos o con ninguno.
+    # que no quede el item con dos precios abiertos o con ninguno. fecha_fin puede
+    # venir con una fecha (vigencia acotada) o None (vigente indefinidamente).
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -90,8 +92,8 @@ def crear_precio(item_id, precio_lista, precio_especial, medio_pago_especial, fe
         cursor.execute(
             "INSERT INTO historial_precios_menu "
             "(menu_item_id, precio_lista, precio_especial, medio_pago_especial, fecha_inicio, fecha_fin) "
-            "VALUES (%s, %s, %s, %s, %s, NULL)",
-            (item_id, precio_lista, precio_especial, medio_pago_especial, fecha_inicio),
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (item_id, precio_lista, precio_especial, medio_pago_especial, fecha_inicio, fecha_fin),
         )
         conexion.commit()
     except Error as error:

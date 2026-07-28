@@ -4,19 +4,16 @@ calculan solos a partir de la mesa, la hora de inicio y la duracion (2h = 100%,
 3h = 125% del valor del grupo). El precio se guarda como snapshot al crear.
 """
 
+from datetime import date
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtCore import QDate, QTime
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtCore import QDate, Qt, QTime
+from PyQt5.QtWidgets import QComboBox, QCompleter, QDialog
 
 from utilidades import formato
 
 RUTA_UI = Path(__file__).resolve().parent / "reserva_form.ui"
-
-_DURACIONES = [("2 horas", "2h"), ("3 horas", "3h")]
-_ESTADOS = [("En espera", "en_espera"), ("Asistió", "asistio"),
-            ("Tardanza", "tardanza"), ("Faltó", "falto")]
 
 
 class DialogoReserva(QDialog):
@@ -28,18 +25,30 @@ class DialogoReserva(QDialog):
         self.reserva_id = reserva["id"] if reserva else None
         self.mensaje_exito = ""
 
+        # Aviso de turnos con el estilo de ayuda del sistema.
+        self.label_ayuda_horario.setProperty("class", "ayuda")
+
         # Combos
         exito, clientes = self.controlador.listar_clientes_combo()
         if exito:
             for cid, texto in clientes:
                 self.comboBox_cliente.addItem(texto, cid)
+        # Buscador de cliente: el combo se vuelve editable con autocompletar que
+        # filtra por cualquier parte del texto, asi se puede tipear el nombre o
+        # el DNI (el DNI va incluido en el texto de cada opcion).
+        self.comboBox_cliente.setEditable(True)
+        self.comboBox_cliente.setInsertPolicy(QComboBox.NoInsert)
+        completer = self.comboBox_cliente.completer()
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
         exito, mesas = self.controlador.listar_mesas_combo()
         if exito:
             for mid, texto in mesas:
                 self.comboBox_mesa.addItem(texto, mid)
-        for texto, valor in _DURACIONES:
+        for texto, valor in formato.DURACIONES:
             self.comboBox_duracion.addItem(texto, valor)
-        for texto, valor in _ESTADOS:
+        for texto, valor in formato.ESTADOS_ASISTENCIA:
             self.comboBox_estado.addItem(texto, valor)
 
         if reserva:
@@ -54,6 +63,8 @@ class DialogoReserva(QDialog):
             self.timeEdit_inicio.setTime(QTime(total // 3600, (total % 3600) // 60))
             self._seleccionar(self.comboBox_duracion, reserva["duracion_tipo"])
             self._seleccionar(self.comboBox_estado, reserva["estado_asistencia"])
+            # El estado solo se puede modificar el mismo dia de la reserva.
+            self.comboBox_estado.setEnabled(reserva["fecha"] == date.today())
         else:
             # Alta: la fecha arranca hoy y el estado queda en "en espera" fijo.
             self.dateEdit_fecha.setDate(QDate.currentDate())
@@ -88,6 +99,14 @@ class DialogoReserva(QDialog):
             self.lineEdit_precio.setText("—")
 
     def guardar(self):
+        # Como el combo de cliente es editable, se resuelve el texto tipeado
+        # contra la lista: si no coincide con ningun cliente, se avisa.
+        indice_cliente = self.comboBox_cliente.findText(self.comboBox_cliente.currentText())
+        if indice_cliente < 0:
+            self.label_error.setText("Elegí un cliente válido de la lista (por nombre o DNI).")
+            return
+        self.comboBox_cliente.setCurrentIndex(indice_cliente)
+
         exito, mensaje = self.controlador.guardar(
             self.reserva_id,
             self.comboBox_cliente.currentData(),

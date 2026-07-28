@@ -11,6 +11,7 @@ from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QHeaderView, QMainWindow, QMessageBox, QTableWidgetItem
 
 from controlador.historial_controlador import HistorialControlador
+from utilidades.validaciones import validar_rango_fechas
 
 RUTA_UI = Path(__file__).resolve().parent / "historial.ui"
 
@@ -52,6 +53,11 @@ class VentanaHistorial(QMainWindow):
         usuario_id = self.comboBox_usuario.currentData()   # None si es "Todos"
         fecha_desde = self.dateEdit_desde.date().toPyDate()
         fecha_hasta = self.dateEdit_hasta.date().toPyDate()
+
+        valido, mensaje = validar_rango_fechas(fecha_desde, fecha_hasta)
+        if not valido:
+            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            return
 
         exito, resultado = self.controlador.listar(usuario_id, fecha_desde, fecha_hasta)
         if not exito:

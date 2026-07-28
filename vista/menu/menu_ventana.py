@@ -14,6 +14,7 @@ from controlador.menu_controlador import MenuControlador
 from vista.menu.menu_form_ventana import DialogoItemMenu
 from vista.menu.grupos_menu_ventana import VentanaGruposMenu
 from vista.menu.precios_ventana import VentanaPrecios
+from utilidades.dialogos import confirmar_eliminacion
 from utilidades import formato
 
 RUTA_UI = Path(__file__).resolve().parent / "menu.ui"
@@ -97,11 +98,7 @@ class VentanaMenu(QMainWindow):
         if item_id is None:
             QMessageBox.warning(self, "Atención", "Seleccioná un ítem para eliminar.")
             return
-        confirmar = QMessageBox.question(
-            self, "Confirmar", "¿Seguro que querés eliminar este ítem?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
-        )
-        if confirmar != QMessageBox.Yes:
+        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este ítem?"):
             return
         exito, mensaje = self.controlador.eliminar_item(item_id)
         if exito:

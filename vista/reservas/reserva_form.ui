@@ -156,6 +156,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="label_ayuda_horario">
+     <property name="text">
+      <string>Turnos de atención: mañana 10:30 a 13:30 · noche 19:00 a 02:00.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label_error">
      <property name="text">
       <string/>

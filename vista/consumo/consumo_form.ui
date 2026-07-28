@@ -205,7 +205,14 @@
      <item>
       <widget class="QPushButton" name="pushButton_guardar">
        <property name="text">
-        <string>Guardar</string>
+        <string>Guardar (mesa abierta)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_cerrar">
+       <property name="text">
+        <string>Cerrar mesa</string>
        </property>
       </widget>
      </item>

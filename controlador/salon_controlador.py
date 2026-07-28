@@ -23,8 +23,8 @@ FALTO = "falto"
 ETIQUETAS = {
     LIBRE: "Libre",
     RESERVADA: "Reservada",
-    OCUPADA: "Ocupada",
-    CERRADA: "Consumo cargado",
+    OCUPADA: "Mesa abierta",
+    CERRADA: "Cuenta cerrada",
     FALTO: "No se presentó",
 }
 
@@ -54,6 +54,7 @@ class SalonControlador:
             "grupo_valor": float(fila["grupo_valor"]),
             "reserva_id": fila["reserva_id"],
             "consumo_id": fila["consumo_id"],
+            "consumo_estado": fila["consumo_estado"],
             "estado_reserva": fila["estado_asistencia"],
         }
 
@@ -71,13 +72,19 @@ class SalonControlador:
         if fila["estado_asistencia"] == "falto":
             mesa["estado"] = FALTO
             mesa["detalle"] = "El cliente no se presentó."
-        elif fila["consumo_id"] is not None:
+        elif fila["consumo_id"] is not None and fila["consumo_estado"] == "cerrada":
             mesa["estado"] = CERRADA
-            mesa["detalle"] = (f"Total {formato.moneda(fila['precio_total'])} en "
+            mesa["detalle"] = (f"Cuenta cerrada: {formato.moneda(fila['precio_total'])} en "
                                f"{formato.medio_pago(fila['medio_pago']).lower()}.")
         elif fila["estado_asistencia"] in ("asistio", "tardanza"):
+            # Mesa abierta: el cliente esta y la cuenta esta en curso. Si ya tiene
+            # un consumo abierto, se muestra el total que lleva.
             mesa["estado"] = OCUPADA
-            mesa["detalle"] = "El cliente está en la mesa. Falta cargar el consumo."
+            if fila["consumo_id"] is not None:
+                mesa["detalle"] = (f"Mesa abierta. Lleva {formato.moneda(fila['precio_total'])}. "
+                                   "Se pueden agregar ítems o cerrar la cuenta.")
+            else:
+                mesa["detalle"] = "El cliente está en la mesa. Cargá el consumo."
         else:
             mesa["estado"] = RESERVADA
             mesa["detalle"] = "Reservada, todavía no llegó el cliente."

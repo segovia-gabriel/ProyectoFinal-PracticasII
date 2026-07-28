@@ -41,8 +41,8 @@ class VentanaSalon(QMainWindow):
         self.label_fecha.setText(self._texto_fecha())
         self.label_referencias.setProperty("class", "ayuda")
         self.label_referencias.setText(
-            "Blanco: libre   ·   Azul: reservada   ·   Verde: cliente en la mesa   ·   "
-            "Gris: consumo cargado   ·   Rojo: no se presentó")
+            "Blanco: libre   ·   Azul: reservada   ·   Verde: mesa abierta   ·   "
+            "Gris: cuenta cerrada   ·   Rojo: no se presentó")
 
         self.timeEdit_hora.setTime(QTime.currentTime())
         self._cargar_horarios_sugeridos()

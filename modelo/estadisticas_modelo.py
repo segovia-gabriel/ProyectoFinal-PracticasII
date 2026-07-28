@@ -99,7 +99,8 @@ def ingresos_por_dia_semana(anio, mes):
         cursor = conexion.cursor(dictionary=True)
         cursor.execute(
             "SELECT DAYNAME(c.fecha) AS dia, SUM(c.precio_total) AS ingreso "
-            "FROM consumos c WHERE YEAR(c.fecha) = %s AND MONTH(c.fecha) = %s "
+            "FROM consumos c "
+            "WHERE c.estado = 'cerrada' AND YEAR(c.fecha) = %s AND MONTH(c.fecha) = %s "
             "GROUP BY dia",
             (anio, mes),
         )
@@ -124,7 +125,7 @@ def items_por_dia_semana(anio, mes):
             "FROM consumo_detalle cd "
             "JOIN consumos c ON c.id = cd.consumo_id "
             "JOIN menu_items mi ON mi.id = cd.menu_item_id "
-            "WHERE YEAR(c.fecha) = %s AND MONTH(c.fecha) = %s "
+            "WHERE c.estado = 'cerrada' AND YEAR(c.fecha) = %s AND MONTH(c.fecha) = %s "
             "GROUP BY dia, mi.id ORDER BY dia, total DESC",
             (anio, mes),
         )

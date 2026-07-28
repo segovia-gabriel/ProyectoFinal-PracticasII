@@ -6,6 +6,7 @@ medio de pago solo se habilitan si se tilda el checkbox correspondiente.
 from pathlib import Path
 
 from PyQt5 import uic
+from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QDialog
 
 RUTA_UI = Path(__file__).resolve().parent / "precio_form.ui"
@@ -27,6 +28,12 @@ class DialogoPrecio(QDialog):
         # Habilitar los campos del especial solo si se tilda el checkbox.
         self.checkBox_especial.toggled.connect(self._alternar_especial)
 
+        # Fecha de fin de vigencia: opcional. El precio arranca hoy, asi que el
+        # fin no puede ser anterior a hoy; por defecto se sugiere dentro de un mes.
+        self.dateEdit_fin.setMinimumDate(QDate.currentDate())
+        self.dateEdit_fin.setDate(QDate.currentDate().addDays(30))
+        self.checkBox_fechaFin.toggled.connect(self.dateEdit_fin.setEnabled)
+
         self.pushButton_guardar.clicked.connect(self.guardar)
         self.pushButton_cancelar.clicked.connect(self.reject)
 
@@ -36,12 +43,15 @@ class DialogoPrecio(QDialog):
 
     def guardar(self):
         tiene_especial = self.checkBox_especial.isChecked()
+        # Si no se tilda "tiene fecha de fin", se manda None = vigente indefinido.
+        fecha_fin = self.dateEdit_fin.date().toPyDate() if self.checkBox_fechaFin.isChecked() else None
         exito, mensaje = self.controlador.guardar_precio(
             self.item_id,
             self.doubleSpinBox_lista.value(),
             tiene_especial,
             self.doubleSpinBox_especial.value(),
             self.comboBox_medio.currentData() if tiene_especial else None,
+            fecha_fin,
         )
         if exito:
             self.mensaje_exito = mensaje
