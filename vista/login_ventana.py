@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QWidget, QMessageBox
+from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication
 
 from controlador.login_controlador import LoginControlador
 from utilidades.logger import registrar
@@ -28,6 +28,12 @@ class VentanaLogin(QWidget):
             QMessageBox.critical(self, "Error", "No se encontró la pantalla de login.")
             sys.exit(1)
 
+        # Login de tamano fijo: no se agranda, no se redimensiona y el boton de
+        # maximizar queda inhabilitado. setFixedSize alcanza en las tres plataformas
+        # (el .ui ya trae min == max, esto lo refuerza y lo deja claro en codigo).
+        self.setFixedSize(420, 420)
+        self._centrar_en_pantalla()
+
         self.controlador = LoginControlador()
         self.label_error.setText("")
 
@@ -36,6 +42,15 @@ class VentanaLogin(QWidget):
         # Enter en el usuario pasa a la contrasena y Enter ahi envia el formulario.
         self.lineEdit_usuario.returnPressed.connect(self.lineEdit_contrasena.setFocus)
         self.lineEdit_contrasena.returnPressed.connect(self.ingresar)
+
+    def _centrar_en_pantalla(self):
+        # Centra la ventana chica en la pantalla disponible (descuenta el Dock y
+        # la barra de menu en Mac). Se hace por codigo porque el .ui no puede
+        # centrar respecto de la pantalla, solo respecto de un padre.
+        pantalla = QApplication.primaryScreen().availableGeometry()
+        geometria = self.frameGeometry()
+        geometria.moveCenter(pantalla.center())
+        self.move(geometria.topLeft())
 
     def ingresar(self):
         nombre_usuario = self.lineEdit_usuario.text().strip()
@@ -59,8 +74,11 @@ class VentanaLogin(QWidget):
         # Login OK: abrimos la ventana principal y cerramos la de login.
         from vista.principal_ventana import VentanaPrincipal
 
+        # showMaximized (no show): la ventana de trabajo ocupa toda la pantalla
+        # pero sigue siendo ventana (mantiene barra de titulo y bordes). El login
+        # queda chico y centrado.
         self.ventana_principal = VentanaPrincipal()
-        self.ventana_principal.show()
+        self.ventana_principal.showMaximized()
         self.close()
 
     def _marcar_error(self, hay_error):

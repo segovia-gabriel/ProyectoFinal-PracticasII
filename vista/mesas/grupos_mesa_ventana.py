@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QHeaderView, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableWidgetItem
 
 from controlador.mesas_controlador import MesasControlador
 from vista.mesas.grupo_mesa_form_ventana import DialogoGrupoMesa
@@ -17,7 +17,7 @@ from utilidades import formato
 RUTA_UI = Path(__file__).resolve().parent / "grupos_mesa.ui"
 
 
-class VentanaGruposMesa(QMainWindow):
+class VentanaGruposMesa(QDialog):
     def __init__(self, controlador=None, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -98,7 +98,3 @@ class VentanaGruposMesa(QMainWindow):
         else:
             QMessageBox.warning(self, "No se pudo eliminar", mensaje)
 
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

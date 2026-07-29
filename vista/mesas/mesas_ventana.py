@@ -7,7 +7,8 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QWidget, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.mesas_controlador import MesasControlador
 from vista.mesas.mesa_form_ventana import DialogoMesa
@@ -17,7 +18,7 @@ from utilidades.dialogos import confirmar_eliminacion
 RUTA_UI = Path(__file__).resolve().parent / "mesas.ui"
 
 
-class VentanaMesas(QMainWindow):
+class VentanaMesas(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -25,7 +26,8 @@ class VentanaMesas(QMainWindow):
         self.controlador = MesasControlador()
 
         self.tableWidget_mesas.verticalHeader().setVisible(False)
-        self.tableWidget_mesas.horizontalHeader().setStretchLastSection(True)
+        # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
+        self.tableWidget_mesas.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.pushButton_buscar.clicked.connect(self.cargar_mesas)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_mesas)
@@ -33,7 +35,6 @@ class VentanaMesas(QMainWindow):
         self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionado)
         self.pushButton_grupos.clicked.connect(self.abrir_grupos)
-        self.pushButton_volver.clicked.connect(self.close)
         self.tableWidget_mesas.doubleClicked.connect(self.abrir_editar)
 
         self.cargar_mesas()
@@ -98,12 +99,5 @@ class VentanaMesas(QMainWindow):
             QMessageBox.warning(self, "No se pudo eliminar", mensaje)
 
     def abrir_grupos(self):
-        # Sub-pantalla: escondo Mesas y muestro Grupos; al cerrarse vuelve Mesas.
-        self.hide()
-        self.ventana_grupos = VentanaGruposMesa(self.controlador, self)
-        self.ventana_grupos.show()
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()
+        # Sub-pantalla como dialogo modal encima de la ventana unica.
+        VentanaGruposMesa(self.controlador, self).exec_()

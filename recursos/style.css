@@ -197,38 +197,18 @@ QPushButton[class="exito"] {
 QPushButton[class="exito"]:hover { background-color: #047857; }
 
 /* ---------- Pantalla de login ---------- */
-/* Se divide en dos: a la izquierda el panel oscuro con la marca, a la derecha
-   el formulario sobre blanco. Es la primera pantalla que se ve, asi que fija el
-   tono visual del resto del sistema. */
-QWidget#widget_marca {
-    background-color: #0f172a;
-}
-QLabel#label_marcaIcono {
-    background-color: #2563eb;
-    color: #ffffff;
-    border-radius: 12px;
-    font-size: 24pt;
-    font-weight: bold;
-}
-QLabel#label_marcaTitulo {
-    color: #f8fafc;
-    font-size: 22pt;
-    font-weight: bold;
-}
-QLabel#label_marcaTexto {
-    color: #94a3b8;
-    font-size: 11pt;
-}
-QLabel#label_pie {
-    color: #475569;
-    font-size: 10pt;
-}
-QWidget#widget_formulario {
+/* Login simple de una sola columna, centrado en una ventana chica de tamano
+   fijo. Fondo blanco (en vez del gris de las demas ventanas) para que se lea
+   como una tarjeta limpia, que es la primera pantalla que ve el usuario. */
+QWidget#VentanaLogin {
     background-color: #ffffff;
 }
-QLabel#label_bienvenida {
-    color: #64748b;
-    font-size: 11pt;
+/* Nombre del sistema arriba del titulo. Es un encabezado discreto, no el titulo
+   grande: por eso va mas chico que label_titulo y en gris oscuro. */
+QLabel#label_marcaTitulo {
+    color: #0f172a;
+    font-size: 13pt;
+    font-weight: 600;
 }
 
 /* ---------- Menu lateral de la ventana principal ---------- */
@@ -253,16 +233,24 @@ QWidget#widget_menu QPushButton:pressed {
     background-color: #2563eb;
     color: #ffffff;
 }
-QWidget#widget_menu QLabel { color: #94a3b8; }
-
-/* Marca del sistema, arriba de todo: cuadrado azul con la inicial + nombre. */
-QLabel#label_marcaIcono {
+/* Modulo activo: queda pintado de azul para mostrar en que pantalla estamos.
+   Los botones del navbar son checkable y viven en un grupo exclusivo, asi solo
+   uno queda marcado a la vez. El :checked:hover repite el azul para que no se
+   apague al pasar el mouse por encima del modulo activo. */
+QWidget#widget_menu QPushButton:checked,
+QWidget#widget_menu QPushButton:checked:hover {
     background-color: #2563eb;
     color: #ffffff;
-    border-radius: 8px;
-    font-size: 15pt;
-    font-weight: bold;
 }
+QWidget#widget_menu QLabel { color: #94a3b8; }
+
+/* Separador fino entre la lista de modulos y el pie (usuario + cerrar sesion). */
+QFrame#separador_pie {
+    background-color: #1e293b;
+    border: none;
+}
+
+/* Marca del sistema, arriba de todo: solo el nombre, sin icono. */
 /* Los labels sueltos de la barra llevan fondo transparente uno por uno: la
    regla base QWidget les pone el gris claro del contenido y quedarian como
    recuadros blancos sobre la barra oscura. Se hace por objectName y no con un
@@ -279,20 +267,7 @@ QLabel#label_marcaSub {
     font-size: 10pt;
 }
 
-/* Tarjeta de perfil: recuadro apenas mas claro que la barra, con borde sutil.
-   Asi el usuario logueado se lee como una ficha y no como texto suelto. */
-QFrame#frame_perfil {
-    background-color: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
-}
-QLabel#label_avatar {
-    background-color: #2563eb;
-    color: #ffffff;
-    border-radius: 20px;   /* mitad de 40px => circulo perfecto */
-    font-size: 15pt;
-    font-weight: bold;
-}
+/* Usuario logueado, al pie del navbar: texto simple (nombre + rol), sin avatar. */
 QLabel#label_nombreUsuario {
     background-color: transparent;
     color: #f8fafc;

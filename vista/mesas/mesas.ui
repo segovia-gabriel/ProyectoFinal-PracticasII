@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>VentanaMesas</class>
- <widget class="QMainWindow" name="VentanaMesas">
+ <widget class="QWidget" name="VentanaMesas">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,7 +13,6 @@
   <property name="windowTitle">
    <string>Mesas</string>
   </property>
-  <widget class="QWidget" name="widget_central">
    <layout class="QVBoxLayout" name="layout_principal">
     <property name="spacing">
      <number>12</number>
@@ -145,17 +144,9 @@
         </property>
        </spacer>
       </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_volver">
-        <property name="text">
-         <string>Volver</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>
-  </widget>
  </widget>
  <resources/>
  <connections/>

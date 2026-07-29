@@ -177,10 +177,11 @@ CREATE TABLE consumo_detalle (
 -- ============================================================
 
 -- Usuarios (contrasenas en texto plano de referencia, ya hasheadas con bcrypt abajo)
--- gsegovia / Admin123!      -- mmacko / Mijail2026!
+-- gsegovia / Admin123!      -- mmacko / Mijail2026!      -- admin / admin (usuario de prueba)
 INSERT INTO usuarios (nombre_usuario, contrasena_hash, fecha_creacion, fecha_modificacion, fecha_ultimo_acceso) VALUES
 ('gsegovia', '$2b$12$2Rlx/vrLaxzP2qRgBYZlm..nYJpeXhWxGPIkNNxLG4FX.2zWiG9BG', '2026-03-02 09:00:00', '2026-06-14 11:20:00', NOW() - INTERVAL 1 DAY),
-('mmacko',   '$2b$12$lDsTLyC.ZoKM.hmYljnItuDysUVtvcf./XBWbOTMdLZCsME9q7mjG', '2026-03-02 09:05:00', NULL, NOW() - INTERVAL 2 DAY);
+('mmacko',   '$2b$12$lDsTLyC.ZoKM.hmYljnItuDysUVtvcf./XBWbOTMdLZCsME9q7mjG', '2026-03-02 09:05:00', NULL, NOW() - INTERVAL 2 DAY),
+('admin',    '$2b$12$ElUtZYlp/D/8hz88L42KguRrK8kcPxdPNsY40266aLykaXvmjUvKW', '2026-03-02 09:10:00', NULL, NULL);
 
 -- Clientes
 INSERT INTO clientes (nombre, apellido, dni, fecha_nacimiento, direccion, telefono, fecha_registro) VALUES

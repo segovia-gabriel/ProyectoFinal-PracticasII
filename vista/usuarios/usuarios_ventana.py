@@ -8,7 +8,8 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QWidget, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.usuarios_controlador import UsuariosControlador
 from vista.usuarios.usuario_form_ventana import DialogoUsuario
@@ -17,7 +18,7 @@ from utilidades.dialogos import confirmar_eliminacion
 RUTA_UI = Path(__file__).resolve().parent / "usuarios.ui"
 
 
-class VentanaUsuarios(QMainWindow):
+class VentanaUsuarios(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -25,16 +26,16 @@ class VentanaUsuarios(QMainWindow):
         self.controlador = UsuariosControlador()
 
         # La numeracion de filas de la izquierda no aporta y compite con el
-        # encabezado; la ocultamos. La ultima columna estira para llenar el ancho.
+        # encabezado; la ocultamos. Todas las columnas reparten el ancho por
+        # igual, asi no queda una gigante con la ventana maximizada.
         self.tableWidget_usuarios.verticalHeader().setVisible(False)
-        self.tableWidget_usuarios.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget_usuarios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.pushButton_buscar.clicked.connect(self.cargar_usuarios)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_usuarios)
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
         self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionado)
-        self.pushButton_volver.clicked.connect(self.close)
         # Doble clic en una fila abre la edicion, es lo que uno espera de una tabla.
         self.tableWidget_usuarios.doubleClicked.connect(self.abrir_editar)
 
@@ -58,7 +59,6 @@ class VentanaUsuarios(QMainWindow):
             tabla.setItem(fila, 1, QTableWidgetItem(self._fecha(usuario["fecha_creacion"])))
             tabla.setItem(fila, 2, QTableWidgetItem(self._fecha(usuario["fecha_modificacion"])))
             tabla.setItem(fila, 3, QTableWidgetItem(self._fecha(usuario["fecha_ultimo_acceso"])))
-        tabla.resizeColumnsToContents()
 
     def _fecha(self, valor):
         # Las fechas opcionales (modificacion, ultimo acceso) pueden venir None.
@@ -108,9 +108,3 @@ class VentanaUsuarios(QMainWindow):
             self.cargar_usuarios()
         else:
             QMessageBox.warning(self, "No se pudo eliminar", mensaje)
-
-    def closeEvent(self, evento):
-        # Al cerrar el modulo, vuelve la ventana principal (patron del profesor).
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

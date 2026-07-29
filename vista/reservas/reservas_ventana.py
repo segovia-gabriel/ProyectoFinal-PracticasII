@@ -9,7 +9,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import QDate, Qt
-from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QWidget, QMessageBox,
                              QTableWidgetItem)
 
 from controlador.reservas_controlador import ReservasControlador
@@ -22,7 +22,7 @@ from vista.reservas.estado_form_ventana import DialogoEstado
 RUTA_UI = Path(__file__).resolve().parent / "reservas.ui"
 
 
-class VentanaReservas(QMainWindow):
+class VentanaReservas(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -32,9 +32,8 @@ class VentanaReservas(QMainWindow):
         self.tableWidget_reservas.verticalHeader().setVisible(False)
         # El cliente se queda con el ancho sobrante y el resto de las columnas
         # se ajusta a su contenido, asi no aparece scroll horizontal.
-        cabecera = self.tableWidget_reservas.horizontalHeader()
-        cabecera.setSectionResizeMode(QHeaderView.ResizeToContents)
-        cabecera.setSectionResizeMode(0, QHeaderView.Stretch)
+        # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
+        self.tableWidget_reservas.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # Al entrar se muestra la semana de trabajo: de ayer a 7 dias adelante.
         # Ayer entra a proposito, porque es la reserva que todavia puede faltar
         # marcarle la asistencia. Para ver el historial completo se corre el
@@ -48,7 +47,6 @@ class VentanaReservas(QMainWindow):
         self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionada)
         self.pushButton_estado.clicked.connect(self.cambiar_estado)
-        self.pushButton_volver.clicked.connect(self.close)
         self.tableWidget_reservas.doubleClicked.connect(self.abrir_editar)
 
         self.cargar_reservas()
@@ -154,8 +152,3 @@ class VentanaReservas(QMainWindow):
                 self.cargar_reservas()
             else:
                 QMessageBox.warning(self, "Error", mensaje)
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

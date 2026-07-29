@@ -1,8 +1,9 @@
 """
-Ventana principal. Arriba de todo muestra un panel con el resumen del dia
-(reservas de hoy, pendientes, ingresos del mes) para que al iniciar sesion la
-pantalla diga algo util, y a la izquierda el menu que abre cada modulo en su
-propia ventana (patron del profesor: se esconde y vuelve al cerrar el modulo).
+Ventana principal (unica ventana de trabajo). A la izquierda el menu y a la
+derecha un QStackedWidget: la pagina de inicio muestra el panel con el resumen
+del dia (reservas de hoy, pendientes, ingresos del mes) y cada modulo se muestra
+como otra pagina del stack, sin abrir ventanas nuevas. El menu cambia de pagina:
+el boton "Inicio" trae de vuelta el panel de resumen.
 Tambien maneja el cierre de sesion, que vuelve al login.
 """
 
@@ -11,8 +12,9 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QDialog, QHeaderView, QListWidgetItem, QMainWindow,
-                             QMessageBox, QTableWidgetItem)
+from PyQt5.QtWidgets import (QButtonGroup, QDialog, QHeaderView, QListWidgetItem,
+                             QMainWindow, QMessageBox, QStackedWidget,
+                             QTableWidgetItem)
 
 from controlador.panel_controlador import PanelControlador
 from controlador.reservas_controlador import ReservasControlador
@@ -37,10 +39,19 @@ class VentanaPrincipal(QMainWindow):
         # se usa para cambiar la asistencia desde la agenda del panel
         self.reservas_controlador = ReservasControlador()
 
-        # Tarjeta de perfil arriba del menu: nombre + inicial en el avatar.
-        nombre = Sesion().nombre_usuario or ""
-        self.label_nombreUsuario.setText(nombre)
-        self.label_avatar.setText(nombre[:1].upper() if nombre else "?")
+        # El area de contenido pasa a ser un QStackedWidget: el panel de inicio
+        # es la pagina 0 y cada modulo se muestra como una pagina mas, todo
+        # dentro de esta misma ventana (el navbar cambia de pagina, no abre
+        # ventanas nuevas).
+        layout_central = self.widget_central.layout()
+        layout_central.removeWidget(self.widget_contenido)
+        self.stack_contenido = QStackedWidget()
+        self.stack_contenido.addWidget(self.widget_contenido)  # pagina 0: inicio
+        layout_central.addWidget(self.stack_contenido)
+        self._modulo_actual = None  # modulo visible ahora (fuera del inicio)
+
+        # Usuario logueado al pie del navbar: solo el nombre (el rol es fijo en el .ui).
+        self.label_nombreUsuario.setText(Sesion().nombre_usuario or "")
 
         # Las cuatro columnas se reparten el ancho en partes iguales: si solo
         # estirara la del cliente, con la ventana maximizada quedaba un hueco
@@ -57,7 +68,9 @@ class VentanaPrincipal(QMainWindow):
         self.listWidget_avisos.setToolTip(
             "Doble clic en un pendiente para resolverlo.")
 
-        # Cada boton abre su modulo en su propia ventana (patron del profesor).
+        # El navbar cambia la pagina del stack: "Inicio" vuelve al panel de
+        # resumen y cada modulo se muestra como su propia pagina.
+        self.pushButton_inicio.clicked.connect(self.ir_al_inicio)
         self.pushButton_salon.clicked.connect(self.abrir_salon)
         self.pushButton_usuarios.clicked.connect(self.abrir_usuarios)
         self.pushButton_historial.clicked.connect(self.abrir_historial)
@@ -67,6 +80,20 @@ class VentanaPrincipal(QMainWindow):
         self.pushButton_reservas.clicked.connect(self.abrir_reservas)
         self.pushButton_consumo.clicked.connect(self.abrir_consumo)
         self.pushButton_estadisticas.clicked.connect(self.abrir_estadisticas)
+
+        # Grupo exclusivo del navbar: hace que un solo boton quede marcado
+        # (checked) a la vez. El CSS pinta de azul el :checked, asi se ve en que
+        # modulo estamos. Arranca marcado "Inicio", que es la pagina que se muestra.
+        self._grupo_navbar = QButtonGroup(self)
+        self._grupo_navbar.setExclusive(True)
+        for boton in (self.pushButton_inicio, self.pushButton_salon,
+                      self.pushButton_reservas, self.pushButton_consumo,
+                      self.pushButton_clientes, self.pushButton_mesas,
+                      self.pushButton_menu, self.pushButton_estadisticas,
+                      self.pushButton_usuarios, self.pushButton_historial):
+            boton.setCheckable(True)
+            self._grupo_navbar.addButton(boton)
+        self.pushButton_inicio.setChecked(True)
 
         # Doble clic para resolver desde el panel, sin entrar al modulo:
         # en la agenda cambia el estado de asistencia, en los pendientes abre
@@ -193,67 +220,69 @@ class VentanaPrincipal(QMainWindow):
         if not exito or item is None:
             QMessageBox.warning(self, "Error", "No se pudo abrir el ítem de menú.")
             return
-        self._abrir_modulo(VentanaPrecios(item, controlador, self))
+        VentanaPrecios(item, controlador, self).exec_()  # ahora es un dialogo modal
+        self.cargar_panel()  # el aviso de renovacion pudo resolverse
 
     # ---------- Navegacion ----------
+    # Todo pasa dentro de la misma ventana: cada modulo se muestra como una
+    # pagina del QStackedWidget en vez de abrir una ventana nueva.
 
-    def _abrir_modulo(self, ventana_modulo):
-        # Patron del profesor: escondo la principal y muestro la del modulo;
-        # al cerrarse esa ventana, su closeEvent vuelve a mostrar esta.
-        self.hide()
-        self.ventana_modulo = ventana_modulo   # se guarda para que no la borre el GC
-        self.ventana_modulo.show()
+    def _mostrar_modulo(self, fabrica):
+        # Crea el modulo fresco (datos al dia) y descarta el anterior, para no
+        # acumular widgets ni mostrar datos viejos. Fuera del inicio vive uno solo.
+        if self._modulo_actual is not None:
+            self.stack_contenido.removeWidget(self._modulo_actual)
+            self._modulo_actual.deleteLater()
+        modulo = fabrica()
+        self._modulo_actual = modulo
+        self.stack_contenido.addWidget(modulo)
+        self.stack_contenido.setCurrentWidget(modulo)
+
+    def ir_al_inicio(self):
+        # El boton "Inicio" del navbar trae de vuelta el panel de resumen.
+        self.stack_contenido.setCurrentWidget(self.widget_contenido)
+        self.cargar_panel()  # los numeros pudieron cambiar mientras estabas adentro
 
     def showEvent(self, evento):
-        # Al volver de un modulo (alta de reserva, carga de consumo, etc.) los
-        # numeros del panel pueden haber cambiado, asi que se recalculan.
+        # Carga inicial del panel cuando se muestra la ventana.
         super().showEvent(evento)
         self.cargar_panel()
 
     def abrir_salon(self):
         from vista.salon.salon_ventana import VentanaSalon
-
-        self._abrir_modulo(VentanaSalon(self))
+        self._mostrar_modulo(VentanaSalon)
 
     def abrir_usuarios(self):
         from vista.usuarios.usuarios_ventana import VentanaUsuarios
-
-        self._abrir_modulo(VentanaUsuarios(self))
+        self._mostrar_modulo(VentanaUsuarios)
 
     def abrir_historial(self):
         from vista.historial.historial_ventana import VentanaHistorial
-
-        self._abrir_modulo(VentanaHistorial(self))
+        self._mostrar_modulo(VentanaHistorial)
 
     def abrir_mesas(self):
         from vista.mesas.mesas_ventana import VentanaMesas
-
-        self._abrir_modulo(VentanaMesas(self))
+        self._mostrar_modulo(VentanaMesas)
 
     def abrir_clientes(self):
         from vista.clientes.clientes_ventana import VentanaClientes
-
-        self._abrir_modulo(VentanaClientes(self))
+        self._mostrar_modulo(VentanaClientes)
 
     def abrir_menu(self):
         from vista.menu.menu_ventana import VentanaMenu
-
-        self._abrir_modulo(VentanaMenu(self))
+        self._mostrar_modulo(VentanaMenu)
 
     def abrir_reservas(self):
         from vista.reservas.reservas_ventana import VentanaReservas
-
-        self._abrir_modulo(VentanaReservas(self))
+        self._mostrar_modulo(VentanaReservas)
 
     def abrir_consumo(self):
         from vista.consumo.consumo_ventana import VentanaConsumo
-
-        self._abrir_modulo(VentanaConsumo(self))
+        self._mostrar_modulo(VentanaConsumo)
 
     def abrir_estadisticas(self):
         from vista.estadisticas.estadisticas_ventana import VentanaEstadisticas
-
-        self._abrir_modulo(VentanaEstadisticas(self))
+        self._mostrar_modulo(VentanaEstadisticas)
 
     def cerrar_sesion(self):
         Sesion().cerrar()

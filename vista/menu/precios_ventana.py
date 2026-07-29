@@ -7,7 +7,7 @@ Se abre desde Menú; al cerrarse vuelve a Menú.
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QMessageBox,
                              QTableWidgetItem)
 
 from controlador.menu_controlador import MenuControlador
@@ -17,7 +17,7 @@ from vista.menu.precio_form_ventana import DialogoPrecio
 RUTA_UI = Path(__file__).resolve().parent / "precios.ui"
 
 
-class VentanaPrecios(QMainWindow):
+class VentanaPrecios(QDialog):
     def __init__(self, item, controlador=None, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -81,7 +81,3 @@ class VentanaPrecios(QMainWindow):
             self.cargar_precios()
             QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
 
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import QDate
-from PyQt5.QtWidgets import QHeaderView, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import QHeaderView, QWidget, QMessageBox, QTableWidgetItem
 
 from controlador.historial_controlador import HistorialControlador
 from utilidades.validaciones import validar_rango_fechas
@@ -16,7 +16,7 @@ from utilidades.validaciones import validar_rango_fechas
 RUTA_UI = Path(__file__).resolve().parent / "historial.ui"
 
 
-class VentanaHistorial(QMainWindow):
+class VentanaHistorial(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -24,10 +24,8 @@ class VentanaHistorial(QMainWindow):
         self.controlador = HistorialControlador()
 
         self.tableWidget_historial.verticalHeader().setVisible(False)
-        cabecera = self.tableWidget_historial.horizontalHeader()
-        cabecera.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        cabecera.setSectionResizeMode(1, QHeaderView.Stretch)   # la accion ocupa lo que sobra
-        cabecera.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
+        self.tableWidget_historial.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # "Hasta" arranca en hoy; "Desde" ya viene en 2020 desde el .ui, asi al
         # abrir se ve todo el historial y despues se puede acotar.
@@ -37,7 +35,6 @@ class VentanaHistorial(QMainWindow):
 
         self.pushButton_filtrar.clicked.connect(self.cargar_historial)
         self.pushButton_limpiar.clicked.connect(self.limpiar)
-        self.pushButton_volver.clicked.connect(self.close)
 
         self.cargar_historial()
 
@@ -79,8 +76,3 @@ class VentanaHistorial(QMainWindow):
         self.dateEdit_desde.setDate(QDate(2020, 1, 1))
         self.dateEdit_hasta.setDate(QDate.currentDate())
         self.cargar_historial()
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

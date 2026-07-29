@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 
 from controlador.menu_controlador import MenuControlador
 from vista.menu.grupo_menu_form_ventana import DialogoGrupoMenu
@@ -13,7 +13,7 @@ from utilidades.dialogos import confirmar_eliminacion
 RUTA_UI = Path(__file__).resolve().parent / "grupos_menu.ui"
 
 
-class VentanaGruposMenu(QMainWindow):
+class VentanaGruposMenu(QDialog):
     def __init__(self, controlador=None, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -87,7 +87,3 @@ class VentanaGruposMenu(QMainWindow):
         else:
             QMessageBox.warning(self, "No se pudo eliminar", mensaje)
 
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

@@ -7,7 +7,8 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import QDate, Qt
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QWidget, QMessageBox,
+                             QTableWidgetItem)
 
 from controlador.clientes_controlador import ClientesControlador
 from utilidades.dialogos import confirmar_eliminacion
@@ -18,7 +19,7 @@ from vista.clientes.cliente_reservas_ventana import DialogoReservasCliente
 RUTA_UI = Path(__file__).resolve().parent / "clientes.ui"
 
 
-class VentanaClientes(QMainWindow):
+class VentanaClientes(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -26,7 +27,8 @@ class VentanaClientes(QMainWindow):
         self.controlador = ClientesControlador()
 
         self.tableWidget_clientes.verticalHeader().setVisible(False)
-        self.tableWidget_clientes.horizontalHeader().setStretchLastSection(True)
+        # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
+        self.tableWidget_clientes.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # "Hasta" arranca en hoy: no hay clientes registrados a futuro.
         self.dateEdit_hasta.setDate(QDate.currentDate())
@@ -38,7 +40,6 @@ class VentanaClientes(QMainWindow):
         self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionado)
         self.pushButton_reservas.clicked.connect(self.ver_reservas)
-        self.pushButton_volver.clicked.connect(self.close)
         self.tableWidget_clientes.doubleClicked.connect(self.abrir_editar)
 
         self.cargar_clientes()
@@ -126,8 +127,3 @@ class VentanaClientes(QMainWindow):
             return
         nombre = f"{cliente['apellido']}, {cliente['nombre']}"
         DialogoReservasCliente(nombre, reservas, parent=self).exec_()
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

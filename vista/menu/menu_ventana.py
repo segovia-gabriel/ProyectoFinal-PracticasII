@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QWidget, QMessageBox,
                              QTableWidgetItem)
 
 from controlador.menu_controlador import MenuControlador
@@ -20,7 +20,7 @@ from utilidades import formato
 RUTA_UI = Path(__file__).resolve().parent / "menu.ui"
 
 
-class VentanaMenu(QMainWindow):
+class VentanaMenu(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -30,11 +30,8 @@ class VentanaMenu(QMainWindow):
         self.tableWidget_menu.verticalHeader().setVisible(False)
         # Nombre, grupo y precio se ajustan a su contenido; la descripcion, que
         # es el texto mas largo, se queda con lo que sobra.
-        cabecera = self.tableWidget_menu.horizontalHeader()
-        cabecera.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        cabecera.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        cabecera.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        cabecera.setSectionResizeMode(3, QHeaderView.Stretch)
+        # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
+        self.tableWidget_menu.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.pushButton_buscar.clicked.connect(self.cargar_items)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_items)
@@ -43,7 +40,6 @@ class VentanaMenu(QMainWindow):
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionado)
         self.pushButton_grupos.clicked.connect(self.abrir_grupos)
         self.pushButton_precios.clicked.connect(self.abrir_precios)
-        self.pushButton_volver.clicked.connect(self.close)
         self.tableWidget_menu.doubleClicked.connect(self.abrir_editar)
 
         self.cargar_items()
@@ -108,9 +104,8 @@ class VentanaMenu(QMainWindow):
             QMessageBox.warning(self, "No se pudo eliminar", mensaje)
 
     def abrir_grupos(self):
-        self.hide()
-        self.ventana_grupos = VentanaGruposMenu(self.controlador, self)
-        self.ventana_grupos.show()
+        # Sub-pantalla como dialogo modal encima de la ventana unica.
+        VentanaGruposMenu(self.controlador, self).exec_()
 
     def abrir_precios(self):
         item_id = self._id_seleccionado()
@@ -121,11 +116,4 @@ class VentanaMenu(QMainWindow):
         if not exito or item is None:
             QMessageBox.warning(self, "Error", "No se pudo abrir el ítem.")
             return
-        self.hide()
-        self.ventana_precios = VentanaPrecios(item, self.controlador, self)
-        self.ventana_precios.show()
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()
+        VentanaPrecios(item, self.controlador, self).exec_()

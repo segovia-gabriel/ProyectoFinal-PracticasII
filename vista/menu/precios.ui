@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>VentanaPrecios</class>
- <widget class="QMainWindow" name="VentanaPrecios">
+ <widget class="QDialog" name="VentanaPrecios">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,7 +13,6 @@
   <property name="windowTitle">
    <string>Historial de precios</string>
   </property>
-  <widget class="QWidget" name="widget_central">
    <layout class="QVBoxLayout" name="layout_principal">
     <property name="spacing">
      <number>12</number>
@@ -125,7 +124,6 @@
      </layout>
     </item>
    </layout>
-  </widget>
  </widget>
  <resources/>
  <connections/>

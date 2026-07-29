@@ -9,7 +9,7 @@ from datetime import date
 from pathlib import Path
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import (QHeaderView, QMainWindow, QMessageBox,
+from PyQt5.QtWidgets import (QHeaderView, QWidget, QMessageBox,
                              QTableWidgetItem)
 
 from controlador.estadisticas_controlador import EstadisticasControlador
@@ -18,7 +18,7 @@ from utilidades import formato
 RUTA_UI = Path(__file__).resolve().parent / "estadisticas.ui"
 
 
-class VentanaEstadisticas(QMainWindow):
+class VentanaEstadisticas(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -40,7 +40,6 @@ class VentanaEstadisticas(QMainWindow):
         self.spinBox_anio.setValue(hoy.year)
 
         self.pushButton_actualizar.clicked.connect(self.cargar_consumo)
-        self.pushButton_volver.clicked.connect(self.close)
 
         self.cargar_clientes()
         self.cargar_reservas()
@@ -98,8 +97,3 @@ class VentanaEstadisticas(QMainWindow):
             tabla_top.setItem(fila, 0, QTableWidgetItem(dia))
             tabla_top.setItem(fila, 1, QTableWidgetItem(item))
             tabla_top.setItem(fila, 2, QTableWidgetItem(str(cantidad)))
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

@@ -10,7 +10,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import QTime, Qt
-from PyQt5.QtWidgets import (QDialog, QGridLayout, QMainWindow, QMessageBox,
+from PyQt5.QtWidgets import (QDialog, QGridLayout, QMessageBox,
                              QPushButton, QWidget)
 
 from controlador.consumo_controlador import ConsumoControlador
@@ -28,7 +28,7 @@ RUTA_UI = Path(__file__).resolve().parent / "salon.ui"
 COLUMNAS = 4
 
 
-class VentanaSalon(QMainWindow):
+class VentanaSalon(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -53,7 +53,6 @@ class VentanaSalon(QMainWindow):
         self.pushButton_asistencia.clicked.connect(self.marcar_asistencia)
         self.pushButton_consumo.clicked.connect(self.cargar_consumo)
         self.pushButton_verConsumo.clicked.connect(self.ver_consumo)
-        self.pushButton_volver.clicked.connect(self.close)
 
         self.cargar_salon()
 
@@ -224,8 +223,3 @@ class VentanaSalon(QMainWindow):
         texto = self.comboBox_sugeridos.currentData()
         if texto:
             self.timeEdit_hora.setTime(QTime.fromString(texto, "HH:mm"))
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()

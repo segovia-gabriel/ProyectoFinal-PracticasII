@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>VentanaGruposMesa</class>
- <widget class="QMainWindow" name="VentanaGruposMesa">
+ <widget class="QDialog" name="VentanaGruposMesa">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,7 +13,6 @@
   <property name="windowTitle">
    <string>Grupos de mesa</string>
   </property>
-  <widget class="QWidget" name="widget_central">
    <layout class="QVBoxLayout" name="layout_principal">
     <property name="spacing">
      <number>12</number>
@@ -148,7 +147,6 @@
      </layout>
     </item>
    </layout>
-  </widget>
  </widget>
  <resources/>
  <connections/>

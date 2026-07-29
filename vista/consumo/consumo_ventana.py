@@ -8,7 +8,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import QDate, Qt
-from PyQt5.QtWidgets import (QDialog, QHeaderView, QMainWindow, QMessageBox,
+from PyQt5.QtWidgets import (QDialog, QHeaderView, QWidget, QMessageBox,
                              QTableWidgetItem)
 
 from controlador.consumo_controlador import ConsumoControlador
@@ -20,7 +20,7 @@ from vista.consumo.consumo_detalle_ventana import DialogoDetalleConsumo
 RUTA_UI = Path(__file__).resolve().parent / "consumo.ui"
 
 
-class VentanaConsumo(QMainWindow):
+class VentanaConsumo(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
@@ -29,9 +29,8 @@ class VentanaConsumo(QMainWindow):
         self._consumos = []   # lo ultimo listado, para resolver la fila elegida
 
         self.tableWidget_consumos.verticalHeader().setVisible(False)
-        cabecera = self.tableWidget_consumos.horizontalHeader()
-        cabecera.setSectionResizeMode(QHeaderView.ResizeToContents)
-        cabecera.setSectionResizeMode(0, QHeaderView.Stretch)   # Cliente
+        # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
+        self.tableWidget_consumos.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # "Hasta" arranca un ano adelante, igual que en Reservas, para que el
         # rango por defecto no deje consumos afuera.
         self.dateEdit_hasta.setDate(QDate.currentDate().addYears(1))
@@ -41,7 +40,6 @@ class VentanaConsumo(QMainWindow):
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
         self.pushButton_editar.clicked.connect(self.editar_seleccionado)
         self.pushButton_detalle.clicked.connect(self.ver_detalle)
-        self.pushButton_volver.clicked.connect(self.close)
         self.tableWidget_consumos.doubleClicked.connect(self.ver_detalle)
 
         self.cargar_consumos()
@@ -120,8 +118,3 @@ class VentanaConsumo(QMainWindow):
             QMessageBox.warning(self, "Error", detalle)
             return
         DialogoDetalleConsumo(detalle, parent=self).exec_()
-
-    def closeEvent(self, evento):
-        if self.parent() is not None:
-            self.parent().show()
-        evento.accept()
