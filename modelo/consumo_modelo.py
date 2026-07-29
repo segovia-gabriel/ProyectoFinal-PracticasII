@@ -69,6 +69,7 @@ def reservas_sin_consumo():
             "LEFT JOIN consumos co ON co.reserva_id = r.id "
             "WHERE co.id IS NULL "
             "AND r.fecha <= CURDATE() "
+            "AND r.consumo_vencido = 0 "
             "AND r.estado_asistencia IN ('asistio', 'tardanza') "
             "ORDER BY r.fecha DESC"
         )
@@ -187,6 +188,58 @@ def cerrar(consumo_id):
         cursor = conexion.cursor()
         cursor.execute("UPDATE consumos SET estado = 'cerrada' WHERE id = %s", (consumo_id,))
         conexion.commit()
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
+def cerrar_abiertas_con_items(fecha_limite):
+    # Cierra las mesas todavia abiertas que tienen consumo cargado (total > 0)
+    # hasta 'fecha_limite' inclusive: pasan a 'cerrada' y recien ahi cuentan como
+    # venta. Devuelve cuantas cerro.
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor()
+        cursor.execute(
+            "UPDATE consumos SET estado = 'cerrada' "
+            "WHERE estado = 'abierta' AND precio_total > 0 AND DATE(fecha) <= %s",
+            (fecha_limite,),
+        )
+        conexion.commit()
+        return cursor.rowcount
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
+def eliminar_abiertas_vacias(fecha_limite):
+    # Descarta las mesas abiertas sin consumo cargado (total 0): se abrieron por
+    # error y no son una venta. Borra primero el detalle (por la clave foranea) y
+    # despues el consumo. Devuelve cuantos consumos borro.
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor()
+        cursor.execute(
+            "DELETE cd FROM consumo_detalle cd "
+            "JOIN consumos co ON co.id = cd.consumo_id "
+            "WHERE co.estado = 'abierta' AND co.precio_total = 0 AND DATE(co.fecha) <= %s",
+            (fecha_limite,),
+        )
+        cursor.execute(
+            "DELETE FROM consumos "
+            "WHERE estado = 'abierta' AND precio_total = 0 AND DATE(fecha) <= %s",
+            (fecha_limite,),
+        )
+        conexion.commit()
+        return cursor.rowcount
     except Error as error:
         registrar(error, "error")
         raise

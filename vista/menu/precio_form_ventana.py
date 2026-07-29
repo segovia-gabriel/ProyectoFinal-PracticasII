@@ -1,6 +1,8 @@
 """
-Formulario modal para cargar un precio nuevo de un item. El precio especial y su
-medio de pago solo se habilitan si se tilda el checkbox correspondiente.
+Formulario modal para cargar o editar el precio de un item. Se carga solo el
+precio de lista; el precio en efectivo (10% menos) lo calcula el controlador.
+La fecha de fin siempre es obligatoria; se avisa 10 dias antes del vencimiento.
+Si se abre con precio_actual, funciona en modo edicion del vigente.
 """
 
 from pathlib import Path
@@ -13,46 +15,52 @@ RUTA_UI = Path(__file__).resolve().parent / "precio_form.ui"
 
 
 class DialogoPrecio(QDialog):
-    def __init__(self, controlador, item_id, parent=None):
+    def __init__(self, controlador, item_id, precio_actual=None,
+                 fecha_fin_sugerida=None, parent=None):
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
 
         self.controlador = controlador
         self.item_id = item_id
+        self.precio_actual = precio_actual
         self.mensaje_exito = ""
 
-        # El medio de pago guarda el valor tecnico como data de cada opcion.
-        self.comboBox_medio.addItem("Efectivo", "efectivo")
-        self.comboBox_medio.addItem("Transferencia", "transferencia")
-
-        # Habilitar los campos del especial solo si se tilda el checkbox.
-        self.checkBox_especial.toggled.connect(self._alternar_especial)
-
-        # Fecha de fin de vigencia: opcional. El precio arranca hoy, asi que el
-        # fin no puede ser anterior a hoy; por defecto se sugiere dentro de un mes.
+        # La fecha de fin siempre es obligatoria y mínimo hoy.
+        # Si hay un precio anterior, se pre-carga su fecha_fin como referencia
+        # (el usuario la ve y decide desde ahí), pero puede elegir cualquier
+        # fecha futura sin restricción del precio anterior.
         self.dateEdit_fin.setMinimumDate(QDate.currentDate())
-        self.dateEdit_fin.setDate(QDate.currentDate().addDays(30))
-        self.checkBox_fechaFin.toggled.connect(self.dateEdit_fin.setEnabled)
+        if fecha_fin_sugerida is not None:
+            q_sugerida = QDate(fecha_fin_sugerida.year,
+                               fecha_fin_sugerida.month,
+                               fecha_fin_sugerida.day)
+            self.dateEdit_fin.setDate(q_sugerida)
+        else:
+            self.dateEdit_fin.setDate(QDate.currentDate().addDays(30))
+
+        if precio_actual is not None:
+            self._precargar(precio_actual)
 
         self.pushButton_guardar.clicked.connect(self.guardar)
         self.pushButton_cancelar.clicked.connect(self.reject)
 
-    def _alternar_especial(self, activo):
-        self.doubleSpinBox_especial.setEnabled(activo)
-        self.comboBox_medio.setEnabled(activo)
+    def _precargar(self, precio):
+        self.setWindowTitle("Editar precio vigente")
+        self.label_titulo.setText("Editar precio vigente")
+        self.doubleSpinBox_lista.setValue(float(precio["precio_lista"]))
+        if precio["fecha_fin"] is not None:
+            fin = precio["fecha_fin"]
+            self.dateEdit_fin.setDate(QDate(fin.year, fin.month, fin.day))
 
     def guardar(self):
-        tiene_especial = self.checkBox_especial.isChecked()
-        # Si no se tilda "tiene fecha de fin", se manda None = vigente indefinido.
-        fecha_fin = self.dateEdit_fin.date().toPyDate() if self.checkBox_fechaFin.isChecked() else None
-        exito, mensaje = self.controlador.guardar_precio(
-            self.item_id,
-            self.doubleSpinBox_lista.value(),
-            tiene_especial,
-            self.doubleSpinBox_especial.value(),
-            self.comboBox_medio.currentData() if tiene_especial else None,
-            fecha_fin,
-        )
+        precio_lista = self.doubleSpinBox_lista.value()
+        fecha_fin = self.dateEdit_fin.date().toPyDate()
+        if self.precio_actual is None:
+            exito, mensaje = self.controlador.guardar_precio(
+                self.item_id, precio_lista, fecha_fin)
+        else:
+            exito, mensaje = self.controlador.editar_precio_vigente(
+                self.item_id, precio_lista, fecha_fin)
         if exito:
             self.mensaje_exito = mensaje
             self.accept()

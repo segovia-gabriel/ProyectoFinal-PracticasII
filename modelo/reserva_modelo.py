@@ -209,3 +209,31 @@ def eliminar(reserva_id):
     finally:
         if conexion is not None and conexion.is_connected():
             conexion.close()
+
+
+def vencer_consumos_pendientes(fecha_limite):
+    # Marca como vencidas las reservas donde el cliente asistio (o llego tarde)
+    # pero nunca se cargo el consumo y la fecha ya paso. Al cerrar el dia dejan de
+    # figurar como pendientes: esa venta ya no se va a cargar. Devuelve cuantas
+    # marco.
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor()
+        cursor.execute(
+            "UPDATE reservas r "
+            "LEFT JOIN consumos co ON co.reserva_id = r.id "
+            "SET r.consumo_vencido = 1 "
+            "WHERE co.id IS NULL AND r.consumo_vencido = 0 "
+            "AND r.estado_asistencia IN ('asistio', 'tardanza') "
+            "AND r.fecha <= %s",
+            (fecha_limite,),
+        )
+        conexion.commit()
+        return cursor.rowcount
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()

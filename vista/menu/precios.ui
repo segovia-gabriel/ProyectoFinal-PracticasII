@@ -64,12 +64,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Precio especial</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Medio de pago</string>
+        <string>Precio en Efectivo</string>
        </property>
       </column>
       <column>
@@ -98,6 +93,13 @@
        <widget class="QPushButton" name="pushButton_nuevo">
         <property name="text">
          <string>Nuevo precio</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_editar">
+        <property name="text">
+         <string>Editar vigente</string>
         </property>
        </widget>
       </item>

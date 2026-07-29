@@ -150,20 +150,6 @@
        <number>8</number>
       </property>
       <item>
-       <widget class="QPushButton" name="pushButton_nuevo">
-        <property name="text">
-         <string>Nueva mesa abierta</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_editar">
-        <property name="text">
-         <string>Editar / cerrar</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="pushButton_detalle">
         <property name="text">
          <string>Ver detalle</string>

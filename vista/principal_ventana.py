@@ -53,6 +53,12 @@ class VentanaPrincipal(QMainWindow):
         # Usuario logueado al pie del navbar: solo el nombre (el rol es fijo en el .ui).
         self.label_nombreUsuario.setText(Sesion().nombre_usuario or "")
 
+        # Al abrir el sistema, cierra lo que haya quedado abierto de dias
+        # anteriores (por si ayer no se cerro a mano). Silencioso: solo actua si
+        # hay algo que cerrar.
+        from controlador.cierre_controlador import CierreControlador
+        CierreControlador().barrido_inicial()
+
         # Las cuatro columnas se reparten el ancho en partes iguales: si solo
         # estirara la del cliente, con la ventana maximizada quedaba un hueco
         # enorme entre el nombre y la mesa.
@@ -101,7 +107,7 @@ class VentanaPrincipal(QMainWindow):
         self.tableWidget_agenda.doubleClicked.connect(self.cambiar_estado_agenda)
         self.listWidget_avisos.itemDoubleClicked.connect(self.resolver_aviso)
 
-        self.pushButton_actualizar.clicked.connect(self.cargar_panel)
+        self.pushButton_cerrarDia.clicked.connect(self.cerrar_dia)
         self.pushButton_cerrarSesion.clicked.connect(self.cerrar_sesion)
         # El panel se carga en showEvent, que corre tanto al abrir la ventana
         # como al volver de un modulo, asi los numeros nunca quedan viejos.
@@ -119,9 +125,8 @@ class VentanaPrincipal(QMainWindow):
             return
 
         self.label_valorReservasHoy.setText(str(datos["reservas_hoy"]))
-        self.label_valorReservasFuturas.setText(str(datos["reservas_futuras"]))
-        self.label_valorClientes.setText(str(datos["clientes"]))
-        self.label_valorIngresos.setText(formato.moneda(datos["ingresos_mes"]))
+        self.label_valorReservasFuturas.setText(str(datos["reservas_manana"]))
+        self.label_valorClientes.setText(str(datos["reservas_futuras"]))
 
         self._cargar_agenda(datos["agenda"])
         self._cargar_avisos(datos["avisos"])
@@ -151,10 +156,10 @@ class VentanaPrincipal(QMainWindow):
         lista = self.listWidget_avisos
         lista.clear()
         if not avisos:
-            item = QListWidgetItem("No hay pendientes. Todo al día.")
+            item = QListWidgetItem("No hay notificaciones. Todo al día.")
             item.setTextAlignment(Qt.AlignCenter)
             lista.addItem(item)
-            self.label_subtituloAvisos.setText("Pendientes")
+            self.label_subtituloAvisos.setText("Notificaciones")
             return
 
         for aviso in avisos:
@@ -162,7 +167,7 @@ class VentanaPrincipal(QMainWindow):
             # se guarda el aviso entero para saber que abrir en el doble clic
             item.setData(Qt.UserRole, aviso)
             lista.addItem(item)
-        self.label_subtituloAvisos.setText(f"Pendientes ({len(avisos)})")
+        self.label_subtituloAvisos.setText(f"Notificaciones ({len(avisos)})")
 
     # ---------- Acciones desde el panel ----------
 
@@ -188,6 +193,31 @@ class VentanaPrincipal(QMainWindow):
             self.cargar_panel()
         else:
             QMessageBox.warning(self, "Error", mensaje)
+
+    def cerrar_dia(self):
+        # Cierre manual del dia: pide confirmacion porque cierra mesas y vence
+        # reservas sin consumo. Al terminar, refresca el panel.
+        from controlador.cierre_controlador import CierreControlador
+
+        resp = QMessageBox.question(
+            self, "Cerrar día",
+            "Se van a cerrar todas las mesas abiertas de hoy, descartar las vacías "
+            "y marcar como vencidas las reservas sin consumo. ¿Confirmás?",
+            QMessageBox.Yes | QMessageBox.No)
+        if resp != QMessageBox.Yes:
+            return
+
+        exito, datos = CierreControlador().cerrar_dia()
+        if not exito:
+            QMessageBox.warning(self, "Cerrar día", datos)
+            return
+        QMessageBox.information(
+            self, "Cerrar día",
+            f"Día cerrado.\n"
+            f"Mesas cerradas: {datos['cerradas']}\n"
+            f"Mesas vacías descartadas: {datos['descartadas']}\n"
+            f"Reservas sin consumo vencidas: {datos['vencidas']}")
+        self.cargar_panel()
 
     def resolver_aviso(self, item):
         # Doble clic sobre un pendiente: se abre la pantalla donde se resuelve,

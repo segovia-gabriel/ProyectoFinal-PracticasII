@@ -61,8 +61,8 @@ class DialogoConsumo(QDialog):
             if exito:
                 for rid, texto in reservas:
                     self.comboBox_reserva.addItem(texto, rid)
-        self.comboBox_medio.addItem("Efectivo", "efectivo")
         self.comboBox_medio.addItem("Transferencia", "transferencia")
+        self.comboBox_medio.addItem("Efectivo", "efectivo")
         exito, items = self.controlador.listar_items_combo()
         if exito:
             for iid, nombre in items:

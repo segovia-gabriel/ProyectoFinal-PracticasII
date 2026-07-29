@@ -27,8 +27,7 @@ class VentanaHistorial(QWidget):
         # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
         self.tableWidget_historial.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        # "Hasta" arranca en hoy; "Desde" ya viene en 2020 desde el .ui, asi al
-        # abrir se ve todo el historial y despues se puede acotar.
+        self.dateEdit_desde.setDate(QDate.currentDate().addDays(-30))
         self.dateEdit_hasta.setDate(QDate.currentDate())
 
         self._cargar_combo_usuarios()
@@ -73,6 +72,6 @@ class VentanaHistorial(QWidget):
     def limpiar(self):
         # Vuelve a los valores por defecto (todos los usuarios, rango amplio).
         self.comboBox_usuario.setCurrentIndex(0)
-        self.dateEdit_desde.setDate(QDate(2020, 1, 1))
+        self.dateEdit_desde.setDate(QDate.currentDate().addDays(-30))
         self.dateEdit_hasta.setDate(QDate.currentDate())
         self.cargar_historial()

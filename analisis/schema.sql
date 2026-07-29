@@ -125,6 +125,7 @@ CREATE TABLE reservas (
     duracion_tipo          ENUM('2h','3h') NOT NULL,
     precio_mesa_aplicado   DECIMAL(10,2) NOT NULL,
     estado_asistencia      ENUM('en_espera','asistio','tardanza','falto') NOT NULL DEFAULT 'en_espera',
+    consumo_vencido        TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = asistió pero el consumo no se cargó y el día ya cerró
     CONSTRAINT fk_reserva_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id),
     CONSTRAINT fk_reserva_mesa    FOREIGN KEY (mesa_id) REFERENCES mesas(id)
 ) ENGINE=InnoDB;

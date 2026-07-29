@@ -26,13 +26,32 @@ def contar_reservas_hoy():
             conexion.close()
 
 
-def contar_reservas_futuras():
-    # Estrictamente posteriores a hoy: las de hoy se cuentan aparte.
+def contar_reservas_manana():
     conexion = None
     try:
         conexion = abrir_conexion()
         cursor = conexion.cursor()
-        cursor.execute("SELECT COUNT(*) FROM reservas WHERE fecha > CURDATE()")
+        cursor.execute(
+            "SELECT COUNT(*) FROM reservas WHERE fecha = CURDATE() + INTERVAL 1 DAY"
+        )
+        return cursor.fetchone()[0]
+    except Error as error:
+        registrar(error, "error")
+        raise
+    finally:
+        if conexion is not None and conexion.is_connected():
+            conexion.close()
+
+
+def contar_reservas_futuras():
+    # Desde pasado mañana en adelante (mañana se cuenta aparte).
+    conexion = None
+    try:
+        conexion = abrir_conexion()
+        cursor = conexion.cursor()
+        cursor.execute(
+            "SELECT COUNT(*) FROM reservas WHERE fecha > CURDATE() + INTERVAL 1 DAY"
+        )
         return cursor.fetchone()[0]
     except Error as error:
         registrar(error, "error")
@@ -148,6 +167,7 @@ def reservas_cumplidas_sin_consumo():
             "JOIN mesas m ON m.id = r.mesa_id "
             "LEFT JOIN consumos co ON co.reserva_id = r.id "
             "WHERE co.id IS NULL AND r.fecha <= CURDATE() "
+            "AND r.consumo_vencido = 0 "
             "AND r.estado_asistencia IN ('asistio', 'tardanza') "
             "ORDER BY r.fecha DESC"
         )

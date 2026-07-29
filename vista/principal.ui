@@ -297,9 +297,9 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_actualizar">
+          <widget class="QPushButton" name="pushButton_cerrarDia">
            <property name="text">
-            <string>Actualizar</string>
+            <string>Cerrar día</string>
            </property>
           </widget>
          </item>
@@ -366,7 +366,7 @@
             <item>
              <widget class="QLabel" name="label_tituloReservasFuturas">
               <property name="text">
-               <string>RESERVAS FUTURAS</string>
+               <string>RESERVAS DE MAÑANA</string>
               </property>
              </widget>
             </item>
@@ -401,7 +401,7 @@
             <item>
              <widget class="QLabel" name="label_tituloClientes">
               <property name="text">
-               <string>CLIENTES REGISTRADOS</string>
+               <string>RESERVAS FUTURAS</string>
               </property>
              </widget>
             </item>
@@ -409,41 +409,6 @@
              <widget class="QLabel" name="label_valorClientes">
               <property name="text">
                <string>0</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="frame_tarjetaIngresos">
-           <layout class="QVBoxLayout" name="layout_tarjetaIngresos">
-            <property name="spacing">
-             <number>2</number>
-            </property>
-            <property name="leftMargin">
-             <number>16</number>
-            </property>
-            <property name="topMargin">
-             <number>14</number>
-            </property>
-            <property name="rightMargin">
-             <number>16</number>
-            </property>
-            <property name="bottomMargin">
-             <number>14</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label_tituloIngresos">
-              <property name="text">
-               <string>INGRESOS DEL MES</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_valorIngresos">
-              <property name="text">
-               <string>$ 0,00</string>
               </property>
              </widget>
             </item>
@@ -554,7 +519,7 @@
             <item>
              <widget class="QLabel" name="label_subtituloAvisos">
               <property name="text">
-               <string>Pendientes</string>
+               <string>Notificaciones</string>
               </property>
              </widget>
             </item>

@@ -18,6 +18,9 @@ from utilidades.sesion import Sesion
 # Raiz del proyecto, para resolver rutas de imagenes con pathlib (multiplataforma).
 RAIZ = Path(__file__).resolve().parent.parent
 DIAS_AVISO_RENOVACION = 10
+# El precio de lista es el de transferencia; en efectivo se aplica este descuento.
+# Un solo lugar por si algun dia cambia el porcentaje.
+DESCUENTO_EFECTIVO = 0.10
 
 
 class MenuControlador:
@@ -191,28 +194,25 @@ class MenuControlador:
             return f"El precio vigente vence en {dias} día(s) ({vigente['fecha_fin'].strftime('%d/%m/%Y')})."
         return None
 
-    def guardar_precio(self, item_id, precio_lista, tiene_especial, precio_especial,
-                       medio_pago_especial, fecha_fin=None):
+    def _precio_efectivo(self, precio_lista):
+        # El especial se calcula solo: lista (transferencia) menos el descuento.
+        return round(precio_lista * (1 - DESCUENTO_EFECTIVO), 2)
+
+    def guardar_precio(self, item_id, precio_lista, fecha_fin=None):
         if precio_lista <= 0:
             return False, "El precio de lista debe ser mayor a cero."
-        if tiene_especial:
-            if precio_especial <= 0:
-                return False, "El precio especial debe ser mayor a cero."
-            if medio_pago_especial not in ("efectivo", "transferencia"):
-                return False, "Elegí el medio de pago del precio especial."
-        else:
-            precio_especial = None
-            medio_pago_especial = None
-
         # El precio arranca hoy; si se define un fin de vigencia, no puede quedar
         # antes de esa fecha de inicio.
         hoy = date.today()
         if fecha_fin is not None and fecha_fin < hoy:
             return False, "La fecha de fin de vigencia no puede ser anterior a hoy."
 
+        # Se guarda el especial ya calculado (efectivo) para que el historial
+        # quede con el numero real y no dependa del porcentaje a futuro.
+        precio_especial = self._precio_efectivo(precio_lista)
         try:
             precio_menu_modelo.crear_precio(
-                item_id, precio_lista, precio_especial, medio_pago_especial, hoy, fecha_fin
+                item_id, precio_lista, precio_especial, "efectivo", hoy, fecha_fin
             )
             item = menu_modelo.obtener_por_id(item_id)
             nombre = item["nombre"] if item else f"#{item_id}"
@@ -220,3 +220,37 @@ class MenuControlador:
             return True, "Precio actualizado correctamente."
         except Error:
             return False, "No se pudo guardar el precio."
+
+    def editar_precio_vigente(self, item_id, precio_lista, fecha_fin=None):
+        # Corrige el precio vigente sin crear una fila nueva (para el caso de
+        # haber cargado mal un precio). Recalcula el especial y la variacion sola.
+        if precio_lista <= 0:
+            return False, "El precio de lista debe ser mayor a cero."
+        hoy = date.today()
+        if fecha_fin is not None and fecha_fin < hoy:
+            return False, "La fecha de fin de vigencia no puede ser anterior a hoy."
+        try:
+            vigente = precio_menu_modelo.obtener_vigente(item_id)
+        except Error:
+            return False, "No se pudo obtener el precio vigente."
+        if vigente is None:
+            return False, "El ítem no tiene un precio vigente para editar."
+
+        precio_especial = self._precio_efectivo(precio_lista)
+        try:
+            precio_menu_modelo.actualizar_vigente(
+                vigente["id"], precio_lista, precio_especial, "efectivo", fecha_fin
+            )
+            item = menu_modelo.obtener_por_id(item_id)
+            nombre = item["nombre"] if item else f"#{item_id}"
+            registrar_accion(Sesion().usuario_id, f"Editó precio vigente de ítem de menú: {nombre}")
+            return True, "Precio vigente actualizado correctamente."
+        except Error:
+            return False, "No se pudo editar el precio vigente."
+
+    def precio_vigente(self, item_id):
+        # Lo usa la ventana de precios para precargar el form al editar.
+        try:
+            return True, precio_menu_modelo.obtener_vigente(item_id)
+        except Error:
+            return False, "No se pudo obtener el precio vigente."

@@ -24,9 +24,8 @@ class PanelControlador:
         try:
             datos = {
                 "reservas_hoy": panel_modelo.contar_reservas_hoy(),
+                "reservas_manana": panel_modelo.contar_reservas_manana(),
                 "reservas_futuras": panel_modelo.contar_reservas_futuras(),
-                "clientes": panel_modelo.total_clientes(),
-                "ingresos_mes": float(panel_modelo.ingresos_del_mes()),
                 "agenda": self._agenda_de_hoy(),
                 "avisos": self._avisos(),
             }

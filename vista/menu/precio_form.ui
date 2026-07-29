@@ -67,88 +67,34 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_tieneEspecial">
-       <property name="text">
-        <string>Precio especial</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
-      <widget class="QCheckBox" name="checkBox_especial">
+      <widget class="QLabel" name="label_notaEfectivo">
        <property name="text">
-        <string>Tiene precio especial por medio de pago</string>
+        <string>El precio en efectivo se calcula solo (10% menos).</string>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_especial">
-       <property name="text">
-        <string>Valor especial</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_especial">
-       <property name="prefix">
-        <string>$ </string>
-       </property>
-       <property name="decimals">
-        <number>2</number>
-       </property>
-       <property name="maximum">
-        <double>9999999.00</double>
-       </property>
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_medio">
-       <property name="text">
-        <string>Medio de pago</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="comboBox_medio">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_tieneFin">
-       <property name="text">
-        <string>Fin de vigencia</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QCheckBox" name="checkBox_fechaFin">
-       <property name="text">
-        <string>Tiene fecha de fin (si no, queda vigente indefinidamente)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
       <widget class="QLabel" name="label_fin">
        <property name="text">
         <string>Vigente hasta</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="2" column="1">
       <widget class="QDateEdit" name="dateEdit_fin">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
        <property name="calendarPopup">
         <bool>true</bool>
        </property>
        <property name="displayFormat">
         <string>dd/MM/yyyy</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="label_avisoVencimiento">
+       <property name="text">
+        <string>Se te avisará 10 días antes del vencimiento para actualizarlo.</string>
        </property>
       </widget>
      </item>

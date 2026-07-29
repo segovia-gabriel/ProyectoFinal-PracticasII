@@ -1,20 +1,18 @@
 """
 Ventana de Consumos. Listado con filtros (cliente o codigo de mesa y rango de
-fechas), alta de un consumo nuevo y vista de detalle. Al cerrarse vuelve la
-ventana principal.
+fechas) y vista de detalle. Alta y edición se hacen desde el módulo Salón.
 """
 
 from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import QDate, Qt
-from PyQt5.QtWidgets import (QDialog, QHeaderView, QWidget, QMessageBox,
+from PyQt5.QtWidgets import (QHeaderView, QWidget, QMessageBox,
                              QTableWidgetItem)
 
 from controlador.consumo_controlador import ConsumoControlador
 from utilidades import formato
 from utilidades.validaciones import validar_rango_fechas
-from vista.consumo.consumo_form_ventana import DialogoConsumo
 from vista.consumo.consumo_detalle_ventana import DialogoDetalleConsumo
 
 RUTA_UI = Path(__file__).resolve().parent / "consumo.ui"
@@ -38,8 +36,6 @@ class VentanaConsumo(QWidget):
 
         self.pushButton_buscar.clicked.connect(self.cargar_consumos)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_consumos)
-        self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
-        self.pushButton_editar.clicked.connect(self.editar_seleccionado)
         self.pushButton_detalle.clicked.connect(self.ver_detalle)
         self.tableWidget_consumos.doubleClicked.connect(self.ver_detalle)
 
@@ -84,30 +80,6 @@ class VentanaConsumo(QWidget):
         if fila < 0 or fila >= len(self._consumos):
             return None
         return self._consumos[fila]
-
-    def abrir_nuevo(self):
-        # Abre una mesa nueva: el dialogo lista las reservas cumplidas sin consumo.
-        dialogo = DialogoConsumo(self.controlador, parent=self)
-        if dialogo.exec_() == QDialog.Accepted:
-            self.cargar_consumos()
-            QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
-
-    def editar_seleccionado(self):
-        # Editar o cerrar una mesa que sigue abierta. Las cerradas ya son ventas
-        # consolidadas: solo se pueden consultar (Ver detalle).
-        consumo = self._consumo_seleccionado()
-        if consumo is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná una mesa abierta para editarla.")
-            return
-        if consumo["estado"] == "cerrada":
-            QMessageBox.information(
-                self, "Cuenta cerrada",
-                "Esa cuenta ya está cerrada. Solo se puede consultar con 'Ver detalle'.")
-            return
-        dialogo = DialogoConsumo(self.controlador, reserva_id=consumo["reserva_id"], parent=self)
-        if dialogo.exec_() == QDialog.Accepted:
-            self.cargar_consumos()
-            QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
 
     def ver_detalle(self):
         consumo_id = self._id_seleccionado()

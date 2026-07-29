@@ -32,6 +32,7 @@ class VentanaPrecios(QDialog):
         self.tableWidget_precios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
+        self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_volver.clicked.connect(self.close)
 
         self.cargar_precios()
@@ -48,20 +49,14 @@ class VentanaPrecios(QDialog):
         for i, fila in enumerate(filas):
             tabla.insertRow(i)
             tabla.setItem(i, 0, QTableWidgetItem(formato.moneda(fila['precio_lista'])))
-            if fila["precio_especial"] is not None:
-                especial = formato.moneda(fila['precio_especial'])
-                medio = formato.medio_pago(fila["medio_pago_especial"])
-            else:
-                especial = "—"
-                medio = "—"
+            especial = formato.moneda(fila['precio_especial']) if fila["precio_especial"] is not None else "—"
             tabla.setItem(i, 1, QTableWidgetItem(especial))
-            tabla.setItem(i, 2, QTableWidgetItem(medio))
-            tabla.setItem(i, 3, QTableWidgetItem(fila["fecha_inicio"].strftime("%d/%m/%Y")))
+            tabla.setItem(i, 2, QTableWidgetItem(fila["fecha_inicio"].strftime("%d/%m/%Y")))
             hasta = fila["fecha_fin"].strftime("%d/%m/%Y") if fila["fecha_fin"] else "Vigente"
-            tabla.setItem(i, 4, QTableWidgetItem(hasta))
+            tabla.setItem(i, 3, QTableWidgetItem(hasta))
             # variacion con signo; el primer precio no tiene con que compararse
             variacion = "—" if fila["variacion"] is None else f"{fila['variacion']:+.1f}%"
-            tabla.setItem(i, 5, QTableWidgetItem(variacion))
+            tabla.setItem(i, 4, QTableWidgetItem(variacion))
 
     def _mostrar_aviso(self):
         aviso = self.controlador.aviso_renovacion(self.item_id)
@@ -76,7 +71,28 @@ class VentanaPrecios(QDialog):
         self.label_aviso.style().polish(self.label_aviso)
 
     def abrir_nuevo(self):
-        dialogo = DialogoPrecio(self.controlador, self.item_id, parent=self)
+        # Precarga la fecha fin del precio vigente para que el usuario
+        # sepa desde dónde empieza a contar el nuevo vencimiento.
+        _, vigente = self.controlador.precio_vigente(self.item_id)
+        fecha_fin_ant = vigente["fecha_fin"] if vigente and vigente.get("fecha_fin") else None
+        dialogo = DialogoPrecio(self.controlador, self.item_id,
+                                fecha_fin_sugerida=fecha_fin_ant, parent=self)
+        if dialogo.exec_() == QDialog.Accepted:
+            self.cargar_precios()
+            QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
+
+    def abrir_editar(self):
+        # Edita el precio vigente (para corregir uno cargado mal). Precarga el
+        # form con el precio actual del item.
+        exito, vigente = self.controlador.precio_vigente(self.item_id)
+        if not exito:
+            QMessageBox.warning(self, "Error", vigente)
+            return
+        if vigente is None:
+            QMessageBox.information(self, "Sin precio",
+                                    "Este ítem todavía no tiene un precio cargado.")
+            return
+        dialogo = DialogoPrecio(self.controlador, self.item_id, precio_actual=vigente, parent=self)
         if dialogo.exec_() == QDialog.Accepted:
             self.cargar_precios()
             QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
