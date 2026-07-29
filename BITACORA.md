@@ -21,6 +21,16 @@ _(nada abierto)_
 
 ## Historial
 
+### 2026-07-29 — Consumo (Nuevo consumo): columnas, cantidad y buscador de ítem ✅
+Diálogo `DialogoConsumo`:
+1. **Columnas ordenadas:** se sacó `stretchLastSection` (dejaba "Subtotal" enorme). Ahora "Ítem" = `Stretch` y Cantidad/Precio unit./Subtotal = `ResizeToContents`. Importes (Precio unit. y Subtotal) alineados a la derecha; Cantidad centrada.
+2. **Input de cantidad:** se agregó label "Cantidad" antes del spinbox, se lo achicó (max 84px) y se centró el número. El combo de ítem pasa a estirarse (ocupa el espacio libre).
+3. **Buscador de ítem:** el combo se volvió editable con autocompletar `MatchContains` (se tipea el nombre y filtra), para no scrollear entre cientos de ítems. `agregar_item` resuelve el texto tipeado con `findText` y avisa si no coincide. Mismo patrón que el buscador de cliente en Reservas.
+
+**Archivos:** `vista/consumo/consumo_form.ui` (fila "Agregar ítems": sizePolicy del combo, label_cantidad, spinbox angosto/centrado), `vista/consumo/consumo_form_ventana.py` (imports `QComboBox`/`QCompleter`/`QHeaderView`; resize modes; combo buscable; resolución en `agregar_item`; alineación de importes).
+
+**Extra (mismo día):** editar cantidad de un ítem ya cargado con **doble clic** en la fila → `QInputDialog.getInt` (1–99). Antes solo se podía quitar y volver a agregar. No edita si la cuenta está cerrada (usa `pushButton_agregar.isEnabled()` como proxy de solo-lectura). Import `QInputDialog`, conexión `doubleClicked`, tooltip en la tabla.
+
 ### 2026-07-29 — Salón: registrar reserva desde el plano + renombrar botones ✅
 Panel de detalle de la mesa (`frame_detalle`):
 1. **Nuevo botón "Registrar Reserva"** (arriba): se habilita solo si la mesa está **libre** en el horario visto. Abre el mismo `DialogoReserva` del módulo Reservas, precargando la mesa elegida y el horario actual. El choque de horarios lo valida el controlador (`hay_superposicion`) al guardar — no se reimplementó nada.

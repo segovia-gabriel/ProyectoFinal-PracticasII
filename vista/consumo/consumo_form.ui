@@ -82,10 +82,39 @@
       <number>8</number>
      </property>
      <item>
-      <widget class="QComboBox" name="comboBox_item"/>
+      <widget class="QComboBox" name="comboBox_item">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_cantidad">
+       <property name="text">
+        <string>Cantidad</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QSpinBox" name="spinBox_cantidad">
+       <property name="minimumSize">
+        <size>
+         <width>64</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>84</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+       </property>
        <property name="minimum">
         <number>1</number>
        </property>

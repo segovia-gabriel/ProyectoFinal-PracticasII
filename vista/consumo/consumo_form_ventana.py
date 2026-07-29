@@ -11,7 +11,8 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import (QComboBox, QCompleter, QDialog, QHeaderView,
+                             QInputDialog, QMessageBox, QTableWidgetItem)
 
 from utilidades import formato
 from utilidades.dialogos import confirmar
@@ -34,7 +35,15 @@ class DialogoConsumo(QDialog):
         self.items_agregados = []
 
         self.tableWidget_items.verticalHeader().setVisible(False)
-        self.tableWidget_items.horizontalHeader().setStretchLastSection(True)
+        # Columnas ordenadas: "Ítem" ocupa el espacio libre y las numéricas se
+        # ajustan a su contenido, en vez de estirar solo la última (que dejaba
+        # "Subtotal" enorme y las demás apretadas).
+        cabecera = self.tableWidget_items.horizontalHeader()
+        cabecera.setSectionResizeMode(0, QHeaderView.Stretch)
+        for columna in (1, 2, 3):
+            cabecera.setSectionResizeMode(columna, QHeaderView.ResizeToContents)
+        self.tableWidget_items.setToolTip(
+            "Doble clic en un ítem para corregir la cantidad.")
 
         # "Cerrar mesa" va en verde (consolida la venta); el primario azul de la
         # pantalla queda para "Guardar (mesa abierta)".
@@ -58,6 +67,16 @@ class DialogoConsumo(QDialog):
         if exito:
             for iid, nombre in items:
                 self.comboBox_item.addItem(nombre, iid)
+        # Buscador de ítem: con muchos ítems, scrollear el combo es tedioso. Se
+        # vuelve editable con autocompletar que filtra por cualquier parte del
+        # texto, así se tipea el nombre y aparece. Mismo patrón que el buscador
+        # de cliente en el alta de reservas.
+        self.comboBox_item.setEditable(True)
+        self.comboBox_item.setInsertPolicy(QComboBox.NoInsert)
+        completer = self.comboBox_item.completer()
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
 
         # Si la mesa ya tiene un consumo, se precarga para editarlo.
         if reserva_id is not None:
@@ -65,6 +84,8 @@ class DialogoConsumo(QDialog):
 
         self.pushButton_agregar.clicked.connect(self.agregar_item)
         self.pushButton_quitar.clicked.connect(self.quitar_item)
+        # doble clic en una fila para corregir la cantidad ya cargada
+        self.tableWidget_items.doubleClicked.connect(self.editar_cantidad)
         # al cambiar el medio de pago, cambian los precios especiales
         self.comboBox_medio.currentIndexChanged.connect(self._refrescar_tabla)
         self.pushButton_guardar.clicked.connect(self.guardar)
@@ -94,9 +115,16 @@ class DialogoConsumo(QDialog):
         return self.comboBox_medio.currentData()
 
     def agregar_item(self):
-        item_id = self.comboBox_item.currentData()
-        if item_id is None:
+        # Como el combo es editable (buscador), se resuelve el texto tipeado
+        # contra la lista: si no coincide con ningún ítem, se avisa en vez de
+        # agregar algo inválido.
+        indice = self.comboBox_item.findText(self.comboBox_item.currentText())
+        if indice < 0:
+            QMessageBox.warning(self, "Ítem inválido",
+                                "Elegí un ítem válido de la lista.")
             return
+        self.comboBox_item.setCurrentIndex(indice)
+        item_id = self.comboBox_item.currentData()
         # el item tiene que tener precio cargado para poder consumirse
         if self.controlador.precio_item(item_id, self._medio()) is None:
             QMessageBox.warning(self, "Sin precio",
@@ -125,6 +153,23 @@ class DialogoConsumo(QDialog):
         del self.items_agregados[fila]
         self._refrescar_tabla()
 
+    def editar_cantidad(self):
+        # Doble clic en una fila: corrige la cantidad de un item ya cargado sin
+        # tener que quitarlo y volver a agregarlo. En una cuenta cerrada (solo
+        # lectura) el boton Agregar esta deshabilitado, asi que tampoco se edita.
+        if not self.pushButton_agregar.isEnabled():
+            return
+        fila = self.tableWidget_items.currentRow()
+        if fila < 0:
+            return
+        agregado = self.items_agregados[fila]
+        nueva, ok = QInputDialog.getInt(
+            self, "Editar cantidad", f"Cantidad de «{agregado['nombre']}»:",
+            agregado["cantidad"], 1, 99)
+        if ok:
+            agregado["cantidad"] = nueva
+            self._refrescar_tabla()
+
     def _refrescar_tabla(self):
         medio = self._medio()
         tabla = self.tableWidget_items
@@ -140,8 +185,13 @@ class DialogoConsumo(QDialog):
             item_cant = QTableWidgetItem(str(agregado["cantidad"]))
             item_cant.setTextAlignment(Qt.AlignCenter)
             tabla.setItem(fila, 1, item_cant)
-            tabla.setItem(fila, 2, QTableWidgetItem(formato.moneda(precio)))
-            tabla.setItem(fila, 3, QTableWidgetItem(formato.moneda(subtotal)))
+            # Los importes van alineados a la derecha, como corresponde a dinero.
+            item_precio = QTableWidgetItem(formato.moneda(precio))
+            item_precio.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            tabla.setItem(fila, 2, item_precio)
+            item_subtotal = QTableWidgetItem(formato.moneda(subtotal))
+            item_subtotal.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            tabla.setItem(fila, 3, item_subtotal)
         self.label_total.setText(f"Total: {formato.moneda(total)}")
 
     def _items(self):
