@@ -64,14 +64,14 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_contrasena">
        <property name="text">
-        <string>Contraseña</string>
+        <string>Contrasena</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="lineEdit_contrasena">
        <property name="placeholderText">
-        <string>Contraseña</string>
+        <string>Contrasena</string>
        </property>
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
@@ -81,14 +81,14 @@
      <item row="2" column="0">
       <widget class="QLabel" name="label_contrasenaRepetir">
        <property name="text">
-        <string>Repetir contraseña</string>
+        <string>Repetir contrasena</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="lineEdit_contrasenaRepetir">
        <property name="placeholderText">
-        <string>Repetir contraseña</string>
+        <string>Repetir contrasena</string>
        </property>
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
@@ -100,7 +100,7 @@
    <item>
     <widget class="QLabel" name="label_ayuda">
      <property name="text">
-      <string>La contraseña debe tener 8+ caracteres, una mayúscula y un número.</string>
+      <string>La contrasena debe tener 8+ caracteres, una mayuscula y un numero.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

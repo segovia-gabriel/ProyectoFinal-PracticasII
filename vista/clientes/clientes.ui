@@ -153,7 +153,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Teléfono</string>
+        <string>Telefono</string>
        </property>
       </column>
       <column>

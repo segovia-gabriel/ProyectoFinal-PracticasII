@@ -19,13 +19,13 @@ class CierreControlador:
 
     def cerrar_dia(self):
         # Cierre manual desde el panel: incluye el dia de hoy.
-        return self._cerrar_hasta(date.today(), "Cerró el día")
+        return self._cerrar_hasta(date.today(), "Cerro el dia")
 
     def barrido_inicial(self):
         # Al iniciar sesion: cierra solo lo que quedo de dias ANTERIORES, por si
         # el dia anterior no se cerro a mano. No toca las mesas abiertas de hoy.
         limite = date.today() - timedelta(days=1)
-        return self._cerrar_hasta(limite, "Cierre automático de mesas de días anteriores")
+        return self._cerrar_hasta(limite, "Cierre automatico de mesas de dias anteriores")
 
     def _cerrar_hasta(self, fecha_limite, descripcion):
         try:
@@ -41,6 +41,6 @@ class CierreControlador:
             registrar_accion(
                 Sesion().usuario_id,
                 f"{descripcion}: {cerradas} mesas cerradas, "
-                f"{descartadas} vacías descartadas, {vencidas} sin consumo vencidas.",
+                f"{descartadas} vacias descartadas, {vencidas} sin consumo vencidas.",
             )
         return True, {"cerradas": cerradas, "descartadas": descartadas, "vencidas": vencidas}

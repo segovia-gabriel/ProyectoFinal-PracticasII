@@ -30,7 +30,7 @@ class DialogoUsuario(QDialog):
             self.label_titulo.setText("Editar usuario")
             self.lineEdit_usuario.setText(usuario["nombre_usuario"])
             # En edicion la contrasena es opcional: vacia = no cambiarla.
-            self.label_ayuda.setText("Dejá la contraseña vacía para no cambiarla.")
+            self.label_ayuda.setText("Deja la contrasena vacia para no cambiarla.")
 
         self.pushButton_guardar.clicked.connect(self.guardar)
         self.pushButton_cancelar.clicked.connect(self.reject)

@@ -1,10 +1,9 @@
 """
 Ventana principal (unica ventana de trabajo). A la izquierda el menu y a la
 derecha un QStackedWidget: la pagina de inicio muestra el panel con el resumen
-del dia (reservas de hoy, pendientes, ingresos del mes) y cada modulo se muestra
-como otra pagina del stack, sin abrir ventanas nuevas. El menu cambia de pagina:
-el boton "Inicio" trae de vuelta el panel de resumen.
-Tambien maneja el cierre de sesion, que vuelve al login.
+del dia (agenda de hoy, notificaciones, indicadores de reservas) y cada modulo
+se muestra como otra pagina del stack. Desde el Inicio se puede cambiar el
+estado de asistencia y cargar el consumo de cualquier reserva de la agenda.
 """
 
 import sys
@@ -12,9 +11,10 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QPen
 from PyQt5.QtWidgets import (QButtonGroup, QDialog, QHeaderView, QListWidgetItem,
                              QMainWindow, QMessageBox, QStackedWidget,
-                             QTableWidgetItem)
+                             QStyle, QStyledItemDelegate, QTableWidgetItem)
 
 from controlador.panel_controlador import PanelControlador
 from controlador.reservas_controlador import ReservasControlador
@@ -25,6 +25,50 @@ from utilidades.sesion import Sesion
 RUTA_UI = Path(__file__).resolve().parent / "principal.ui"
 
 
+class _AgendaDelegate(QStyledItemDelegate):
+    """
+    Con QStyleSheetStyle activo, initStyleOption no alcanza: el motor QSS
+    pinta sus propios colores encima. Sobreescribir paint() es la unica forma
+    de garantizar que los colores de fila se vean.
+    """
+    _BG_NORMAL   = QColor("#ffffff")
+    _BG_SELECTED = QColor("#dbeafe")
+    _FG          = QColor("#0f172a")
+    _BORDER      = QColor("#eef2f7")
+
+    def paint(self, painter, option, index):
+        is_selected = bool(option.state & QStyle.State_Selected)
+        row_color   = index.data(Qt.BackgroundRole)
+
+        painter.save()
+
+        # Fondo
+        if is_selected:
+            painter.fillRect(option.rect, self._BG_SELECTED)
+        elif row_color is not None:
+            painter.fillRect(option.rect, row_color)
+        else:
+            painter.fillRect(option.rect, self._BG_NORMAL)
+
+        # Borde inferior (igual que el QSS global)
+        painter.setPen(QPen(self._BORDER, 1))
+        r = option.rect
+        painter.drawLine(r.left(), r.bottom(), r.right(), r.bottom())
+
+        # Texto
+        text = index.data(Qt.DisplayRole)
+        if text:
+            painter.setPen(self._FG)
+            painter.setFont(option.font)
+            painter.drawText(
+                r.adjusted(8, 0, -8, 0),
+                Qt.AlignVCenter | Qt.AlignLeft,
+                str(text),
+            )
+
+        painter.restore()
+
+
 class VentanaPrincipal(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -32,7 +76,7 @@ class VentanaPrincipal(QMainWindow):
             uic.loadUi(RUTA_UI, self)
         except FileNotFoundError as error:
             registrar(error, "error")
-            QMessageBox.critical(self, "Error", "No se encontró la pantalla principal.")
+            QMessageBox.critical(self, "Error", "No se encontro la pantalla principal.")
             sys.exit(1)
 
         self.controlador = PanelControlador()
@@ -66,6 +110,9 @@ class VentanaPrincipal(QMainWindow):
         self.tableWidget_agenda.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget_agenda.setToolTip(
             "Doble clic en una reserva para marcar la asistencia del cliente.")
+        # El delegate hace que los colores de fila funcionen aunque haya QSS global.
+        self.tableWidget_agenda.setItemDelegate(_AgendaDelegate(self))
+        self.tableWidget_agenda.setAlternatingRowColors(False)
 
         # Los avisos son textos largos: se cortan en varias lineas dentro del
         # ancho del panel, sin barra de scroll horizontal.
@@ -77,7 +124,6 @@ class VentanaPrincipal(QMainWindow):
         # El navbar cambia la pagina del stack: "Inicio" vuelve al panel de
         # resumen y cada modulo se muestra como su propia pagina.
         self.pushButton_inicio.clicked.connect(self.ir_al_inicio)
-        self.pushButton_salon.clicked.connect(self.abrir_salon)
         self.pushButton_usuarios.clicked.connect(self.abrir_usuarios)
         self.pushButton_historial.clicked.connect(self.abrir_historial)
         self.pushButton_mesas.clicked.connect(self.abrir_mesas)
@@ -92,7 +138,7 @@ class VentanaPrincipal(QMainWindow):
         # modulo estamos. Arranca marcado "Inicio", que es la pagina que se muestra.
         self._grupo_navbar = QButtonGroup(self)
         self._grupo_navbar.setExclusive(True)
-        for boton in (self.pushButton_inicio, self.pushButton_salon,
+        for boton in (self.pushButton_inicio,
                       self.pushButton_reservas, self.pushButton_consumo,
                       self.pushButton_clientes, self.pushButton_mesas,
                       self.pushButton_menu, self.pushButton_estadisticas,
@@ -105,6 +151,8 @@ class VentanaPrincipal(QMainWindow):
         # en la agenda cambia el estado de asistencia, en los pendientes abre
         # la pantalla que corresponde segun el tipo de aviso.
         self.tableWidget_agenda.doubleClicked.connect(self.cambiar_estado_agenda)
+        self.pushButton_cambiarEstado.clicked.connect(self.cambiar_estado_agenda)
+        self.pushButton_cargarConsumo.clicked.connect(self.cargar_consumo_agenda)
         self.listWidget_avisos.itemDoubleClicked.connect(self.resolver_aviso)
 
         self.pushButton_cerrarDia.clicked.connect(self.cerrar_dia)
@@ -132,11 +180,18 @@ class VentanaPrincipal(QMainWindow):
         self._cargar_avisos(datos["avisos"])
 
     def _cargar_agenda(self, filas):
+        # Verde  = asistio (sin consumo todavia)
+        # Naranja = consumo abierto (mesa en uso)
+        # Azul   = consumo cerrado (mesa pagada)
+        # Rojo   = falto
+        COLOR_ASISTIO  = QColor(183, 230, 199)
+        COLOR_ABIERTA  = QColor(255, 220, 130)
+        COLOR_CERRADA  = QColor(173, 207, 245)
+        COLOR_FALTO    = QColor(255, 187, 187)
+
         tabla = self.tableWidget_agenda
         tabla.setRowCount(len(filas))
         for i, fila in enumerate(filas):
-            # El id y el estado crudo viajan en la primera celda: los necesita
-            # el doble clic para abrir el dialogo de asistencia.
             celda = QTableWidgetItem(fila["horario"])
             celda.setData(Qt.UserRole, fila["id"])
             celda.setData(Qt.UserRole + 1, fila["estado_clave"])
@@ -144,6 +199,24 @@ class VentanaPrincipal(QMainWindow):
             tabla.setItem(i, 1, QTableWidgetItem(fila["cliente"]))
             tabla.setItem(i, 2, QTableWidgetItem(fila["mesa"]))
             tabla.setItem(i, 3, QTableWidgetItem(fila["estado"]))
+
+            consumo = fila.get("estado_consumo")
+            asistencia = fila["estado_clave"]
+            if consumo == "cerrada":
+                color = COLOR_CERRADA
+            elif consumo == "abierta":
+                color = COLOR_ABIERTA
+            elif asistencia == "asistio":
+                color = COLOR_ASISTIO
+            elif asistencia == "falto":
+                color = COLOR_FALTO
+            else:
+                color = None  # en_espera y tardanza sin color
+
+            if color:
+                for col in range(tabla.columnCount()):
+                    if tabla.item(i, col):
+                        tabla.item(i, col).setBackground(color)
 
         # Si no hay reservas se avisa en el titulo, para no dejar una tabla vacia
         # sin explicacion.
@@ -156,7 +229,7 @@ class VentanaPrincipal(QMainWindow):
         lista = self.listWidget_avisos
         lista.clear()
         if not avisos:
-            item = QListWidgetItem("No hay notificaciones. Todo al día.")
+            item = QListWidgetItem("No hay notificaciones. Todo al dia.")
             item.setTextAlignment(Qt.AlignCenter)
             lista.addItem(item)
             self.label_subtituloAvisos.setText("Notificaciones")
@@ -171,11 +244,18 @@ class VentanaPrincipal(QMainWindow):
 
     # ---------- Acciones desde el panel ----------
 
-    def cambiar_estado_agenda(self):
-        # Doble clic sobre una reserva de hoy: cambia el estado de asistencia
-        # sin tener que entrar al modulo Reservas.
+    def cargar_consumo_agenda(self):
         fila = self.tableWidget_agenda.currentRow()
         if fila < 0:
+            QMessageBox.warning(self, "Atencion", "Selecciona una reserva de la agenda.")
+            return
+        reserva_id = self.tableWidget_agenda.item(fila, 0).data(Qt.UserRole)
+        self._cargar_consumo_pendiente(reserva_id)
+
+    def cambiar_estado_agenda(self):
+        fila = self.tableWidget_agenda.currentRow()
+        if fila < 0:
+            QMessageBox.warning(self, "Atencion", "Selecciona una reserva de la agenda.")
             return
         celda = self.tableWidget_agenda.item(fila, 0)
         reserva_id = celda.data(Qt.UserRole)
@@ -200,22 +280,22 @@ class VentanaPrincipal(QMainWindow):
         from controlador.cierre_controlador import CierreControlador
 
         resp = QMessageBox.question(
-            self, "Cerrar día",
-            "Se van a cerrar todas las mesas abiertas de hoy, descartar las vacías "
-            "y marcar como vencidas las reservas sin consumo. ¿Confirmás?",
+            self, "Cerrar dia",
+            "Se van a cerrar todas las mesas abiertas de hoy, descartar las vacias "
+            "y marcar como vencidas las reservas sin consumo. ¿Confirmas?",
             QMessageBox.Yes | QMessageBox.No)
         if resp != QMessageBox.Yes:
             return
 
         exito, datos = CierreControlador().cerrar_dia()
         if not exito:
-            QMessageBox.warning(self, "Cerrar día", datos)
+            QMessageBox.warning(self, "Cerrar dia", datos)
             return
         QMessageBox.information(
-            self, "Cerrar día",
-            f"Día cerrado.\n"
+            self, "Cerrar dia",
+            f"Dia cerrado.\n"
             f"Mesas cerradas: {datos['cerradas']}\n"
-            f"Mesas vacías descartadas: {datos['descartadas']}\n"
+            f"Mesas vacias descartadas: {datos['descartadas']}\n"
             f"Reservas sin consumo vencidas: {datos['vencidas']}")
         self.cargar_panel()
 
@@ -248,7 +328,7 @@ class VentanaPrincipal(QMainWindow):
         controlador = MenuControlador()
         exito, item = controlador.obtener_item(item_id)
         if not exito or item is None:
-            QMessageBox.warning(self, "Error", "No se pudo abrir el ítem de menú.")
+            QMessageBox.warning(self, "Error", "No se pudo abrir el item de menu.")
             return
         VentanaPrecios(item, controlador, self).exec_()  # ahora es un dialogo modal
         self.cargar_panel()  # el aviso de renovacion pudo resolverse
@@ -277,10 +357,6 @@ class VentanaPrincipal(QMainWindow):
         # Carga inicial del panel cuando se muestra la ventana.
         super().showEvent(evento)
         self.cargar_panel()
-
-    def abrir_salon(self):
-        from vista.salon.salon_ventana import VentanaSalon
-        self._mostrar_modulo(VentanaSalon)
 
     def abrir_usuarios(self):
         from vista.usuarios.usuarios_ventana import VentanaUsuarios

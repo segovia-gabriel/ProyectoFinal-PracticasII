@@ -1,5 +1,5 @@
 """
-Ventana de Menú (items). Listado con precio vigente y acceso a Grupos de menú y
+Ventana de Menu (items). Listado con precio vigente y acceso a Grupos de menu y
 a Precios de cada item. Al cerrarse vuelve la ventana principal.
 """
 
@@ -78,11 +78,11 @@ class VentanaMenu(QWidget):
     def abrir_editar(self):
         item_id = self._id_seleccionado()
         if item_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un ítem para editar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un item para editar.")
             return
         exito, item = self.controlador.obtener_item(item_id)
         if not exito or item is None:
-            QMessageBox.warning(self, "Error", "No se pudo abrir el ítem.")
+            QMessageBox.warning(self, "Error", "No se pudo abrir el item.")
             return
         dialogo = DialogoItemMenu(self.controlador, item=item, parent=self)
         if dialogo.exec_() == QDialog.Accepted:
@@ -92,9 +92,9 @@ class VentanaMenu(QWidget):
     def eliminar_seleccionado(self):
         item_id = self._id_seleccionado()
         if item_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un ítem para eliminar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un item para eliminar.")
             return
-        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este ítem?"):
+        if not confirmar_eliminacion(self, "¿Seguro que queres eliminar este item?"):
             return
         exito, mensaje = self.controlador.eliminar_item(item_id)
         if exito:
@@ -110,10 +110,10 @@ class VentanaMenu(QWidget):
     def abrir_precios(self):
         item_id = self._id_seleccionado()
         if item_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un ítem para ver sus precios.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un item para ver sus precios.")
             return
         exito, item = self.controlador.obtener_item(item_id)
         if not exito or item is None:
-            QMessageBox.warning(self, "Error", "No se pudo abrir el ítem.")
+            QMessageBox.warning(self, "Error", "No se pudo abrir el item.")
             return
         VentanaPrecios(item, self.controlador, self).exec_()

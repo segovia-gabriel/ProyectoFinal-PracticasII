@@ -30,7 +30,7 @@ def _horas_de(duracion_tipo):
 
 
 def _hora_en_turno(hora_inicio):
-    # True si la hora de inicio cae en el turno mañana (10:30–13:30) o en el
+    # True si la hora de inicio cae en el turno manana (10:30–13:30) o en el
     # turno noche (19:00–02:00, que pasa la medianoche).
     if _TURNO_MANANA[0] <= hora_inicio <= _TURNO_MANANA[1]:
         return True
@@ -94,9 +94,9 @@ class ReservasControlador:
 
     def guardar(self, reserva_id, cliente_id, mesa_id, fecha, hora_inicio, duracion_tipo, estado):
         if cliente_id is None:
-            return False, "Seleccioná un cliente."
+            return False, "Selecciona un cliente."
         if mesa_id is None:
-            return False, "Seleccioná una mesa."
+            return False, "Selecciona una mesa."
 
         # No crear ni mover una reserva al pasado.
         if reserva_id is None and fecha < date.today():
@@ -115,8 +115,8 @@ class ReservasControlador:
 
         # La reserva tiene que empezar dentro de un turno de atencion.
         if not _hora_en_turno(hora_inicio):
-            return False, ("El horario elegido está fuera de los turnos de atención. "
-                           "Turno mañana: 10:30 a 13:30. Turno noche: 19:00 a 02:00.")
+            return False, ("El horario elegido esta fuera de los turnos de atencion. "
+                           "Turno manana: 10:30 a 13:30. Turno noche: 19:00 a 02:00.")
 
         # El horario no puede cruzar la medianoche: la reserva tiene una sola
         # fecha y hora_inicio/hora_fin son TIME del mismo dia, asi que si
@@ -129,7 +129,7 @@ class ReservasControlador:
         if fin_en_minutos >= 24 * 60:
             return False, ("El horario elegido se pasa de la medianoche. "
                            f"Una reserva de {horas} horas tiene que empezar como "
-                           f"máximo a las {(24 - horas - 1):02d}:59.")
+                           f"maximo a las {(24 - horas - 1):02d}:59.")
         hora_fin = self._hora_fin(hora_inicio, duracion_tipo)
 
         try:
@@ -145,12 +145,12 @@ class ReservasControlador:
             if reserva_id is None:
                 reserva_modelo.crear(cliente_id, mesa_id, fecha, hora_inicio, hora_fin,
                                      duracion_tipo, precio)
-                registrar_accion(Sesion().usuario_id, f"Creó reserva para mesa {mesa_id} el {fecha}")
+                registrar_accion(Sesion().usuario_id, f"Creo reserva para mesa {mesa_id} el {fecha}")
                 return True, "Reserva creada correctamente."
             else:
                 reserva_modelo.modificar(reserva_id, cliente_id, mesa_id, fecha, hora_inicio,
                                         hora_fin, duracion_tipo, precio, estado)
-                registrar_accion(Sesion().usuario_id, f"Modificó reserva #{reserva_id}")
+                registrar_accion(Sesion().usuario_id, f"Modifico reserva #{reserva_id}")
                 return True, "Reserva modificada correctamente."
         except Error:
             return False, "No se pudo guardar la reserva."
@@ -159,7 +159,7 @@ class ReservasControlador:
         # El estado de asistencia solo se puede cambiar el mismo dia de la reserva
         # (no en las de otros dias, sean pasadas o futuras).
         if estado not in ESTADOS:
-            return False, "Estado de asistencia inválido."
+            return False, "Estado de asistencia invalido."
         try:
             reserva = reserva_modelo.obtener_por_id(reserva_id)
         except Error:
@@ -167,10 +167,10 @@ class ReservasControlador:
         if reserva is None:
             return False, "La reserva ya no existe."
         if reserva["fecha"] != date.today():
-            return False, "Solo se puede cambiar el estado de las reservas del día de hoy."
+            return False, "Solo se puede cambiar el estado de las reservas del dia de hoy."
         try:
             reserva_modelo.actualizar_estado(reserva_id, estado)
-            registrar_accion(Sesion().usuario_id, f"Cambió estado de reserva #{reserva_id} a {estado}")
+            registrar_accion(Sesion().usuario_id, f"Cambio estado de reserva #{reserva_id} a {estado}")
             return True, "Estado actualizado correctamente."
         except Error:
             return False, "No se pudo actualizar el estado."
@@ -185,7 +185,7 @@ class ReservasControlador:
             if reserva_modelo.contar_consumos(reserva_id) > 0:
                 return False, "No se puede eliminar la reserva porque tiene un consumo cargado."
             reserva_modelo.eliminar(reserva_id)
-            registrar_accion(Sesion().usuario_id, f"Eliminó reserva #{reserva_id}")
+            registrar_accion(Sesion().usuario_id, f"Elimino reserva #{reserva_id}")
             return True, "Reserva eliminada correctamente."
         except Error:
             return False, "No se pudo eliminar la reserva."

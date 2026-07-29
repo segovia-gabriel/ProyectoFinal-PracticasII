@@ -73,7 +73,7 @@ class ConsumoControlador:
             items = menu_modelo.listar()
             return True, [(i["id"], i["nombre"]) for i in items]
         except Error:
-            return False, "No se pudieron cargar los ítems."
+            return False, "No se pudieron cargar los items."
 
     def precio_item(self, item_id, medio_pago):
         # Precio vigente resuelto segun el medio de pago. Devuelve Decimal o None
@@ -93,11 +93,11 @@ class ConsumoControlador:
         # no tiene consumo se crea (abierta), y si ya lo tiene abierto se
         # reemplaza el detalle. Con cerrar=True ademas se consolida la cuenta.
         if reserva_id is None:
-            return False, "Seleccioná una reserva."
+            return False, "Selecciona una reserva."
         if medio_pago not in ("efectivo", "transferencia"):
-            return False, "Seleccioná el medio de pago."
+            return False, "Selecciona el medio de pago."
         if not items:
-            return False, "Agregá al menos un ítem al consumo."
+            return False, "Agrega al menos un item al consumo."
 
         # Se revalida la reserva aca y no solo al armar el combo: el consumo es
         # de "las personas que asistieron", asi que la reserva tiene que haber
@@ -109,10 +109,10 @@ class ConsumoControlador:
         if reserva is None:
             return False, "La reserva ya no existe."
         if reserva["fecha"] > date.today():
-            return False, "Esa reserva todavía no ocurrió: no se le puede cargar el consumo."
+            return False, "Esa reserva todavia no ocurrio: no se le puede cargar el consumo."
         if reserva["estado_asistencia"] not in ("asistio", "tardanza"):
-            return False, ("Primero marcá la asistencia del cliente en Reservas "
-                           "(solo se cobra a quien asistió).")
+            return False, ("Primero marca la asistencia del cliente en Reservas "
+                           "(solo se cobra a quien asistio).")
 
         # Si ya hay un consumo cerrado, la cuenta esta consolidada y no se toca.
         try:
@@ -130,7 +130,7 @@ class ConsumoControlador:
                     return False, "Las cantidades deben ser mayores a cero."
                 precio = self.precio_item(item_id, medio_pago)
                 if precio is None:
-                    return False, "Hay un ítem sin precio cargado; cargale un precio primero."
+                    return False, "Hay un item sin precio cargado; cargale un precio primero."
                 detalles.append((item_id, cantidad, precio))
                 total += precio * cantidad
 
@@ -146,9 +146,9 @@ class ConsumoControlador:
                     consumo_modelo.cerrar(existente["id"])
 
             if cerrar:
-                registrar_accion(Sesion().usuario_id, f"Cerró la cuenta de la reserva #{reserva_id}")
-                return True, "Mesa cerrada. La cuenta pasó al historial de ventas."
-            registrar_accion(Sesion().usuario_id, f"Guardó el consumo abierto de la reserva #{reserva_id}")
+                registrar_accion(Sesion().usuario_id, f"Cerro la cuenta de la reserva #{reserva_id}")
+                return True, "Mesa cerrada. La cuenta paso al historial de ventas."
+            registrar_accion(Sesion().usuario_id, f"Guardo el consumo abierto de la reserva #{reserva_id}")
             return True, "Consumo guardado. La mesa sigue abierta."
         except Error:
             return False, "No se pudo guardar el consumo."

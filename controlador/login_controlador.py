@@ -18,7 +18,7 @@ class LoginControlador:
     def intentar_ingresar(self, nombre_usuario, contrasena):
         # Validacion basica antes de tocar la base.
         if not nombre_usuario or not contrasena:
-            return False, "Completá usuario y contraseña."
+            return False, "Completa usuario y contrasena."
 
         try:
             usuario = usuario_modelo.obtener_por_nombre(nombre_usuario)
@@ -29,12 +29,12 @@ class LoginControlador:
         # Mismo mensaje si el usuario no existe o si la contrasena esta mal,
         # para no revelar cual de los dos fallo (buena practica de seguridad).
         if usuario is None or not verificar_contrasena(contrasena, usuario["contrasena_hash"]):
-            return False, "Usuario o contraseña incorrectos."
+            return False, "Usuario o contrasena incorrectos."
 
         # Login correcto: dejamos constancia y abrimos la sesion global.
         try:
             usuario_modelo.actualizar_ultimo_acceso(usuario["id"])
-            registrar_accion(usuario["id"], "Inicio de sesión")
+            registrar_accion(usuario["id"], "Inicio de sesion")
         except Error:
             # Que falle la auditoria no deberia impedir entrar; ya quedo logueado.
             pass

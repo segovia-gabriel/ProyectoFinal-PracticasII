@@ -1,6 +1,6 @@
 """
 Ventana de Consumos. Listado con filtros (cliente o codigo de mesa y rango de
-fechas) y vista de detalle. Alta y edición se hacen desde el módulo Salón.
+fechas) y vista de detalle. Alta y edicion se hacen desde el modulo Salon.
 """
 
 from pathlib import Path
@@ -47,7 +47,7 @@ class VentanaConsumo(QWidget):
         hasta = self.dateEdit_hasta.date().toPyDate()
         valido, mensaje = validar_rango_fechas(desde, hasta)
         if not valido:
-            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            QMessageBox.warning(self, "Rango de fechas invalido", mensaje)
             return
         exito, resultado = self.controlador.listar(filtro, desde, hasta)
         if not exito:
@@ -84,7 +84,7 @@ class VentanaConsumo(QWidget):
     def ver_detalle(self):
         consumo_id = self._id_seleccionado()
         if consumo_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un consumo para ver el detalle.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un consumo para ver el detalle.")
             return
         exito, detalle = self.controlador.obtener_detalle(consumo_id)
         if not exito:

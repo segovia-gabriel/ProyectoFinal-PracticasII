@@ -72,7 +72,7 @@
    <item>
     <widget class="QLabel" name="label_agregar">
      <property name="text">
-      <string>Agregar ítems</string>
+      <string>Agregar items</string>
      </property>
     </widget>
    </item>
@@ -148,7 +148,7 @@
      </property>
      <column>
       <property name="text">
-       <string>Ítem</string>
+       <string>Item</string>
       </property>
      </column>
      <column>
@@ -173,7 +173,7 @@
      <item>
       <widget class="QPushButton" name="pushButton_quitar">
        <property name="text">
-        <string>Quitar ítem</string>
+        <string>Quitar item</string>
        </property>
       </widget>
      </item>

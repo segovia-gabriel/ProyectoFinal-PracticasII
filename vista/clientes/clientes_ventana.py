@@ -52,7 +52,7 @@ class VentanaClientes(QWidget):
         # El "Desde" no puede quedar despues del "Hasta".
         valido, mensaje = validar_rango_fechas(desde, hasta)
         if not valido:
-            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            QMessageBox.warning(self, "Rango de fechas invalido", mensaje)
             return
         exito, resultado = self.controlador.listar(filtro_nombre, filtro_dni, desde, hasta)
         if not exito:
@@ -87,7 +87,7 @@ class VentanaClientes(QWidget):
     def abrir_editar(self):
         cliente_id = self._id_seleccionado()
         if cliente_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un cliente para editar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un cliente para editar.")
             return
         exito, cliente = self.controlador.obtener(cliente_id)
         if not exito or cliente is None:
@@ -101,9 +101,9 @@ class VentanaClientes(QWidget):
     def eliminar_seleccionado(self):
         cliente_id = self._id_seleccionado()
         if cliente_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un cliente para eliminar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un cliente para eliminar.")
             return
-        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este cliente?"):
+        if not confirmar_eliminacion(self, "¿Seguro que queres eliminar este cliente?"):
             return
         exito, mensaje = self.controlador.eliminar(cliente_id)
         if exito:
@@ -115,7 +115,7 @@ class VentanaClientes(QWidget):
     def ver_reservas(self):
         cliente_id = self._id_seleccionado()
         if cliente_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un cliente para ver sus reservas.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un cliente para ver sus reservas.")
             return
         exito, cliente = self.controlador.obtener(cliente_id)
         if not exito or cliente is None:

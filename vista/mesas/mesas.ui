@@ -44,7 +44,7 @@
       <item>
        <widget class="QLineEdit" name="lineEdit_filtro">
         <property name="placeholderText">
-         <string>Buscar por código (ej: A5)</string>
+         <string>Buscar por codigo (ej: A5)</string>
         </property>
        </widget>
       </item>
@@ -85,7 +85,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Código</string>
+        <string>Codigo</string>
        </property>
       </column>
       <column>

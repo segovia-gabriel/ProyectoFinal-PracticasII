@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Iniciar sesión - Restaurante</string>
+   <string>Iniciar sesion - Restaurante</string>
   </property>
   <layout class="QVBoxLayout" name="layout_formulario">
    <property name="spacing">
@@ -57,14 +57,14 @@
    <item>
     <widget class="QLabel" name="label_marcaTitulo">
      <property name="text">
-      <string>Gestión de Restaurante</string>
+      <string>Gestion de Restaurante</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="label_titulo">
      <property name="text">
-      <string>Iniciar sesión</string>
+      <string>Iniciar sesion</string>
      </property>
     </widget>
    </item>
@@ -97,7 +97,7 @@
    <item>
     <widget class="QLabel" name="label_contrasena">
      <property name="text">
-      <string>Contraseña</string>
+      <string>Contrasena</string>
      </property>
     </widget>
    </item>

@@ -112,7 +112,7 @@ class DialogoReserva(QDialog):
         # contra la lista: si no coincide con ningun cliente, se avisa.
         indice_cliente = self.comboBox_cliente.findText(self.comboBox_cliente.currentText())
         if indice_cliente < 0:
-            self.label_error.setText("Elegí un cliente válido de la lista (por nombre o DNI).")
+            self.label_error.setText("Elegi un cliente valido de la lista (por nombre o DNI).")
             return
         self.comboBox_cliente.setCurrentIndex(indice_cliente)
 

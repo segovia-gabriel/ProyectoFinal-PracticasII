@@ -55,17 +55,17 @@ class UsuariosControlador:
             if not valido:
                 return False, mensaje
             if contrasena != contrasena_repetida:
-                return False, "Las contraseñas no coinciden."
+                return False, "Las contrasenas no coinciden."
             hash_contrasena = hashear_contrasena(contrasena)
 
         try:
             if es_alta:
                 usuario_modelo.crear(nombre_usuario, hash_contrasena)
-                registrar_accion(Sesion().usuario_id, f"Creó usuario: {nombre_usuario}")
+                registrar_accion(Sesion().usuario_id, f"Creo usuario: {nombre_usuario}")
                 return True, "Usuario creado correctamente."
             else:
                 usuario_modelo.modificar(usuario_id, nombre_usuario, hash_contrasena)
-                registrar_accion(Sesion().usuario_id, f"Modificó usuario: {nombre_usuario}")
+                registrar_accion(Sesion().usuario_id, f"Modifico usuario: {nombre_usuario}")
                 return True, "Usuario modificado correctamente."
         except Error:
             return False, "No se pudo guardar el usuario en la base de datos."
@@ -73,19 +73,19 @@ class UsuariosControlador:
     def eliminar(self, usuario_id):
         # Regla: no puede borrarse a si mismo (perderia la sesion activa)...
         if usuario_id == Sesion().usuario_id:
-            return False, "No podés eliminar tu propio usuario mientras estás logueado."
+            return False, "No podes eliminar tu propio usuario mientras estas logueado."
 
         try:
             # ...ni el ultimo usuario del sistema (nadie podria volver a entrar).
             if usuario_modelo.contar() <= 1:
-                return False, "No se puede eliminar el único usuario del sistema."
+                return False, "No se puede eliminar el unico usuario del sistema."
 
             usuario = usuario_modelo.obtener_por_id(usuario_id)
             if usuario is None:
                 return False, "El usuario ya no existe."
 
             usuario_modelo.eliminar(usuario_id)
-            registrar_accion(Sesion().usuario_id, f"Eliminó usuario: {usuario['nombre_usuario']}")
+            registrar_accion(Sesion().usuario_id, f"Elimino usuario: {usuario['nombre_usuario']}")
             return True, "Usuario eliminado correctamente."
         except Error:
             return False, "No se pudo eliminar el usuario."

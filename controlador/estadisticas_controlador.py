@@ -18,7 +18,7 @@ class EstadisticasControlador:
             top = estadisticas_modelo.top_clientes(5)
             return True, {"total": total, "top": top}
         except Error:
-            return False, "No se pudieron cargar las estadísticas de clientes."
+            return False, "No se pudieron cargar las estadisticas de clientes."
 
     def reservas(self):
         try:
@@ -34,14 +34,14 @@ class EstadisticasControlador:
                 "por_mes": por_mes,
             }
         except Error:
-            return False, "No se pudieron cargar las estadísticas de reservas."
+            return False, "No se pudieron cargar las estadisticas de reservas."
 
     def consumo(self, anio, mes):
         try:
             ingresos = estadisticas_modelo.ingresos_por_dia_semana(anio, mes)
             items = estadisticas_modelo.items_por_dia_semana(anio, mes)
         except Error:
-            return False, "No se pudieron cargar las estadísticas de consumo."
+            return False, "No se pudieron cargar las estadisticas de consumo."
 
         # Ingresos: dia a espanol y ordenados de Lunes a Domingo.
         ingresos_es = [(formato.dia_semana(f["dia"]), float(f["ingreso"])) for f in ingresos]

@@ -33,8 +33,8 @@ class DialogoItemMenu(QDialog):
                 self.comboBox_grupo.addItem(nombre, grupo_id)
 
         if item:
-            self.setWindowTitle("Editar ítem de menú")
-            self.label_titulo.setText("Editar ítem de menú")
+            self.setWindowTitle("Editar item de menu")
+            self.label_titulo.setText("Editar item de menu")
             self.lineEdit_nombre.setText(item["nombre"])
             self.plainTextEdit_descripcion.setPlainText(item["descripcion"] or "")
             indice = self.comboBox_grupo.findData(item["grupo_menu_id"])
@@ -63,7 +63,7 @@ class DialogoItemMenu(QDialog):
 
     def seleccionar_imagen(self):
         ruta, _ = QFileDialog.getOpenFileName(
-            self, "Elegir imagen", "", "Imágenes (*.png *.jpg *.jpeg *.bmp)"
+            self, "Elegir imagen", "", "Imagenes (*.png *.jpg *.jpeg *.bmp)"
         )
         if ruta:
             self.imagen_origen = ruta

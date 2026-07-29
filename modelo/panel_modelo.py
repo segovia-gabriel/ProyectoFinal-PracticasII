@@ -44,7 +44,7 @@ def contar_reservas_manana():
 
 
 def contar_reservas_futuras():
-    # Desde pasado mañana en adelante (mañana se cuenta aparte).
+    # Desde pasado manana en adelante (manana se cuenta aparte).
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -70,10 +70,11 @@ def reservas_de_hoy():
         cursor.execute(
             "SELECT r.id, r.hora_inicio, r.hora_fin, r.estado_asistencia, "
             "c.nombre AS cliente_nombre, c.apellido AS cliente_apellido, "
-            "m.codigo AS mesa_codigo "
+            "m.codigo AS mesa_codigo, co.estado AS estado_consumo "
             "FROM reservas r "
             "JOIN clientes c ON c.id = r.cliente_id "
             "JOIN mesas m ON m.id = r.mesa_id "
+            "LEFT JOIN consumos co ON co.reserva_id = r.id "
             "WHERE r.fecha = CURDATE() "
             "ORDER BY r.hora_inicio"
         )

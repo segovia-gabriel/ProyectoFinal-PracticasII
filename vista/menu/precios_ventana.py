@@ -1,7 +1,7 @@
 """
 Ventana de historial de precios de un item. Muestra cada precio con su variacion
 porcentual respecto al anterior y avisa si el precio vigente esta por vencer.
-Se abre desde Menú; al cerrarse vuelve a Menú.
+Se abre desde Menu; al cerrarse vuelve a Menu.
 """
 
 from pathlib import Path
@@ -72,7 +72,7 @@ class VentanaPrecios(QDialog):
 
     def abrir_nuevo(self):
         # Precarga la fecha fin del precio vigente para que el usuario
-        # sepa desde dónde empieza a contar el nuevo vencimiento.
+        # sepa desde donde empieza a contar el nuevo vencimiento.
         _, vigente = self.controlador.precio_vigente(self.item_id)
         fecha_fin_ant = vigente["fecha_fin"] if vigente and vigente.get("fecha_fin") else None
         dialogo = DialogoPrecio(self.controlador, self.item_id,
@@ -90,7 +90,7 @@ class VentanaPrecios(QDialog):
             return
         if vigente is None:
             QMessageBox.information(self, "Sin precio",
-                                    "Este ítem todavía no tiene un precio cargado.")
+                                    "Este item todavia no tiene un precio cargado.")
             return
         dialogo = DialogoPrecio(self.controlador, self.item_id, precio_actual=vigente, parent=self)
         if dialogo.exec_() == QDialog.Accepted:

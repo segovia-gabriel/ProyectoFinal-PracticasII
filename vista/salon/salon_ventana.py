@@ -50,7 +50,7 @@ class VentanaSalon(QWidget):
             "<span style='color:#2563eb'>■</span> Reservada<br>"
             "<span style='color:#059669'>■</span> Mesa abierta<br>"
             "<span style='color:#64748b'>■</span> Cuenta cerrada<br>"
-            "<span style='color:#dc2626'>■</span> No se presentó")
+            "<span style='color:#dc2626'>■</span> No se presento")
 
         self._cargar_horarios()
 
@@ -66,7 +66,7 @@ class VentanaSalon(QWidget):
         from datetime import date
 
         hoy = date.today()
-        dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]
         return (f"{dias[hoy.weekday()]} {hoy.day} de "
                 f"{formato.nombre_mes(hoy.month).lower()}")
 
@@ -167,7 +167,7 @@ class VentanaSalon(QWidget):
     def _mostrar_detalle(self, mesa):
         if mesa is None:
             self.label_mesaCodigo.setText("—")
-            self.label_mesaDatos.setText("Seleccioná una mesa del plano.")
+            self.label_mesaDatos.setText("Selecciona una mesa del plano.")
             self.label_mesaEstado.setText("")
             self.pushButton_reserva.setEnabled(False)
             self.pushButton_asistencia.setEnabled(False)
@@ -206,8 +206,8 @@ class VentanaSalon(QWidget):
         # el choque con otras reservas lo valida el controlador al guardar.
         mesa = self.mesa_seleccionada
         if mesa is None or mesa["estado"] != LIBRE:
-            QMessageBox.warning(self, "Atención",
-                                "Elegí una mesa libre en este horario.")
+            QMessageBox.warning(self, "Atencion",
+                                "Elegi una mesa libre en este horario.")
             return
         hora = QTime.fromString(self._hora_elegida(), "HH:mm:ss")
         dialogo = DialogoReserva(self.reservas_controlador, parent=self,
@@ -219,8 +219,8 @@ class VentanaSalon(QWidget):
     def _mesa_con_reserva(self):
         mesa = self.mesa_seleccionada
         if mesa is None or mesa["reserva_id"] is None:
-            QMessageBox.warning(self, "Atención",
-                                "Elegí una mesa que tenga una reserva en este horario.")
+            QMessageBox.warning(self, "Atencion",
+                                "Elegi una mesa que tenga una reserva en este horario.")
             return None
         return mesa
 

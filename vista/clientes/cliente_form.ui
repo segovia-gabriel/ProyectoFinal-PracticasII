@@ -77,7 +77,7 @@
      <item row="2" column="1">
       <widget class="QLineEdit" name="lineEdit_dni">
        <property name="placeholderText">
-        <string>Sin puntos (7 u 8 dígitos)</string>
+        <string>Sin puntos (7 u 8 digitos)</string>
        </property>
       </widget>
      </item>
@@ -108,7 +108,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_direccion">
        <property name="text">
-        <string>Dirección</string>
+        <string>Direccion</string>
        </property>
       </widget>
      </item>
@@ -118,14 +118,14 @@
         <number>150</number>
        </property>
        <property name="placeholderText">
-        <string>Calle y número</string>
+        <string>Calle y numero</string>
        </property>
       </widget>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_telefono">
        <property name="text">
-        <string>Teléfono</string>
+        <string>Telefono</string>
        </property>
       </widget>
      </item>
@@ -135,7 +135,7 @@
         <number>20</number>
        </property>
        <property name="placeholderText">
-        <string>Entre 6 y 20 dígitos</string>
+        <string>Entre 6 y 20 digitos</string>
        </property>
       </widget>
      </item>

@@ -25,10 +25,10 @@ class DialogoPrecio(QDialog):
         self.precio_actual = precio_actual
         self.mensaje_exito = ""
 
-        # La fecha de fin siempre es obligatoria y mínimo hoy.
+        # La fecha de fin siempre es obligatoria y minimo hoy.
         # Si hay un precio anterior, se pre-carga su fecha_fin como referencia
-        # (el usuario la ve y decide desde ahí), pero puede elegir cualquier
-        # fecha futura sin restricción del precio anterior.
+        # (el usuario la ve y decide desde ahi), pero puede elegir cualquier
+        # fecha futura sin restriccion del precio anterior.
         self.dateEdit_fin.setMinimumDate(QDate.currentDate())
         if fecha_fin_sugerida is not None:
             q_sugerida = QDate(fecha_fin_sugerida.year,

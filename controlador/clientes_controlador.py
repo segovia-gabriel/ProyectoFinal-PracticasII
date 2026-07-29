@@ -73,12 +73,12 @@ class ClientesControlador:
         try:
             if cliente_id is None:
                 cliente_modelo.crear(nombre, apellido, dni, fecha_nacimiento, direccion, telefono)
-                registrar_accion(Sesion().usuario_id, f"Creó cliente: {apellido}, {nombre}")
+                registrar_accion(Sesion().usuario_id, f"Creo cliente: {apellido}, {nombre}")
                 return True, "Cliente creado correctamente."
             else:
                 cliente_modelo.modificar(cliente_id, nombre, apellido, dni,
                                          fecha_nacimiento, direccion, telefono)
-                registrar_accion(Sesion().usuario_id, f"Modificó cliente: {apellido}, {nombre}")
+                registrar_accion(Sesion().usuario_id, f"Modifico cliente: {apellido}, {nombre}")
                 return True, "Cliente modificado correctamente."
         except Error:
             return False, "No se pudo guardar el cliente."
@@ -101,7 +101,7 @@ class ClientesControlador:
             cliente_modelo.eliminar(cliente_id)
             registrar_accion(
                 Sesion().usuario_id,
-                f"Eliminó cliente: {cliente['apellido']}, {cliente['nombre']}",
+                f"Elimino cliente: {cliente['apellido']}, {cliente['nombre']}",
             )
             return True, "Cliente eliminado correctamente."
         except Error:

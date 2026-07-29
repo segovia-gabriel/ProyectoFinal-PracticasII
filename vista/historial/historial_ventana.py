@@ -52,7 +52,7 @@ class VentanaHistorial(QWidget):
 
         valido, mensaje = validar_rango_fechas(fecha_desde, fecha_hasta)
         if not valido:
-            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            QMessageBox.warning(self, "Rango de fechas invalido", mensaje)
             return
 
         exito, resultado = self.controlador.listar(usuario_id, fecha_desde, fecha_hasta)

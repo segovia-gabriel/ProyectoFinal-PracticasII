@@ -73,7 +73,7 @@ class VentanaGruposMesa(QDialog):
     def abrir_editar(self):
         grupo_id = self._id_seleccionado()
         if grupo_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un grupo para editar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un grupo para editar.")
             return
         exito, grupo = self.controlador.obtener_grupo(grupo_id)
         if not exito or grupo is None:
@@ -87,9 +87,9 @@ class VentanaGruposMesa(QDialog):
     def eliminar_seleccionado(self):
         grupo_id = self._id_seleccionado()
         if grupo_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un grupo para eliminar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un grupo para eliminar.")
             return
-        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este grupo?"):
+        if not confirmar_eliminacion(self, "¿Seguro que queres eliminar este grupo?"):
             return
         exito, mensaje = self.controlador.eliminar_grupo(grupo_id)
         if exito:

@@ -25,7 +25,7 @@ class VentanaLogin(QWidget):
             uic.loadUi(RUTA_UI, self)
         except FileNotFoundError as error:
             registrar(error, "error")
-            QMessageBox.critical(self, "Error", "No se encontró la pantalla de login.")
+            QMessageBox.critical(self, "Error", "No se encontro la pantalla de login.")
             sys.exit(1)
 
         # Login de tamano fijo: no se agranda, no se redimensiona y el boton de

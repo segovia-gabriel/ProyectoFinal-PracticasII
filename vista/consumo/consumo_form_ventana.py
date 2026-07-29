@@ -35,15 +35,15 @@ class DialogoConsumo(QDialog):
         self.items_agregados = []
 
         self.tableWidget_items.verticalHeader().setVisible(False)
-        # Columnas ordenadas: "Ítem" ocupa el espacio libre y las numéricas se
-        # ajustan a su contenido, en vez de estirar solo la última (que dejaba
-        # "Subtotal" enorme y las demás apretadas).
+        # Columnas ordenadas: "Item" ocupa el espacio libre y las numericas se
+        # ajustan a su contenido, en vez de estirar solo la ultima (que dejaba
+        # "Subtotal" enorme y las demas apretadas).
         cabecera = self.tableWidget_items.horizontalHeader()
         cabecera.setSectionResizeMode(0, QHeaderView.Stretch)
         for columna in (1, 2, 3):
             cabecera.setSectionResizeMode(columna, QHeaderView.ResizeToContents)
         self.tableWidget_items.setToolTip(
-            "Doble clic en un ítem para corregir la cantidad.")
+            "Doble clic en un item para corregir la cantidad.")
 
         # "Cerrar mesa" va en verde (consolida la venta); el primario azul de la
         # pantalla queda para "Guardar (mesa abierta)".
@@ -67,9 +67,9 @@ class DialogoConsumo(QDialog):
         if exito:
             for iid, nombre in items:
                 self.comboBox_item.addItem(nombre, iid)
-        # Buscador de ítem: con muchos ítems, scrollear el combo es tedioso. Se
+        # Buscador de item: con muchos items, scrollear el combo es tedioso. Se
         # vuelve editable con autocompletar que filtra por cualquier parte del
-        # texto, así se tipea el nombre y aparece. Mismo patrón que el buscador
+        # texto, asi se tipea el nombre y aparece. Mismo patron que el buscador
         # de cliente en el alta de reservas.
         self.comboBox_item.setEditable(True)
         self.comboBox_item.setInsertPolicy(QComboBox.NoInsert)
@@ -116,19 +116,19 @@ class DialogoConsumo(QDialog):
 
     def agregar_item(self):
         # Como el combo es editable (buscador), se resuelve el texto tipeado
-        # contra la lista: si no coincide con ningún ítem, se avisa en vez de
-        # agregar algo inválido.
+        # contra la lista: si no coincide con ningun item, se avisa en vez de
+        # agregar algo invalido.
         indice = self.comboBox_item.findText(self.comboBox_item.currentText())
         if indice < 0:
-            QMessageBox.warning(self, "Ítem inválido",
-                                "Elegí un ítem válido de la lista.")
+            QMessageBox.warning(self, "Item invalido",
+                                "Elegi un item valido de la lista.")
             return
         self.comboBox_item.setCurrentIndex(indice)
         item_id = self.comboBox_item.currentData()
         # el item tiene que tener precio cargado para poder consumirse
         if self.controlador.precio_item(item_id, self._medio()) is None:
             QMessageBox.warning(self, "Sin precio",
-                                "Ese ítem no tiene un precio cargado. Cargale uno desde Menú → Precios.")
+                                "Ese item no tiene un precio cargado. Cargale uno desde Menu → Precios.")
             return
 
         cantidad = self.spinBox_cantidad.value()
@@ -148,7 +148,7 @@ class DialogoConsumo(QDialog):
     def quitar_item(self):
         fila = self.tableWidget_items.currentRow()
         if fila < 0:
-            QMessageBox.warning(self, "Atención", "Seleccioná un ítem de la lista para quitar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un item de la lista para quitar.")
             return
         del self.items_agregados[fila]
         self._refrescar_tabla()
@@ -210,7 +210,7 @@ class DialogoConsumo(QDialog):
 
     def cerrar_mesa(self):
         # Consolida la cuenta: pide confirmacion porque despues no se puede editar.
-        if not confirmar(self, "¿Cerrar la mesa y consolidar la cuenta? Después no se podrá editar.",
+        if not confirmar(self, "¿Cerrar la mesa y consolidar la cuenta? Despues no se podra editar.",
                          titulo="Cerrar mesa", texto_si="Cerrar mesa"):
             return
         exito, mensaje = self.controlador.guardar_consumo(

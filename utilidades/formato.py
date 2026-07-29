@@ -10,9 +10,9 @@ un solo lugar para no repetir los mismos diccionarios en cada modulo.
 # formulario que arma el combo de estado.
 ESTADOS_ASISTENCIA = [
     ("En espera", "en_espera"),
-    ("Asistió", "asistio"),
+    ("Asistio", "asistio"),
     ("Tardanza", "tardanza"),
-    ("Faltó", "falto"),
+    ("Falto", "falto"),
 ]
 _ESTADOS = {clave: etiqueta for etiqueta, clave in ESTADOS_ASISTENCIA}
 
@@ -64,10 +64,10 @@ def moneda(valor):
 # DAYNAME de MySQL viene en ingles; lo pasamos a espanol y damos el orden natural
 # de la semana para poder ordenar las filas de estadisticas.
 _DIAS = {
-    "Monday": "Lunes", "Tuesday": "Martes", "Wednesday": "Miércoles",
-    "Thursday": "Jueves", "Friday": "Viernes", "Saturday": "Sábado", "Sunday": "Domingo",
+    "Monday": "Lunes", "Tuesday": "Martes", "Wednesday": "Miercoles",
+    "Thursday": "Jueves", "Friday": "Viernes", "Saturday": "Sabado", "Sunday": "Domingo",
 }
-ORDEN_DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+ORDEN_DIAS = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]
 
 _MESES = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
           "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]

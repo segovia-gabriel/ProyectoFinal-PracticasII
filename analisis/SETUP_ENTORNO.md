@@ -1,18 +1,18 @@
 # Setup de entorno — Fase 0
 
-Esto se hace una vez por máquina, antes de tocar código de la app. Objetivo: tener Python, MySQL y Qt Designer instalados, la base creada con `analisis/schema.sql`, y confirmarlo corriendo `verificar_entorno.py`.
+Esto se hace una vez por maquina, antes de tocar codigo de la app. Objetivo: tener Python, MySQL y Qt Designer instalados, la base creada con `analisis/schema.sql`, y confirmarlo corriendo `verificar_entorno.py`.
 
 ---
 
 ## macOS (Gabriel — MacBook Air M4)
 
-### 1. Homebrew (si no lo tenés)
+### 1. Homebrew (si no lo tenes)
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 ### 2. Python
-macOS ya trae `python3`, pero conviene una versión reciente vía Homebrew para no depender de la del sistema:
+macOS ya trae `python3`, pero conviene una version reciente via Homebrew para no depender de la del sistema:
 ```bash
 brew install python@3.12
 python3 --version
@@ -24,11 +24,11 @@ brew install mysql
 brew services start mysql
 brew install --cask mysqlworkbench
 ```
-Definir la contraseña de `root` (Homebrew lo instala sin password por defecto):
+Definir la contrasena de `root` (Homebrew lo instala sin password por defecto):
 ```bash
 mysql_secure_installation
 ```
-Seguí el asistente y poné una contraseña para `root` (anotala, va en `config.ini`).
+Segui el asistente y pone una contrasena para `root` (anotala, va en `config.ini`).
 
 ### 4. Qt Designer
 ```bash
@@ -49,13 +49,13 @@ pip install -r requirements.txt
 ```
 
 ### 6. Crear la base de datos
-Abrí MySQL Workbench → conectate a `localhost` con `root` y tu password → `File > Open SQL Script` → seleccioná `analisis/schema.sql` → ejecutá con el rayo (⚡) o `Cmd + Shift + Enter`.
+Abri MySQL Workbench → conectate a `localhost` con `root` y tu password → `File > Open SQL Script` → selecciona `analisis/schema.sql` → ejecuta con el rayo (⚡) o `Cmd + Shift + Enter`.
 
 ### 7. Configurar credenciales
 ```bash
 cp config.ini.example config.ini
 ```
-Editá `config.ini` y completá la password real de MySQL.
+Edita `config.ini` y completa la password real de MySQL.
 
 ### 8. Verificar
 ```bash
@@ -68,21 +68,21 @@ Tiene que mostrar las 11 tablas con su cantidad de filas (los datos de prueba qu
 ## Windows (Mijail)
 
 ### 1. Python
-Descargar el instalador desde https://www.python.org/downloads/ (3.8 o superior). Durante la instalación, tildar **"Add python.exe to PATH"**.
+Descargar el instalador desde https://www.python.org/downloads/ (3.8 o superior). Durante la instalacion, tildar **"Add python.exe to PATH"**.
 ```powershell
 py --version
 ```
-La consigna no exige una versión puntual de Python. El proyecto está probado sobre **3.8.10** en Windows y no usa sintaxis posterior a esa versión.
+La consigna no exige una version puntual de Python. El proyecto esta probado sobre **3.8.10** en Windows y no usa sintaxis posterior a esa version.
 
 ### 2. MySQL (XAMPP)
-En Windows el proyecto corre sobre el **MySQL/MariaDB que trae XAMPP**, que es lo que ya está instalado en la máquina de la defensa. Descargarlo de https://www.apachefriends.org/ y, desde el *XAMPP Control Panel*, arrancar el módulo **MySQL**.
+En Windows el proyecto corre sobre el **MySQL/MariaDB que trae XAMPP**, que es lo que ya esta instalado en la maquina de la defensa. Descargarlo de https://www.apachefriends.org/ y, desde el *XAMPP Control Panel*, arrancar el modulo **MySQL**.
 
-Por defecto XAMPP deja el usuario `root` **sin contraseña**, y eso es lo que va en `config.ini`. La base se administra desde phpMyAdmin (`http://localhost/phpmyadmin`) o desde la consola:
+Por defecto XAMPP deja el usuario `root` **sin contrasena**, y eso es lo que va en `config.ini`. La base se administra desde phpMyAdmin (`http://localhost/phpmyadmin`) o desde la consola:
 ```powershell
 C:\xampp\mysql\bin\mysql.exe -u root
 ```
 
-Alternativa (si se prefiere MySQL Server "oficial" + Workbench): instalarlos con el **MySQL Installer for Windows** desde https://dev.mysql.com/downloads/installer/, eligiendo "Custom" y marcando MySQL Server y MySQL Workbench. En ese caso el instalador pide definir la contraseña de `root` y hay que ponerla en `config.ini`. El `schema.sql` funciona igual en los dos motores.
+Alternativa (si se prefiere MySQL Server "oficial" + Workbench): instalarlos con el **MySQL Installer for Windows** desde https://dev.mysql.com/downloads/installer/, eligiendo "Custom" y marcando MySQL Server y MySQL Workbench. En ese caso el instalador pide definir la contrasena de `root` y hay que ponerla en `config.ini`. El `schema.sql` funciona igual en los dos motores.
 
 ### 3. Qt Designer
 ```powershell
@@ -94,7 +94,7 @@ pyqt5-tools designer
 ```
 
 ### 4. Entorno virtual del proyecto
-Parado en la carpeta del proyecto (después de bajarlo con `git pull`):
+Parado en la carpeta del proyecto (despues de bajarlo con `git pull`):
 ```powershell
 py -m venv venv
 venv\Scripts\activate
@@ -102,19 +102,19 @@ pip install -r requirements.txt
 ```
 
 ### 5. Crear la base de datos
-Con el módulo MySQL de XAMPP arrancado, desde la carpeta del proyecto:
+Con el modulo MySQL de XAMPP arrancado, desde la carpeta del proyecto:
 ```powershell
 C:\xampp\mysql\bin\mysql.exe -u root < analisis\schema.sql
 ```
-El script empieza con `DROP DATABASE IF EXISTS restaurante_db`, así que es seguro volver a correrlo cuantas veces haga falta (por ejemplo para dejar los datos de prueba limpios antes de la defensa).
+El script empieza con `DROP DATABASE IF EXISTS restaurante_db`, asi que es seguro volver a correrlo cuantas veces haga falta (por ejemplo para dejar los datos de prueba limpios antes de la defensa).
 
-También se puede hacer desde phpMyAdmin → pestaña **Importar** → elegir `analisis\schema.sql` → *Continuar*; o desde MySQL Workbench si se usa el MySQL oficial.
+Tambien se puede hacer desde phpMyAdmin → pestana **Importar** → elegir `analisis\schema.sql` → *Continuar*; o desde MySQL Workbench si se usa el MySQL oficial.
 
 ### 6. Configurar credenciales
 ```powershell
 copy config.ini.example config.ini
 ```
-Editá `config.ini` y completá la password real de MySQL. Con XAMPP por defecto `root` no tiene contraseña, así que la línea queda `password =` (vacía).
+Edita `config.ini` y completa la password real de MySQL. Con XAMPP por defecto `root` no tiene contrasena, asi que la linea queda `password =` (vacia).
 
 ### 7. Verificar
 ```powershell
@@ -127,11 +127,11 @@ Mismo resultado esperado que en macOS: las 11 tablas con filas cargadas.
 ## Notas
 
 - `config.ini` **no se sube a git** (cada uno tiene su propia password local). Solo se versiona `config.ini.example`.
-- Si `verificar_entorno.py` dice que faltan tablas, es porque `schema.sql` no se ejecutó (o falló a mitad de camino) — volver a correrlo completo, el script empieza con `DROP DATABASE IF EXISTS` así que es seguro reintentar.
-- **Si `pip install` falla con `CERTIFICATE_VERIFY_FAILED`:** pasa en la máquina con Windows porque Avast Antivirus intercepta el tráfico HTTPS ("Web Shield") y le presenta a pip un certificado propio que pip no conoce. La solución que se usó fue exportar el certificado raíz de Avast desde el almacén de Windows, pegarlo al final del bundle de CAs público y dejarlo configurado en `venv\pip.ini`:
+- Si `verificar_entorno.py` dice que faltan tablas, es porque `schema.sql` no se ejecuto (o fallo a mitad de camino) — volver a correrlo completo, el script empieza con `DROP DATABASE IF EXISTS` asi que es seguro reintentar.
+- **Si `pip install` falla con `CERTIFICATE_VERIFY_FAILED`:** pasa en la maquina con Windows porque Avast Antivirus intercepta el trafico HTTPS ("Web Shield") y le presenta a pip un certificado propio que pip no conoce. La solucion que se uso fue exportar el certificado raiz de Avast desde el almacen de Windows, pegarlo al final del bundle de CAs publico y dejarlo configurado en `venv\pip.ini`:
   ```
   [global]
   cert = <ruta al proyecto>\venv\cacert-avast.pem
   ```
-  La otra opción es desactivar el escaneo HTTPS de Avast (Menú → Configuración → Protección → Core Shields → Web Shield → destildar "Habilitar el escaneo HTTPS") mientras se instalan las dependencias. Como el `venv` no se versiona, esto hay que rehacerlo si se recrea el entorno.
-- Una vez que este script da todo OK en ambas máquinas, recién ahí arranca el desarrollo de la app (Fase 1 en `PLAN_4_DIAS.md`).
+  La otra opcion es desactivar el escaneo HTTPS de Avast (Menu → Configuracion → Proteccion → Core Shields → Web Shield → destildar "Habilitar el escaneo HTTPS") mientras se instalan las dependencias. Como el `venv` no se versiona, esto hay que rehacerlo si se recrea el entorno.
+- Una vez que este script da todo OK en ambas maquinas, recien ahi arranca el desarrollo de la app (Fase 1 en `PLAN_4_DIAS.md`).

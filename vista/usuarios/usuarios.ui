@@ -78,17 +78,17 @@
       </column>
       <column>
        <property name="text">
-        <string>Creación</string>
+        <string>Creacion</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Modificación</string>
+        <string>Modificacion</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Último acceso</string>
+        <string>Ultimo acceso</string>
        </property>
       </column>
      </widget>

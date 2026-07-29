@@ -50,7 +50,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_numero">
        <property name="text">
-        <string>Número de mesa</string>
+        <string>Numero de mesa</string>
        </property>
       </widget>
      </item>
@@ -67,7 +67,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_sillas">
        <property name="text">
-        <string>Número de sillas</string>
+        <string>Numero de sillas</string>
        </property>
       </widget>
      </item>
@@ -115,7 +115,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_codigo">
        <property name="text">
-        <string>Código</string>
+        <string>Codigo</string>
        </property>
       </widget>
      </item>
@@ -134,7 +134,7 @@
    <item>
     <widget class="QLabel" name="label_ayuda">
      <property name="text">
-      <string>El código se arma con la letra del piso y el número de mesa (ej: A5).</string>
+      <string>El codigo se arma con la letra del piso y el numero de mesa (ej: A5).</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

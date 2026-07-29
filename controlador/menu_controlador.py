@@ -36,13 +36,13 @@ class MenuControlador:
                 item["precio_vigente"] = float(vigente["precio_lista"]) if vigente else None
             return True, items
         except Error:
-            return False, "No se pudieron cargar los ítems del menú."
+            return False, "No se pudieron cargar los items del menu."
 
     def obtener_item(self, item_id):
         try:
             return True, menu_modelo.obtener_por_id(item_id)
         except Error:
-            return False, "No se pudo obtener el ítem."
+            return False, "No se pudo obtener el item."
 
     def listar_grupos_combo(self):
         try:
@@ -71,9 +71,9 @@ class MenuControlador:
     def guardar_item(self, item_id, nombre, descripcion, grupo_menu_id, imagen_origen, imagen_actual):
         nombre = nombre.strip()
         if not nombre:
-            return False, "El nombre del ítem no puede estar vacío."
+            return False, "El nombre del item no puede estar vacio."
         if grupo_menu_id is None:
-            return False, "Seleccioná un grupo de menú."
+            return False, "Selecciona un grupo de menu."
 
         # imagen_origen: ruta nueva elegida por el usuario (o None si no cambio).
         # imagen_actual: la que ya tenia el item (se conserva si no eligio otra).
@@ -88,29 +88,29 @@ class MenuControlador:
         try:
             if item_id is None:
                 menu_modelo.crear(nombre, descripcion, imagen_path, grupo_menu_id)
-                registrar_accion(Sesion().usuario_id, f"Creó ítem de menú: {nombre}")
-                return True, "Ítem creado correctamente. Cargale un precio desde 'Precios'."
+                registrar_accion(Sesion().usuario_id, f"Creo item de menu: {nombre}")
+                return True, "Item creado correctamente. Cargale un precio desde 'Precios'."
             else:
                 menu_modelo.modificar(item_id, nombre, descripcion, imagen_path, grupo_menu_id)
-                registrar_accion(Sesion().usuario_id, f"Modificó ítem de menú: {nombre}")
-                return True, "Ítem modificado correctamente."
+                registrar_accion(Sesion().usuario_id, f"Modifico item de menu: {nombre}")
+                return True, "Item modificado correctamente."
         except Error:
-            return False, "No se pudo guardar el ítem."
+            return False, "No se pudo guardar el item."
 
     def eliminar_item(self, item_id):
         try:
             if menu_modelo.contar_consumos(item_id) > 0:
-                return False, "No se puede eliminar el ítem porque ya fue consumido en ventas."
+                return False, "No se puede eliminar el item porque ya fue consumido en ventas."
             item = menu_modelo.obtener_por_id(item_id)
             if item is None:
-                return False, "El ítem ya no existe."
+                return False, "El item ya no existe."
             # primero su historial de precios (clave foranea), despues el item
             precio_menu_modelo.eliminar_por_item(item_id)
             menu_modelo.eliminar(item_id)
-            registrar_accion(Sesion().usuario_id, f"Eliminó ítem de menú: {item['nombre']}")
-            return True, "Ítem eliminado correctamente."
+            registrar_accion(Sesion().usuario_id, f"Elimino item de menu: {item['nombre']}")
+            return True, "Item eliminado correctamente."
         except Error:
-            return False, "No se pudo eliminar el ítem."
+            return False, "No se pudo eliminar el item."
 
     # ---------------- Grupos de menu ----------------
 
@@ -129,7 +129,7 @@ class MenuControlador:
     def guardar_grupo(self, grupo_id, nombre):
         nombre = nombre.strip()
         if not nombre:
-            return False, "El nombre del grupo no puede estar vacío."
+            return False, "El nombre del grupo no puede estar vacio."
         try:
             if grupo_menu_modelo.existe_nombre(nombre, excluir_id=grupo_id):
                 return False, "Ya existe un grupo con ese nombre."
@@ -138,11 +138,11 @@ class MenuControlador:
         try:
             if grupo_id is None:
                 grupo_menu_modelo.crear(nombre)
-                registrar_accion(Sesion().usuario_id, f"Creó grupo de menú: {nombre}")
+                registrar_accion(Sesion().usuario_id, f"Creo grupo de menu: {nombre}")
                 return True, "Grupo creado correctamente."
             else:
                 grupo_menu_modelo.modificar(grupo_id, nombre)
-                registrar_accion(Sesion().usuario_id, f"Modificó grupo de menú: {nombre}")
+                registrar_accion(Sesion().usuario_id, f"Modifico grupo de menu: {nombre}")
                 return True, "Grupo modificado correctamente."
         except Error:
             return False, "No se pudo guardar el grupo."
@@ -150,12 +150,12 @@ class MenuControlador:
     def eliminar_grupo(self, grupo_id):
         try:
             if grupo_menu_modelo.contar_items(grupo_id) > 0:
-                return False, "No se puede eliminar el grupo porque tiene ítems asignados."
+                return False, "No se puede eliminar el grupo porque tiene items asignados."
             grupo = grupo_menu_modelo.obtener_por_id(grupo_id)
             if grupo is None:
                 return False, "El grupo ya no existe."
             grupo_menu_modelo.eliminar(grupo_id)
-            registrar_accion(Sesion().usuario_id, f"Eliminó grupo de menú: {grupo['nombre']}")
+            registrar_accion(Sesion().usuario_id, f"Elimino grupo de menu: {grupo['nombre']}")
             return True, "Grupo eliminado correctamente."
         except Error:
             return False, "No se pudo eliminar el grupo."
@@ -191,7 +191,7 @@ class MenuControlador:
             return None
         dias = (vigente["fecha_fin"] - date.today()).days
         if 0 <= dias <= DIAS_AVISO_RENOVACION:
-            return f"El precio vigente vence en {dias} día(s) ({vigente['fecha_fin'].strftime('%d/%m/%Y')})."
+            return f"El precio vigente vence en {dias} dia(s) ({vigente['fecha_fin'].strftime('%d/%m/%Y')})."
         return None
 
     def _precio_efectivo(self, precio_lista):
@@ -216,7 +216,7 @@ class MenuControlador:
             )
             item = menu_modelo.obtener_por_id(item_id)
             nombre = item["nombre"] if item else f"#{item_id}"
-            registrar_accion(Sesion().usuario_id, f"Actualizó precio de ítem de menú: {nombre}")
+            registrar_accion(Sesion().usuario_id, f"Actualizo precio de item de menu: {nombre}")
             return True, "Precio actualizado correctamente."
         except Error:
             return False, "No se pudo guardar el precio."
@@ -234,7 +234,7 @@ class MenuControlador:
         except Error:
             return False, "No se pudo obtener el precio vigente."
         if vigente is None:
-            return False, "El ítem no tiene un precio vigente para editar."
+            return False, "El item no tiene un precio vigente para editar."
 
         precio_especial = self._precio_efectivo(precio_lista)
         try:
@@ -243,7 +243,7 @@ class MenuControlador:
             )
             item = menu_modelo.obtener_por_id(item_id)
             nombre = item["nombre"] if item else f"#{item_id}"
-            registrar_accion(Sesion().usuario_id, f"Editó precio vigente de ítem de menú: {nombre}")
+            registrar_accion(Sesion().usuario_id, f"Edito precio vigente de item de menu: {nombre}")
             return True, "Precio vigente actualizado correctamente."
         except Error:
             return False, "No se pudo editar el precio vigente."

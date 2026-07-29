@@ -79,7 +79,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Variación</string>
+        <string>Variacion</string>
        </property>
       </column>
      </widget>

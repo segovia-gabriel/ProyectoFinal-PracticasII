@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Estadísticas</string>
+   <string>Estadisticas</string>
   </property>
    <layout class="QVBoxLayout" name="layout_principal">
     <property name="spacing">
@@ -32,7 +32,7 @@
     <item>
      <widget class="QLabel" name="label_titulo">
       <property name="text">
-       <string>Estadísticas</string>
+       <string>Estadisticas</string>
       </property>
      </widget>
     </item>
@@ -53,7 +53,7 @@
         <item>
          <widget class="QLabel" name="label_topClientes">
           <property name="text">
-           <string>Top 5 clientes con más reservas</string>
+           <string>Top 5 clientes con mas reservas</string>
           </property>
          </widget>
         </item>
@@ -149,7 +149,7 @@
           <item>
            <widget class="QLabel" name="label_anio">
             <property name="text">
-             <string>Año</string>
+             <string>Ano</string>
             </property>
            </widget>
           </item>
@@ -188,7 +188,7 @@
         <item>
          <widget class="QLabel" name="label_ingresos">
           <property name="text">
-           <string>Ingresos por día de la semana</string>
+           <string>Ingresos por dia de la semana</string>
           </property>
          </widget>
         </item>
@@ -205,7 +205,7 @@
           </property>
           <column>
            <property name="text">
-            <string>Día</string>
+            <string>Dia</string>
            </property>
           </column>
           <column>
@@ -218,7 +218,7 @@
         <item>
          <widget class="QLabel" name="label_topItems">
           <property name="text">
-           <string>Top 5 ítems consumidos por día</string>
+           <string>Top 5 items consumidos por dia</string>
           </property>
          </widget>
         </item>
@@ -235,12 +235,12 @@
           </property>
           <column>
            <property name="text">
-            <string>Día</string>
+            <string>Dia</string>
            </property>
           </column>
           <column>
            <property name="text">
-            <string>Ítem</string>
+            <string>Item</string>
            </property>
           </column>
           <column>

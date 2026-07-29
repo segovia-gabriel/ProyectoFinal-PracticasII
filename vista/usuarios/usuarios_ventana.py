@@ -80,7 +80,7 @@ class VentanaUsuarios(QWidget):
     def abrir_editar(self):
         usuario_id = self._id_seleccionado()
         if usuario_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un usuario para editar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un usuario para editar.")
             return
 
         exito, usuario = self.controlador.obtener(usuario_id)
@@ -96,10 +96,10 @@ class VentanaUsuarios(QWidget):
     def eliminar_seleccionado(self):
         usuario_id = self._id_seleccionado()
         if usuario_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná un usuario para eliminar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona un usuario para eliminar.")
             return
 
-        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar este usuario?"):
+        if not confirmar_eliminacion(self, "¿Seguro que queres eliminar este usuario?"):
             return
 
         exito, mensaje = self.controlador.eliminar(usuario_id)

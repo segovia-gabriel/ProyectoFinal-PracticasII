@@ -25,7 +25,7 @@ ETIQUETAS = {
     RESERVADA: "Reservada",
     OCUPADA: "Mesa abierta",
     CERRADA: "Cuenta cerrada",
-    FALTO: "No se presentó",
+    FALTO: "No se presento",
 }
 
 
@@ -38,7 +38,7 @@ class SalonControlador:
         try:
             filas = salon_modelo.mesas_en(date.today(), hora)
         except Error:
-            return False, "No se pudo cargar el estado del salón."
+            return False, "No se pudo cargar el estado del salon."
 
         pisos = {}
         for fila in filas:
@@ -71,7 +71,7 @@ class SalonControlador:
 
         if fila["estado_asistencia"] == "falto":
             mesa["estado"] = FALTO
-            mesa["detalle"] = "El cliente no se presentó."
+            mesa["detalle"] = "El cliente no se presento."
         elif fila["consumo_id"] is not None and fila["consumo_estado"] == "cerrada":
             mesa["estado"] = CERRADA
             mesa["detalle"] = (f"Cuenta cerrada: {formato.moneda(fila['precio_total'])} en "
@@ -82,12 +82,12 @@ class SalonControlador:
             mesa["estado"] = OCUPADA
             if fila["consumo_id"] is not None:
                 mesa["detalle"] = (f"Mesa abierta. Lleva {formato.moneda(fila['precio_total'])}. "
-                                   "Se pueden agregar ítems o cerrar la cuenta.")
+                                   "Se pueden agregar items o cerrar la cuenta.")
             else:
-                mesa["detalle"] = "El cliente está en la mesa. Cargá el consumo."
+                mesa["detalle"] = "El cliente esta en la mesa. Carga el consumo."
         else:
             mesa["estado"] = RESERVADA
-            mesa["detalle"] = "Reservada, todavía no llegó el cliente."
+            mesa["detalle"] = "Reservada, todavia no llego el cliente."
 
         return mesa
 
@@ -115,4 +115,4 @@ class SalonControlador:
         try:
             return True, salon_modelo.horarios_del_dia(date.today())
         except Error:
-            return False, "No se pudieron cargar los horarios del día."
+            return False, "No se pudieron cargar los horarios del dia."

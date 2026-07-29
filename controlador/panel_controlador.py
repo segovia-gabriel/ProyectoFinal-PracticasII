@@ -30,7 +30,7 @@ class PanelControlador:
                 "avisos": self._avisos(),
             }
         except Error:
-            return False, "No se pudo cargar el resumen del día."
+            return False, "No se pudo cargar el resumen del dia."
         return True, datos
 
     def _agenda_de_hoy(self):
@@ -46,6 +46,7 @@ class PanelControlador:
                 "mesa": reserva["mesa_codigo"],
                 "estado_clave": reserva["estado_asistencia"],
                 "estado": formato.estado_asistencia(reserva["estado_asistencia"]),
+                "estado_consumo": reserva["estado_consumo"],  # None | 'abierta' | 'cerrada'
             })
         return filas
 
@@ -60,9 +61,9 @@ class PanelControlador:
             if dias == 0:
                 cuando = "vence hoy"
             elif dias == 1:
-                cuando = "vence mañana"
+                cuando = "vence manana"
             else:
-                cuando = f"vence en {dias} días"
+                cuando = f"vence en {dias} dias"
             avisos.append({
                 "tipo": "precio",
                 "id": fila["item_id"],
@@ -88,7 +89,7 @@ class PanelControlador:
 
         hora_actual = datetime.now().hour
         if hora_actual < 13:
-            momento = "Buen día"
+            momento = "Buen dia"
         elif hora_actual < 20:
             momento = "Buenas tardes"
         else:
@@ -96,9 +97,9 @@ class PanelControlador:
         return f"{momento}, {nombre_usuario}"
 
     def fecha_larga(self):
-        # "Miércoles 22 de julio de 2026" -- se arma a mano porque strftime
+        # "Miercoles 22 de julio de 2026" -- se arma a mano porque strftime
         # depende del idioma del sistema operativo y en Windows sale en ingles.
         hoy = date.today()
-        dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]
         return (f"{dias[hoy.weekday()]} {hoy.day} de "
                 f"{formato.nombre_mes(hoy.month).lower()} de {hoy.year}")

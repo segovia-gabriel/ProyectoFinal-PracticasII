@@ -57,7 +57,7 @@ class VentanaReservas(QWidget):
         hasta = self.dateEdit_hasta.date().toPyDate()
         valido, mensaje = validar_rango_fechas(desde, hasta)
         if not valido:
-            QMessageBox.warning(self, "Rango de fechas inválido", mensaje)
+            QMessageBox.warning(self, "Rango de fechas invalido", mensaje)
             return
         exito, resultado = self.controlador.listar(filtro, desde, hasta)
         if not exito:
@@ -103,7 +103,7 @@ class VentanaReservas(QWidget):
     def abrir_editar(self):
         reserva = self._reserva_seleccionada()
         if reserva is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná una reserva para editar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona una reserva para editar.")
             return
         # Regla: las reservas pasadas no se editan (solo su estado).
         if self.controlador.es_pasada(reserva):
@@ -120,9 +120,9 @@ class VentanaReservas(QWidget):
     def eliminar_seleccionada(self):
         reserva_id = self._id_seleccionado()
         if reserva_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná una reserva para eliminar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona una reserva para eliminar.")
             return
-        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar esta reserva?"):
+        if not confirmar_eliminacion(self, "¿Seguro que queres eliminar esta reserva?"):
             return
         # El controlador revalida que no sea pasada ni tenga consumo.
         exito, mensaje = self.controlador.eliminar(reserva_id)
@@ -135,13 +135,13 @@ class VentanaReservas(QWidget):
     def cambiar_estado(self):
         reserva = self._reserva_seleccionada()
         if reserva is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná una reserva para cambiar su estado.")
+            QMessageBox.warning(self, "Atencion", "Selecciona una reserva para cambiar su estado.")
             return
         # El estado solo se cambia el mismo dia de la reserva.
         if reserva["fecha"] != date.today():
             QMessageBox.information(
-                self, "Solo el día de la reserva",
-                "El estado de asistencia solo se puede cambiar el mismo día de la reserva.",
+                self, "Solo el dia de la reserva",
+                "El estado de asistencia solo se puede cambiar el mismo dia de la reserva.",
             )
             return
         dialogo = DialogoEstado(reserva["estado_asistencia"], parent=self)

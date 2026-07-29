@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Ítem de menú</string>
+   <string>Item de menu</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -35,7 +35,7 @@
    <item>
     <widget class="QLabel" name="label_titulo">
      <property name="text">
-      <string>Nuevo ítem de menú</string>
+      <string>Nuevo item de menu</string>
      </property>
     </widget>
    </item>
@@ -85,7 +85,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="label_descripcion">
          <property name="text">
-          <string>Descripción</string>
+          <string>Descripcion</string>
          </property>
         </widget>
        </item>

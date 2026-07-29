@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Menú</string>
+   <string>Menu</string>
   </property>
    <layout class="QVBoxLayout" name="layout_principal">
     <property name="spacing">
@@ -32,7 +32,7 @@
     <item>
      <widget class="QLabel" name="label_titulo">
       <property name="text">
-       <string>Menú</string>
+       <string>Menu</string>
       </property>
      </widget>
     </item>
@@ -58,7 +58,7 @@
       <item>
        <widget class="QPushButton" name="pushButton_grupos">
         <property name="text">
-         <string>Grupos de menú</string>
+         <string>Grupos de menu</string>
         </property>
        </widget>
       </item>
@@ -95,7 +95,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Descripción</string>
+        <string>Descripcion</string>
        </property>
       </column>
      </widget>
@@ -108,7 +108,7 @@
       <item>
        <widget class="QPushButton" name="pushButton_nuevo">
         <property name="text">
-         <string>Nuevo ítem</string>
+         <string>Nuevo item</string>
         </property>
        </widget>
       </item>

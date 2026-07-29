@@ -1,15 +1,15 @@
 """
 Dialogo de confirmacion compartido por todos los modulos al eliminar un registro.
 Se arma aca en un solo lugar para no repetir el mismo QMessageBox en cada ventana
-y, sobre todo, para que los botones salgan en espanol ("Sí"/"Cancelar") en vez de
+y, sobre todo, para que los botones salgan en espanol ("Si"/"Cancelar") en vez de
 los "Yes"/"No" que Qt pone por defecto segun el idioma del sistema.
 """
 
 from PyQt5.QtWidgets import QMessageBox
 
 
-def confirmar(parent, mensaje, titulo="Confirmar", texto_si="Sí"):
-    # Confirmacion genérica con botones en espanol. Devuelve True solo si el
+def confirmar(parent, mensaje, titulo="Confirmar", texto_si="Si"):
+    # Confirmacion generica con botones en espanol. Devuelve True solo si el
     # usuario apreta el boton afirmativo. Se arma el QMessageBox a mano (en vez de
     # QMessageBox.question) porque Qt no traduce "Yes"/"No" solo.
     caja = QMessageBox(parent)
@@ -24,6 +24,6 @@ def confirmar(parent, mensaje, titulo="Confirmar", texto_si="Sí"):
     return caja.clickedButton() is boton_si
 
 
-def confirmar_eliminacion(parent, mensaje, titulo="Confirmar eliminación"):
+def confirmar_eliminacion(parent, mensaje, titulo="Confirmar eliminacion"):
     # Caso particular para las bajas de registros, con el mismo estilo.
     return confirmar(parent, mensaje, titulo)

@@ -50,30 +50,30 @@ class MesasControlador:
 
     def guardar_mesa(self, mesa_id, numero_mesa, numero_sillas, piso, grupo_mesa_id):
         if numero_mesa <= 0:
-            return False, "El número de mesa debe ser mayor a cero."
+            return False, "El numero de mesa debe ser mayor a cero."
         if numero_sillas <= 0:
-            return False, "El número de sillas debe ser mayor a cero."
+            return False, "El numero de sillas debe ser mayor a cero."
         # El piso viene de un combo cerrado, pero se revalida por las dudas.
         if piso not in (0, 1):
             return False, "El piso solo puede ser 0 (planta baja) o 1 (primer piso)."
         if grupo_mesa_id is None:
-            return False, "Seleccioná un grupo de mesa."
+            return False, "Selecciona un grupo de mesa."
 
         try:
             if mesa_modelo.existe_numero(numero_mesa, excluir_id=mesa_id):
-                return False, "Ya existe una mesa con ese número."
+                return False, "Ya existe una mesa con ese numero."
         except Error:
-            return False, "No se pudo verificar el número de mesa."
+            return False, "No se pudo verificar el numero de mesa."
 
         codigo = _codigo_mesa(piso, numero_mesa)
         try:
             if mesa_id is None:
                 mesa_modelo.crear(numero_mesa, numero_sillas, piso, codigo, grupo_mesa_id)
-                registrar_accion(Sesion().usuario_id, f"Creó mesa: {codigo}")
+                registrar_accion(Sesion().usuario_id, f"Creo mesa: {codigo}")
                 return True, "Mesa creada correctamente."
             else:
                 mesa_modelo.modificar(mesa_id, numero_mesa, numero_sillas, piso, codigo, grupo_mesa_id)
-                registrar_accion(Sesion().usuario_id, f"Modificó mesa: {codigo}")
+                registrar_accion(Sesion().usuario_id, f"Modifico mesa: {codigo}")
                 return True, "Mesa modificada correctamente."
         except Error:
             return False, "No se pudo guardar la mesa."
@@ -86,7 +86,7 @@ class MesasControlador:
             if mesa is None:
                 return False, "La mesa ya no existe."
             mesa_modelo.eliminar(mesa_id)
-            registrar_accion(Sesion().usuario_id, f"Eliminó mesa: {mesa['codigo']}")
+            registrar_accion(Sesion().usuario_id, f"Elimino mesa: {mesa['codigo']}")
             return True, "Mesa eliminada correctamente."
         except Error:
             return False, "No se pudo eliminar la mesa."
@@ -108,7 +108,7 @@ class MesasControlador:
     def guardar_grupo(self, grupo_id, nombre, valor):
         nombre = nombre.strip()
         if not nombre:
-            return False, "El nombre del grupo no puede estar vacío."
+            return False, "El nombre del grupo no puede estar vacio."
         if valor <= 0:
             return False, "El valor del grupo debe ser mayor a cero."
 
@@ -121,11 +121,11 @@ class MesasControlador:
         try:
             if grupo_id is None:
                 grupo_mesa_modelo.crear(nombre, valor)
-                registrar_accion(Sesion().usuario_id, f"Creó grupo de mesa: {nombre}")
+                registrar_accion(Sesion().usuario_id, f"Creo grupo de mesa: {nombre}")
                 return True, "Grupo creado correctamente."
             else:
                 grupo_mesa_modelo.modificar(grupo_id, nombre, valor)
-                registrar_accion(Sesion().usuario_id, f"Modificó grupo de mesa: {nombre}")
+                registrar_accion(Sesion().usuario_id, f"Modifico grupo de mesa: {nombre}")
                 return True, "Grupo modificado correctamente."
         except Error:
             return False, "No se pudo guardar el grupo."
@@ -138,7 +138,7 @@ class MesasControlador:
             if grupo is None:
                 return False, "El grupo ya no existe."
             grupo_mesa_modelo.eliminar(grupo_id)
-            registrar_accion(Sesion().usuario_id, f"Eliminó grupo de mesa: {grupo['nombre']}")
+            registrar_accion(Sesion().usuario_id, f"Elimino grupo de mesa: {grupo['nombre']}")
             return True, "Grupo eliminado correctamente."
         except Error:
             return False, "No se pudo eliminar el grupo."

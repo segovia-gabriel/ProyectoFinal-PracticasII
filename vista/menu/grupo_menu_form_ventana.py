@@ -18,8 +18,8 @@ class DialogoGrupoMenu(QDialog):
         self.mensaje_exito = ""
 
         if grupo:
-            self.setWindowTitle("Editar grupo de menú")
-            self.label_titulo.setText("Editar grupo de menú")
+            self.setWindowTitle("Editar grupo de menu")
+            self.label_titulo.setText("Editar grupo de menu")
             self.lineEdit_nombre.setText(grupo["nombre"])
 
         self.pushButton_guardar.clicked.connect(self.guardar)

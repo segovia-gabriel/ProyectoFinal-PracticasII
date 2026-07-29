@@ -73,7 +73,7 @@ class VentanaMesas(QWidget):
     def abrir_editar(self):
         mesa_id = self._id_seleccionado()
         if mesa_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná una mesa para editar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona una mesa para editar.")
             return
         exito, mesa = self.controlador.obtener_mesa(mesa_id)
         if not exito or mesa is None:
@@ -87,9 +87,9 @@ class VentanaMesas(QWidget):
     def eliminar_seleccionado(self):
         mesa_id = self._id_seleccionado()
         if mesa_id is None:
-            QMessageBox.warning(self, "Atención", "Seleccioná una mesa para eliminar.")
+            QMessageBox.warning(self, "Atencion", "Selecciona una mesa para eliminar.")
             return
-        if not confirmar_eliminacion(self, "¿Seguro que querés eliminar esta mesa?"):
+        if not confirmar_eliminacion(self, "¿Seguro que queres eliminar esta mesa?"):
             return
         exito, mensaje = self.controlador.eliminar_mesa(mesa_id)
         if exito:

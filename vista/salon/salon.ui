@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Salón</string>
+   <string>Salon</string>
   </property>
    <layout class="QVBoxLayout" name="layout_principal">
     <property name="spacing">
@@ -32,7 +32,7 @@
     <item>
      <widget class="QLabel" name="label_titulo">
       <property name="text">
-       <string>Salón</string>
+       <string>Salon</string>
       </property>
      </widget>
     </item>
@@ -51,7 +51,7 @@
       <item>
        <widget class="QLabel" name="label_horario">
         <property name="text">
-         <string>Ver salón a las</string>
+         <string>Ver salon a las</string>
         </property>
        </widget>
       </item>
@@ -149,7 +149,7 @@
          <item>
           <widget class="QLabel" name="label_mesaDatos">
            <property name="text">
-            <string>Seleccioná una mesa del plano.</string>
+            <string>Selecciona una mesa del plano.</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>

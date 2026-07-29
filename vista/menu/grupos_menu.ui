@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Grupos de menú</string>
+   <string>Grupos de menu</string>
   </property>
    <layout class="QVBoxLayout" name="layout_principal">
     <property name="spacing">
@@ -32,7 +32,7 @@
     <item>
      <widget class="QLabel" name="label_titulo">
       <property name="text">
-       <string>Grupos de menú</string>
+       <string>Grupos de menu</string>
       </property>
      </widget>
     </item>

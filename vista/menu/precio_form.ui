@@ -94,7 +94,7 @@
      <item row="3" column="1">
       <widget class="QLabel" name="label_avisoVencimiento">
        <property name="text">
-        <string>Se te avisará 10 días antes del vencimiento para actualizarlo.</string>
+        <string>Se te avisara 10 dias antes del vencimiento para actualizarlo.</string>
        </property>
       </widget>
      </item>

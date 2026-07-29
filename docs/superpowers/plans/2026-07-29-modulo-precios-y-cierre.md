@@ -1,44 +1,44 @@
-# Módulo Precios, Notificaciones y Cierre de mesas — Implementation Plan
+# Modulo Precios, Notificaciones y Cierre de mesas — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Simplificar la carga de precios (un solo precio, especial automático), permitir editar el precio vigente, arreglar el bug de notificaciones, renombrar "Pendientes" → "Notificaciones", sacar el botón "Actualizar" y agregar cierre de mesas (automático al iniciar sesión + botón "Cerrar día").
+**Goal:** Simplificar la carga de precios (un solo precio, especial automatico), permitir editar el precio vigente, arreglar el bug de notificaciones, renombrar "Pendientes" → "Notificaciones", sacar el boton "Actualizar" y agregar cierre de mesas (automatico al iniciar sesion + boton "Cerrar dia").
 
-**Architecture:** MVC directo (modelo = SQL, controlador = validación/orquestación, vista = PyQt5 + `.ui`). Cada cambio respeta las capas: la vista nunca llama al modelo, el modelo nunca arma widgets.
+**Architecture:** MVC directo (modelo = SQL, controlador = validacion/orquestacion, vista = PyQt5 + `.ui`). Cada cambio respeta las capas: la vista nunca llama al modelo, el modelo nunca arma widgets.
 
 **Tech Stack:** Python 3.12 (Mac) / 3.8 (Win), PyQt5, `mysql-connector-python`, MySQL 8 / MariaDB.
 
 ## Global Constraints
 
-- Nombres, comentarios y textos de UI en **español** (rioplatense simple).
+- Nombres, comentarios y textos de UI en **espanol** (rioplatense simple).
 - Rutas siempre con `pathlib`, nunca `/` o `\` a mano (multiplataforma real).
 - `try/except` alrededor de toda consulta SQL; el error se muestra con `QMessageBox`, nunca solo en consola.
-- Sin sobre-diseño (nada de Repository/Factory/event-bus): nivel de dos alumnos de Prácticas II.
-- Los `.ui` deben quedar como XML válido de Qt Designer (`<ui version="4.0">`), abribles sin advertencias.
+- Sin sobre-diseno (nada de Repository/Factory/event-bus): nivel de dos alumnos de Practicas II.
+- Los `.ui` deben quedar como XML valido de Qt Designer (`<ui version="4.0">`), abribles sin advertencias.
 - Constante del descuento en efectivo: `DESCUENTO_EFECTIVO = 0.10`.
-- Umbral de aviso de renovación: 10 días (constante ya existente `DIAS_AVISO_RENOVACION`).
+- Umbral de aviso de renovacion: 10 dias (constante ya existente `DIAS_AVISO_RENOVACION`).
 
-## Nota sobre verificación
+## Nota sobre verificacion
 
-El proyecto **no tiene suite de tests automatizada** y se entrega como app de escritorio para defensa oral. La verificación de cada task es **manual**: consultas SQL en MySQL Workbench para los cambios de modelo, y revisión visual de Gabriel para la UI (él verifica cada cambio de pantalla; no se corre la app desde acá). Esto es coherente con la práctica del proyecto y con las reglas de la cátedra. No se agrega pytest ni una base de test: sería sobre-diseño para el nivel del trabajo.
+El proyecto **no tiene suite de tests automatizada** y se entrega como app de escritorio para defensa oral. La verificacion de cada task es **manual**: consultas SQL en MySQL Workbench para los cambios de modelo, y revision visual de Gabriel para la UI (el verifica cada cambio de pantalla; no se corre la app desde aca). Esto es coherente con la practica del proyecto y con las reglas de la catedra. No se agrega pytest ni una base de test: seria sobre-diseno para el nivel del trabajo.
 
 ## Estructura de archivos
 
-| Archivo | Responsabilidad | Acción |
+| Archivo | Responsabilidad | Accion |
 |---|---|---|
 | `analisis/schema.sql` | DER + datos de prueba | Modificar (columna `consumo_vencido`) |
 | `modelo/precio_menu_modelo.py` | SQL de historial de precios | Modificar (fix + `actualizar_vigente`) |
 | `modelo/consumo_modelo.py` | SQL de consumos | Modificar (cierre de abiertas, filtro) |
 | `modelo/reserva_modelo.py` | SQL de reservas | Modificar (`vencer_consumos_pendientes`) |
 | `modelo/panel_modelo.py` | Consultas del panel | Modificar (filtro `consumo_vencido`) |
-| `controlador/menu_controlador.py` | Lógica de menú/precios | Modificar (precio especial auto, editar vigente) |
+| `controlador/menu_controlador.py` | Logica de menu/precios | Modificar (precio especial auto, editar vigente) |
 | `controlador/cierre_controlador.py` | Cierre de mesas | **Crear** |
 | `vista/menu/precio_form.ui` | Form de precio | Modificar (quitar campos especial) |
-| `vista/menu/precio_form_ventana.py` | Ventana del form | Modificar (especial auto, modo edición) |
-| `vista/menu/precios.ui` | Ventana historial | Modificar (botón Editar vigente) |
-| `vista/menu/precios_ventana.py` | Lógica de la ventana | Modificar (abrir editar) |
-| `vista/principal.ui` | Panel de Inicio | Modificar (Notificaciones, Cerrar día) |
-| `vista/principal_ventana.py` | Lógica del panel | Modificar (barrido, cerrar día, textos) |
+| `vista/menu/precio_form_ventana.py` | Ventana del form | Modificar (especial auto, modo edicion) |
+| `vista/menu/precios.ui` | Ventana historial | Modificar (boton Editar vigente) |
+| `vista/menu/precios_ventana.py` | Logica de la ventana | Modificar (abrir editar) |
+| `vista/principal.ui` | Panel de Inicio | Modificar (Notificaciones, Cerrar dia) |
+| `vista/principal_ventana.py` | Logica del panel | Modificar (barrido, cerrar dia, textos) |
 
 ---
 
@@ -52,11 +52,11 @@ El proyecto **no tiene suite de tests automatizada** y se entrega como app de es
 
 - [ ] **Step 1: Agregar la columna a la tabla reservas**
 
-En la definición de `CREATE TABLE reservas`, después de la línea de `estado_asistencia`, agregar:
+En la definicion de `CREATE TABLE reservas`, despues de la linea de `estado_asistencia`, agregar:
 
 ```sql
     estado_asistencia      ENUM('en_espera','asistio','tardanza','falto') NOT NULL DEFAULT 'en_espera',
-    consumo_vencido        TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = asistió pero el consumo no se cargó y el día ya cerró
+    consumo_vencido        TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = asistio pero el consumo no se cargo y el dia ya cerro
 ```
 
 - [ ] **Step 2: Recrear la base**
@@ -84,7 +84,7 @@ Esperado: aparece la fila `consumo_vencido | tinyint(1) | NO | | 0 |`.
 
 - [ ] **Step 1: Corregir el UPDATE de `crear_precio`**
 
-Reemplazar el bloque del `UPDATE` (líneas ~85-91) por:
+Reemplazar el bloque del `UPDATE` (lineas ~85-91) por:
 
 ```python
         # cerrar el precio activo real al dia anterior al nuevo. Ojo: no alcanza
@@ -128,17 +128,17 @@ def actualizar_vigente(precio_id, precio_lista, precio_especial, medio_pago_espe
 
 - [ ] **Step 3: Verificar el fix del bug (SQL)**
 
-En Workbench, elegir un ítem con un precio por vencer (fecha_fin dentro de 10 días). Simular renovación:
+En Workbench, elegir un item con un precio por vencer (fecha_fin dentro de 10 dias). Simular renovacion:
 ```sql
 -- ver estado antes: deberia haber 1 fila activa con fecha_fin proxima
 SELECT id, precio_lista, fecha_inicio, fecha_fin FROM historial_precios_menu
 WHERE menu_item_id = <ID> AND (fecha_fin IS NULL OR fecha_fin >= CURDATE());
 ```
-Después de guardar un precio nuevo desde la app (Task 4/5), volver a correr la query: esperado **una sola** fila activa (la nueva), la vieja con `fecha_fin = ayer`.
+Despues de guardar un precio nuevo desde la app (Task 4/5), volver a correr la query: esperado **una sola** fila activa (la nueva), la vieja con `fecha_fin = ayer`.
 
 ---
 
-### Task 3: Controlador de menú — precio especial automático + editar vigente
+### Task 3: Controlador de menu — precio especial automatico + editar vigente
 
 **Files:**
 - Modify: `controlador/menu_controlador.py:20` (constante), `:194-222` (`guardar_precio`), agregar `_precio_efectivo`, `editar_precio_vigente`, `precio_vigente`
@@ -152,7 +152,7 @@ Después de guardar un precio nuevo desde la app (Task 4/5), volver a correr la 
 
 - [ ] **Step 1: Agregar la constante del descuento**
 
-Debajo de `DIAS_AVISO_RENOVACION = 10` (línea 20):
+Debajo de `DIAS_AVISO_RENOVACION = 10` (linea 20):
 
 ```python
 DIAS_AVISO_RENOVACION = 10
@@ -161,7 +161,7 @@ DIAS_AVISO_RENOVACION = 10
 DESCUENTO_EFECTIVO = 0.10
 ```
 
-- [ ] **Step 2: Reemplazar `guardar_precio` por la versión simplificada**
+- [ ] **Step 2: Reemplazar `guardar_precio` por la version simplificada**
 
 ```python
     def _precio_efectivo(self, precio_lista):
@@ -184,7 +184,7 @@ DESCUENTO_EFECTIVO = 0.10
             )
             item = menu_modelo.obtener_por_id(item_id)
             nombre = item["nombre"] if item else f"#{item_id}"
-            registrar_accion(Sesion().usuario_id, f"Actualizó precio de ítem de menú: {nombre}")
+            registrar_accion(Sesion().usuario_id, f"Actualizo precio de item de menu: {nombre}")
             return True, "Precio actualizado correctamente."
         except Error:
             return False, "No se pudo guardar el precio."
@@ -202,7 +202,7 @@ DESCUENTO_EFECTIVO = 0.10
         except Error:
             return False, "No se pudo obtener el precio vigente."
         if vigente is None:
-            return False, "El ítem no tiene un precio vigente para editar."
+            return False, "El item no tiene un precio vigente para editar."
 
         precio_especial = self._precio_efectivo(precio_lista)
         try:
@@ -211,7 +211,7 @@ DESCUENTO_EFECTIVO = 0.10
             )
             item = menu_modelo.obtener_por_id(item_id)
             nombre = item["nombre"] if item else f"#{item_id}"
-            registrar_accion(Sesion().usuario_id, f"Editó precio vigente de ítem de menú: {nombre}")
+            registrar_accion(Sesion().usuario_id, f"Edito precio vigente de item de menu: {nombre}")
             return True, "Precio vigente actualizado correctamente."
         except Error:
             return False, "No se pudo editar el precio vigente."
@@ -224,7 +224,7 @@ DESCUENTO_EFECTIVO = 0.10
             return False, "No se pudo obtener el precio vigente."
 ```
 
-- [ ] **Step 3: Verificar el cálculo del especial (SQL/manual)**
+- [ ] **Step 3: Verificar el calculo del especial (SQL/manual)**
 
 Tras cargar un precio de lista de `$1000` desde la app (Task 5), correr:
 ```sql
@@ -235,7 +235,7 @@ Esperado: `precio_lista = 1000.00`, `precio_especial = 900.00`, `medio_pago_espe
 
 ---
 
-### Task 4: Form de precio — quitar campos del especial + modo edición
+### Task 4: Form de precio — quitar campos del especial + modo edicion
 
 **Files:**
 - Modify: `vista/menu/precio_form.ui` (quitar filas del especial, agregar nota), `vista/menu/precio_form_ventana.py` (reescribir)
@@ -324,23 +324,23 @@ class DialogoPrecio(QDialog):
             self.label_error.setText(mensaje)
 ```
 
-- [ ] **Step 3: Verificación visual (Gabriel)**
+- [ ] **Step 3: Verificacion visual (Gabriel)**
 
 Abrir `precio_form.ui` en Qt Designer: no debe tirar advertencias, se ven solo Precio de lista, la nota del efectivo y la fecha de fin. La app abre "Nuevo precio" sin los campos del especial.
 
 ---
 
-### Task 5: Ventana de precios — botón "Editar vigente"
+### Task 5: Ventana de precios — boton "Editar vigente"
 
 **Files:**
-- Modify: `vista/menu/precios.ui` (agregar `pushButton_editar`), `vista/menu/precios_ventana.py` (método `abrir_editar`)
+- Modify: `vista/menu/precios.ui` (agregar `pushButton_editar`), `vista/menu/precios_ventana.py` (metodo `abrir_editar`)
 
 **Interfaces:**
 - Consumes: `controlador.precio_vigente`, `DialogoPrecio(controlador, item_id, precio_actual=..., parent=...)`.
 
-- [ ] **Step 1: Agregar el botón al `.ui`**
+- [ ] **Step 1: Agregar el boton al `.ui`**
 
-En `layout_botones` de `precios.ui`, después del item de `pushButton_nuevo` (línea ~103) y antes del `spacer`, agregar:
+En `layout_botones` de `precios.ui`, despues del item de `pushButton_nuevo` (linea ~103) y antes del `spacer`, agregar:
 
 ```xml
       <item>
@@ -354,13 +354,13 @@ En `layout_botones` de `precios.ui`, después del item de `pushButton_nuevo` (l�
 
 - [ ] **Step 2: Conectar y agregar `abrir_editar` en `precios_ventana.py`**
 
-En `__init__`, después de `self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)` (línea 34):
+En `__init__`, despues de `self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)` (linea 34):
 
 ```python
         self.pushButton_editar.clicked.connect(self.abrir_editar)
 ```
 
-Agregar el método (junto a `abrir_nuevo`):
+Agregar el metodo (junto a `abrir_nuevo`):
 
 ```python
     def abrir_editar(self):
@@ -372,7 +372,7 @@ Agregar el método (junto a `abrir_nuevo`):
             return
         if vigente is None:
             QMessageBox.information(self, "Sin precio",
-                                    "Este ítem todavía no tiene un precio cargado.")
+                                    "Este item todavia no tiene un precio cargado.")
             return
         dialogo = DialogoPrecio(self.controlador, self.item_id, precio_actual=vigente, parent=self)
         if dialogo.exec_() == QDialog.Accepted:
@@ -380,9 +380,9 @@ Agregar el método (junto a `abrir_nuevo`):
             QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
 ```
 
-- [ ] **Step 3: Verificación visual (Gabriel)**
+- [ ] **Step 3: Verificacion visual (Gabriel)**
 
-En Precios: "Editar vigente" abre el form precargado con el precio actual; al guardar, la tabla se actualiza sola (la fila vigente cambia, no se agrega otra) y la variación se recalcula. La columna "Medio de pago" muestra "Efectivo" en las filas con especial.
+En Precios: "Editar vigente" abre el form precargado con el precio actual; al guardar, la tabla se actualiza sola (la fila vigente cambia, no se agrega otra) y la variacion se recalcula. La columna "Medio de pago" muestra "Efectivo" en las filas con especial.
 
 ---
 
@@ -456,7 +456,7 @@ def eliminar_abiertas_vacias(fecha_limite):
 
 - [ ] **Step 2: Filtrar las vencidas en `reservas_sin_consumo`**
 
-En `consumo_modelo.reservas_sin_consumo` (línea ~70), agregar la condición `r.consumo_vencido = 0`:
+En `consumo_modelo.reservas_sin_consumo` (linea ~70), agregar la condicion `r.consumo_vencido = 0`:
 
 ```python
             "WHERE co.id IS NULL "
@@ -468,7 +468,7 @@ En `consumo_modelo.reservas_sin_consumo` (línea ~70), agregar la condición `r.
 
 - [ ] **Step 3: Agregar `vencer_consumos_pendientes` a `reserva_modelo.py`**
 
-Al final del archivo (usa el mismo patrón de conexión que las otras funciones del módulo):
+Al final del archivo (usa el mismo patron de conexion que las otras funciones del modulo):
 
 ```python
 def vencer_consumos_pendientes(fecha_limite):
@@ -503,7 +503,7 @@ def vencer_consumos_pendientes(fecha_limite):
 
 - [ ] **Step 4: Filtrar las vencidas en `panel_modelo.reservas_cumplidas_sin_consumo`**
 
-En `panel_modelo.py` (línea ~150), agregar la misma condición:
+En `panel_modelo.py` (linea ~150), agregar la misma condicion:
 
 ```python
             "WHERE co.id IS NULL AND r.fecha <= CURDATE() "
@@ -512,14 +512,14 @@ En `panel_modelo.py` (línea ~150), agregar la misma condición:
             "ORDER BY r.fecha DESC"
 ```
 
-- [ ] **Step 5: Verificación (SQL)**
+- [ ] **Step 5: Verificacion (SQL)**
 
 ```sql
 -- marcar como vencidas las de dias anteriores
 SELECT id, fecha, estado_asistencia, consumo_vencido FROM reservas
 WHERE estado_asistencia IN ('asistio','tardanza') AND fecha < CURDATE();
 ```
-Tras el barrido (Task 8), las que no tenían consumo deben quedar con `consumo_vencido = 1` y no aparecer más en el panel.
+Tras el barrido (Task 8), las que no tenian consumo deben quedar con `consumo_vencido = 1` y no aparecer mas en el panel.
 
 ---
 
@@ -559,13 +559,13 @@ class CierreControlador:
 
     def cerrar_dia(self):
         # Cierre manual desde el panel: incluye el dia de hoy.
-        return self._cerrar_hasta(date.today(), "Cerró el día")
+        return self._cerrar_hasta(date.today(), "Cerro el dia")
 
     def barrido_inicial(self):
         # Al iniciar sesion: cierra solo lo que quedo de dias ANTERIORES, por si
         # el dia anterior no se cerro a mano. No toca las mesas abiertas de hoy.
         limite = date.today() - timedelta(days=1)
-        return self._cerrar_hasta(limite, "Cierre automático de mesas de días anteriores")
+        return self._cerrar_hasta(limite, "Cierre automatico de mesas de dias anteriores")
 
     def _cerrar_hasta(self, fecha_limite, descripcion):
         try:
@@ -581,12 +581,12 @@ class CierreControlador:
             registrar_accion(
                 Sesion().usuario_id,
                 f"{descripcion}: {cerradas} mesas cerradas, "
-                f"{descartadas} vacías descartadas, {vencidas} sin consumo vencidas.",
+                f"{descartadas} vacias descartadas, {vencidas} sin consumo vencidas.",
             )
         return True, {"cerradas": cerradas, "descartadas": descartadas, "vencidas": vencidas}
 ```
 
-- [ ] **Step 2: Verificación (import)**
+- [ ] **Step 2: Verificacion (import)**
 
 Con el venv activo, correr:
 ```bash
@@ -596,30 +596,30 @@ Esperado: imprime `ok` sin errores de import.
 
 ---
 
-### Task 8: Panel de Inicio — Notificaciones, Cerrar día, barrido
+### Task 8: Panel de Inicio — Notificaciones, Cerrar dia, barrido
 
 **Files:**
-- Modify: `vista/principal.ui:300-304` (botón), `:555-557` (subtítulo)
-- Modify: `vista/principal_ventana.py` (textos, botón, barrido)
+- Modify: `vista/principal.ui:300-304` (boton), `:555-557` (subtitulo)
+- Modify: `vista/principal_ventana.py` (textos, boton, barrido)
 
 **Interfaces:**
 - Consumes: `CierreControlador().cerrar_dia()`, `CierreControlador().barrido_inicial()`.
 
-- [ ] **Step 1: Renombrar el botón en `principal.ui`**
+- [ ] **Step 1: Renombrar el boton en `principal.ui`**
 
-Reemplazar el widget `pushButton_actualizar` (líneas 300-304) por:
+Reemplazar el widget `pushButton_actualizar` (lineas 300-304) por:
 
 ```xml
           <widget class="QPushButton" name="pushButton_cerrarDia">
            <property name="text">
-            <string>Cerrar día</string>
+            <string>Cerrar dia</string>
            </property>
           </widget>
 ```
 
-- [ ] **Step 2: Renombrar el subtítulo en `principal.ui`**
+- [ ] **Step 2: Renombrar el subtitulo en `principal.ui`**
 
-En `label_subtituloAvisos` (línea ~557), cambiar el texto:
+En `label_subtituloAvisos` (linea ~557), cambiar el texto:
 
 ```xml
              <widget class="QLabel" name="label_subtituloAvisos">
@@ -628,19 +628,19 @@ En `label_subtituloAvisos` (línea ~557), cambiar el texto:
               </property>
 ```
 
-- [ ] **Step 3: Actualizar textos y conexión en `principal_ventana.py`**
+- [ ] **Step 3: Actualizar textos y conexion en `principal_ventana.py`**
 
-- Línea 104: cambiar la conexión del botón:
+- Linea 104: cambiar la conexion del boton:
 ```python
         self.pushButton_cerrarDia.clicked.connect(self.cerrar_dia)
 ```
-- Línea ~157: `self.label_subtituloAvisos.setText("Pendientes")` → `setText("Notificaciones")`.
-- Línea ~154: el texto vacío `"No hay pendientes. Todo al día."` se puede dejar; opcional cambiarlo a `"No hay notificaciones. Todo al día."`.
-- Línea ~165: `f"Pendientes ({len(avisos)})"` → `f"Notificaciones ({len(avisos)})"`.
+- Linea ~157: `self.label_subtituloAvisos.setText("Pendientes")` → `setText("Notificaciones")`.
+- Linea ~154: el texto vacio `"No hay pendientes. Todo al dia."` se puede dejar; opcional cambiarlo a `"No hay notificaciones. Todo al dia."`.
+- Linea ~165: `f"Pendientes ({len(avisos)})"` → `f"Notificaciones ({len(avisos)})"`.
 
 - [ ] **Step 4: Barrido al abrir el sistema**
 
-En `__init__`, después de `self.label_nombreUsuario.setText(...)` (línea 54):
+En `__init__`, despues de `self.label_nombreUsuario.setText(...)` (linea 54):
 
 ```python
         # Al abrir el sistema, cierra lo que haya quedado abierto de dias
@@ -650,9 +650,9 @@ En `__init__`, después de `self.label_nombreUsuario.setText(...)` (línea 54):
         CierreControlador().barrido_inicial()
 ```
 
-- [ ] **Step 5: Método `cerrar_dia`**
+- [ ] **Step 5: Metodo `cerrar_dia`**
 
-Agregar en la sección de acciones del panel (junto a `resolver_aviso`):
+Agregar en la seccion de acciones del panel (junto a `resolver_aviso`):
 
 ```python
     def cerrar_dia(self):
@@ -661,41 +661,41 @@ Agregar en la sección de acciones del panel (junto a `resolver_aviso`):
         from controlador.cierre_controlador import CierreControlador
 
         resp = QMessageBox.question(
-            self, "Cerrar día",
-            "Se van a cerrar todas las mesas abiertas de hoy, descartar las vacías "
-            "y marcar como vencidas las reservas sin consumo. ¿Confirmás?",
+            self, "Cerrar dia",
+            "Se van a cerrar todas las mesas abiertas de hoy, descartar las vacias "
+            "y marcar como vencidas las reservas sin consumo. ¿Confirmas?",
             QMessageBox.Yes | QMessageBox.No)
         if resp != QMessageBox.Yes:
             return
 
         exito, datos = CierreControlador().cerrar_dia()
         if not exito:
-            QMessageBox.warning(self, "Cerrar día", datos)
+            QMessageBox.warning(self, "Cerrar dia", datos)
             return
         QMessageBox.information(
-            self, "Cerrar día",
-            f"Día cerrado.\n"
+            self, "Cerrar dia",
+            f"Dia cerrado.\n"
             f"Mesas cerradas: {datos['cerradas']}\n"
-            f"Mesas vacías descartadas: {datos['descartadas']}\n"
+            f"Mesas vacias descartadas: {datos['descartadas']}\n"
             f"Reservas sin consumo vencidas: {datos['vencidas']}")
         self.cargar_panel()
 ```
 
-- [ ] **Step 6: Verificación visual (Gabriel)**
+- [ ] **Step 6: Verificacion visual (Gabriel)**
 
-Al abrir el sistema, las mesas abiertas de días anteriores quedan cerradas/descartadas y las reservas viejas sin consumo desaparecen de Notificaciones. El panel dice "Notificaciones (N)". El botón "Cerrar día" pide confirmación y muestra el resumen; después el panel se refresca solo. No queda ningún botón "Actualizar".
+Al abrir el sistema, las mesas abiertas de dias anteriores quedan cerradas/descartadas y las reservas viejas sin consumo desaparecen de Notificaciones. El panel dice "Notificaciones (N)". El boton "Cerrar dia" pide confirmacion y muestra el resumen; despues el panel se refresca solo. No queda ningun boton "Actualizar".
 
 ---
 
 ## Commits
 
-Gabriel maneja sus propios commits. Sugerencia de agrupación (uno por task, o los que quiera juntar): `Task 1-3` (precios: modelo + controlador), `Task 4-5` (precios: UI), `Task 6-8` (cierre de mesas + panel). Mensajes en el estilo del repo (ej: "fix precios: especial automatico y editar vigente", "feat: cierre de mesas y notificaciones").
+Gabriel maneja sus propios commits. Sugerencia de agrupacion (uno por task, o los que quiera juntar): `Task 1-3` (precios: modelo + controlador), `Task 4-5` (precios: UI), `Task 6-8` (cierre de mesas + panel). Mensajes en el estilo del repo (ej: "fix precios: especial automatico y editar vigente", "feat: cierre de mesas y notificaciones").
 
 ## Self-review — cobertura del spec
 
 - Punto 1 (un solo precio + especial auto) → Tasks 3, 4, 5. ✅
 - Punto 2 (Pendientes → Notificaciones) → Task 8. ✅
-- Punto 3 (qué falta) → cubierto por editar vigente (Task 5) + especial atado al medio (Task 3). ✅
+- Punto 3 (que falta) → cubierto por editar vigente (Task 5) + especial atado al medio (Task 3). ✅
 - Punto 4 (editar el vigente) → Tasks 2, 3, 4, 5. ✅
 - Punto 5 (bug notificaciones) → Task 2. ✅
 - Punto 6 (sacar Actualizar) → Task 8. ✅
