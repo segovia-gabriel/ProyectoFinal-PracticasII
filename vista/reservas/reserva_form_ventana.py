@@ -17,7 +17,10 @@ RUTA_UI = Path(__file__).resolve().parent / "reserva_form.ui"
 
 
 class DialogoReserva(QDialog):
-    def __init__(self, controlador, reserva=None, parent=None):
+    def __init__(self, controlador, reserva=None, parent=None,
+                 mesa_id=None, hora_inicio=None):
+        # mesa_id/hora_inicio: precarga opcional al dar de alta desde el Salon
+        # (mesa elegida en el plano y horario que se esta viendo). Se ignoran al editar.
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
 
@@ -69,6 +72,12 @@ class DialogoReserva(QDialog):
             # Alta: la fecha arranca hoy y el estado queda en "en espera" fijo.
             self.dateEdit_fecha.setDate(QDate.currentDate())
             self.comboBox_estado.setEnabled(False)
+            # Precarga cuando el alta viene del Salon: ahorra elegir la mesa y la
+            # hora a mano. Todo lo demas (cliente, duracion) se completa igual.
+            if mesa_id is not None:
+                self._seleccionar(self.comboBox_mesa, mesa_id)
+            if hora_inicio is not None:
+                self.timeEdit_inicio.setTime(hora_inicio)
 
         # Recalcular hora de fin y precio cuando cambia algo que los afecta.
         self.comboBox_mesa.currentIndexChanged.connect(self._recalcular)

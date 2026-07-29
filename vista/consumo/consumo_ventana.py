@@ -31,9 +31,10 @@ class VentanaConsumo(QWidget):
         self.tableWidget_consumos.verticalHeader().setVisible(False)
         # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
         self.tableWidget_consumos.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        # "Hasta" arranca un ano adelante, igual que en Reservas, para que el
-        # rango por defecto no deje consumos afuera.
-        self.dateEdit_hasta.setDate(QDate.currentDate().addYears(1))
+        # Rango por defecto: de ayer a hoy. Los consumos se cargan el mismo dia,
+        # asi que al entrar se ven los mas recientes sin tener que filtrar.
+        self.dateEdit_desde.setDate(QDate.currentDate().addDays(-1))
+        self.dateEdit_hasta.setDate(QDate.currentDate())
 
         self.pushButton_buscar.clicked.connect(self.cargar_consumos)
         self.lineEdit_filtro.returnPressed.connect(self.cargar_consumos)

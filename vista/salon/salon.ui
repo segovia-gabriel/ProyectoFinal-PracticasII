@@ -51,33 +51,19 @@
       <item>
        <widget class="QLabel" name="label_horario">
         <property name="text">
-         <string>Horario</string>
+         <string>Ver salón a las</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QTimeEdit" name="timeEdit_hora">
-        <property name="displayFormat">
-         <string>HH:mm</string>
+       <widget class="QComboBox" name="comboBox_horario">
+        <property name="minimumSize">
+         <size>
+          <width>180</width>
+          <height>0</height>
+         </size>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_ahora">
-        <property name="text">
-         <string>Ahora</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_sugeridos">
-        <property name="text">
-         <string>Ir a</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBox_sugeridos"/>
       </item>
       <item>
        <spacer name="espaciador_filtro">
@@ -96,6 +82,13 @@
        <widget class="QLabel" name="label_resumen">
         <property name="text">
          <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_referencias">
+        <property name="text">
+         <string>ⓘ Referencias</string>
         </property>
        </widget>
       </item>
@@ -187,16 +180,23 @@
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButton_reserva">
+           <property name="text">
+            <string>Registrar Reserva</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButton_asistencia">
            <property name="text">
-            <string>Marcar asistencia</string>
+            <string>Cambiar Estado</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_consumo">
            <property name="text">
-            <string>Cargar / editar consumo</string>
+            <string>Cargar Consumo</string>
            </property>
           </widget>
          </item>
@@ -209,33 +209,6 @@
          </item>
         </layout>
        </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="layout_botones">
-      <property name="spacing">
-       <number>8</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="label_referencias">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="espaciador_botones">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </item>

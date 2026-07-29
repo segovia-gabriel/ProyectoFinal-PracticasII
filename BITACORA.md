@@ -21,6 +21,37 @@ _(nada abierto)_
 
 ## Historial
 
+### 2026-07-29 — Salón: registrar reserva desde el plano + renombrar botones ✅
+Panel de detalle de la mesa (`frame_detalle`):
+1. **Nuevo botón "Registrar Reserva"** (arriba): se habilita solo si la mesa está **libre** en el horario visto. Abre el mismo `DialogoReserva` del módulo Reservas, precargando la mesa elegida y el horario actual. El choque de horarios lo valida el controlador (`hay_superposicion`) al guardar — no se reimplementó nada.
+2. "Marcar asistencia" → **"Cambiar Estado"**.
+3. "Cargar / editar consumo" → **"Cargar Consumo"**.
+4. "Ver consumo" sin cambios.
+
+**Archivos tocados:**
+- `vista/reservas/reserva_form_ventana.py` — `DialogoReserva.__init__` acepta `mesa_id` y `hora_inicio` opcionales (precarga al dar de alta; se ignoran al editar).
+- `vista/salon/salon.ui` — nuevo `pushButton_reserva`; renombre de `pushButton_asistencia` y `pushButton_consumo`.
+- `vista/salon/salon_ventana.py` — import `LIBRE` y `DialogoReserva`; conexión + método `registrar_reserva`; habilita `pushButton_reserva` con `estado == LIBRE` (y lo apaga en la rama sin mesa).
+
+### 2026-07-29 — Pestañas (QTabBar): fix texto recortado al seleccionar ✅
+La pestaña activa usaba `font-weight: 600` y Qt calcula el ancho con el peso normal → al seleccionarla el texto (negrita, más ancho) se recortaba. Fix en `recursos/style.css`: mismo `font-weight: 500` en todos los estados (la activa se distingue por el fondo azul), + `padding` y `min-width: 90px` para dar aire, + hover. Afecta a todos los `QTabWidget` (Salón `tabWidget_pisos`, Estadísticas, etc.) por ser CSS global.
+
+### 2026-07-29 — Salón: leyenda de colores movida a tooltip ✅
+La franja de referencias del pie se sacó. Ahora es un "ⓘ Referencias" en la barra superior (a la derecha, después del resumen) y los colores van en el tooltip (rich text de Qt, un ■ de color por estado). Se eliminó el `layout_botones` del pie (quedaba vacío). Archivos: `vista/salon/salon.ui`, `vista/salon/salon_ventana.py`.
+
+### 2026-07-29 — Salón: fix selección múltiple + selector de horario simple ✅
+Dos cambios en el módulo Salón:
+
+1. **Bug de selección múltiple:** los cards de mesa (`QPushButton` checkable) no estaban en grupo exclusivo → se acumulaba el borde azul de "seleccionada" en varias a la vez. Fix: `QButtonGroup` exclusivo (`_grupo_mesas`, recreado en cada `cargar_salon`), y al redibujar se re-marca (`setChecked(True)`) la mesa que estaba elegida.
+2. **Selector de horario:** se reemplazó `timeEdit_hora` (spinner) + botón "Ahora" + combo "Ir a" por **un solo dropdown** `comboBox_horario` = "Ahora" (hora real, data `None`) + los horarios donde hoy hay reservas (`horarios_sugeridos`). No se elige hora arbitraria: el plano solo tiene sentido en los turnos con reservas. Solo la hora, sin nombre de turno (el modelo devuelve `hora_inicio` nomás).
+
+**Archivos tocados:**
+- `vista/salon/salon.ui` — toolbar: label "Ver salón a las" + `comboBox_horario`; se quitaron `timeEdit_hora`, `pushButton_ahora`, `label_sugeridos`, `comboBox_sugeridos`.
+- `vista/salon/salon_ventana.py` — import `QButtonGroup`; grupo exclusivo de mesas; `_cargar_horarios()` + `_hora_elegida()` reemplazan `_cargar_horarios_sugeridos`/`ir_a_ahora`/`ir_a_sugerido`; `cargar_salon` lee del combo; se limpió el import `Qt` (ya no se usa).
+
+### 2026-07-29 — Consumo: rango de fechas por defecto ayer→hoy ✅
+En `vista/consumo/consumo_ventana.py` el filtro arrancaba con "Hasta" a un año adelante. Ahora `dateEdit_desde` = ayer (`currentDate().addDays(-1)`) y `dateEdit_hasta` = hoy, así al entrar se ven los consumos recientes sin filtrar.
+
 ### 2026-07-29 — Rediseño del navbar ✅
 Cuatro cambios sobre la barra lateral (`widget_menu`):
 1. **Orden por prioridad:** Inicio → Salón → Reservas → Consumo → Clientes → Mesas → Menú → Estadísticas → Usuarios → Historial de acciones (operación diaria arriba, administración/auditoría abajo).

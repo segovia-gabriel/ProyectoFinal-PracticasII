@@ -482,18 +482,24 @@ QTabWidget::pane {
     border-radius: 6px;
     top: -1px;
 }
+/* Mismo font-weight en todos los estados a proposito: si la pestana activa se
+   pusiera en negrita, Qt calcula el ancho con el peso normal y el texto queda
+   recortado al seleccionarla. La activa se distingue por el fondo azul, no por
+   el peso. min-width deja las pestanas parejas y con aire. */
 QTabBar::tab {
     background-color: #e2e8f0;
     color: #334155;
-    padding: 7px 16px;
+    padding: 8px 18px;
     margin-right: 2px;
+    min-width: 90px;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
+    font-weight: 500;
 }
+QTabBar::tab:hover { background-color: #cbd5e1; }
 QTabBar::tab:selected {
     background-color: #2563eb;
     color: #ffffff;
-    font-weight: 600;
 }
 
 /* Barras de scroll finas y sobrias, para no ensuciar el listado. */
