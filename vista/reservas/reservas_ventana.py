@@ -1,6 +1,6 @@
 """
-Ventana de Reservas. Listado con filtros (cliente y rango de fechas) y CRUD, con
-la regla de que las reservas pasadas no se editan ni eliminan (pero su estado de
+Ventana de Reservas. Listado con filtros (cliente y rango de fechas) y ABM, con
+la regla de que las reservas pasadas no se editan ni se borran (pero el estado de
 asistencia si se puede cambiar). Al cerrarse vuelve la principal.
 """
 
@@ -30,14 +30,13 @@ class VentanaReservas(QWidget):
         self.controlador = ReservasControlador()
 
         self.tableWidget_reservas.verticalHeader().setVisible(False)
-        # El cliente se queda con el ancho sobrante y el resto de las columnas
-        # se ajusta a su contenido, asi no aparece scroll horizontal.
-        # Todas las columnas reparten el ancho por igual (sin huecos al maximizar).
+        # Todas las columnas reparten el ancho por igual, asi no queda scroll
+        # horizontal ni huecos cuando maximizo la ventana.
         self.tableWidget_reservas.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        # Al entrar se muestra la semana de trabajo: de ayer a 7 dias adelante.
-        # Ayer entra a proposito, porque es la reserva que todavia puede faltar
-        # marcarle la asistencia. Para ver el historial completo se corre el
-        # "Desde" hacia atras.
+        # Al entrar muestro la semana de trabajo: de ayer a 7 dias para adelante.
+        # Ayer entra a proposito, porque es la reserva a la que capaz todavia falta
+        # marcarle la asistencia. Para ver todo el historial, corres el "Desde"
+        # para atras.
         self.dateEdit_desde.setDate(QDate.currentDate().addDays(-1))
         self.dateEdit_hasta.setDate(QDate.currentDate().addDays(7))
 
@@ -105,7 +104,7 @@ class VentanaReservas(QWidget):
         if reserva is None:
             QMessageBox.warning(self, "Atencion", "Selecciona una reserva para editar.")
             return
-        # Regla: las reservas pasadas no se editan (solo su estado).
+        # Regla: las reservas pasadas no se editan (solo el estado).
         if self.controlador.es_pasada(reserva):
             QMessageBox.information(
                 self, "Reserva pasada",
@@ -137,7 +136,7 @@ class VentanaReservas(QWidget):
         if reserva is None:
             QMessageBox.warning(self, "Atencion", "Selecciona una reserva para cambiar su estado.")
             return
-        # El estado solo se cambia el mismo dia de la reserva.
+        # El estado solo lo cambias el mismo dia de la reserva.
         if reserva["fecha"] != date.today():
             QMessageBox.information(
                 self, "Solo el dia de la reserva",

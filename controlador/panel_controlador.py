@@ -1,7 +1,7 @@
 """
 Controlador del panel principal. Junta en una sola llamada los numeros y listas
-del resumen del dia, ya formateados para mostrar, asi la vista no arma textos ni
-sabe de SQL. Es solo lectura: el panel no modifica nada.
+del resumen del dia, ya formateados, asi la vista no arma textos ni sabe nada de
+SQL. Es solo lectura: el panel no toca nada.
 """
 
 from datetime import date
@@ -11,8 +11,8 @@ from mysql.connector import Error
 from modelo import panel_modelo
 from utilidades import formato
 
-# Mismo umbral que usa el modulo Menu para avisar la renovacion de precios: lo
-# pide el enunciado (avisar 10 dias antes del vencimiento).
+# Mismo umbral que usa el modulo Menu: aviso la renovacion 10 dias antes de que
+# venza el precio.
 DIAS_AVISO_RENOVACION = 10
 
 
@@ -20,7 +20,7 @@ class PanelControlador:
 
     def resumen(self):
         # Un solo metodo para toda la pantalla: si falla la base, el panel avisa
-        # una vez en lugar de mostrar seis errores distintos.
+        # una vez y no te tira seis errores distintos.
         try:
             datos = {
                 "reservas_hoy": panel_modelo.contar_reservas_hoy(),
@@ -34,9 +34,9 @@ class PanelControlador:
         return True, datos
 
     def _agenda_de_hoy(self):
-        # Cada fila queda lista para volcarse en la tabla, sin conversiones en la
-        # vista. Se incluye el id y el estado crudo porque haciendo doble clic
-        # sobre la fila se cambia la asistencia.
+        # Cada fila queda lista para volcar en la tabla, sin conversiones en la
+        # vista. Meto el id y el estado crudo porque con doble clic sobre la fila
+        # se cambia la asistencia.
         filas = []
         for reserva in panel_modelo.reservas_de_hoy():
             filas.append({
@@ -51,9 +51,9 @@ class PanelControlador:
         return filas
 
     def _avisos(self):
-        # Dos tipos de pendiente en una sola lista. Cada uno lleva su tipo y el
-        # id del registro para que el panel sepa que pantalla abrir cuando se le
-        # hace doble clic.
+        # Dos tipos de pendiente en una sola lista. Cada uno lleva su tipo y el id
+        # del registro para que el panel sepa que pantalla abrir cuando le hacen
+        # doble clic.
         avisos = []
 
         for fila in panel_modelo.precios_por_vencer(DIAS_AVISO_RENOVACION):
@@ -84,7 +84,7 @@ class PanelControlador:
         return avisos
 
     def saludo(self, nombre_usuario):
-        # Saludo segun la hora, para que el panel se sienta parte del turno de trabajo.
+        # Saludo segun la hora, asi el panel se siente parte del turno de trabajo.
         from datetime import datetime
 
         hora_actual = datetime.now().hour
@@ -97,8 +97,8 @@ class PanelControlador:
         return f"{momento}, {nombre_usuario}"
 
     def fecha_larga(self):
-        # "Miercoles 22 de julio de 2026" -- se arma a mano porque strftime
-        # depende del idioma del sistema operativo y en Windows sale en ingles.
+        # Algo tipo "Miercoles 22 de julio de 2026". Lo armo a mano porque strftime
+        # depende del idioma del SO y en Windows sale en ingles.
         hoy = date.today()
         dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]
         return (f"{dias[hoy.weekday()]} {hoy.day} de "

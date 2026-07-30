@@ -1,11 +1,11 @@
 """
 Controlador de Menu: items, grupos de menu y precios. Resuelve el precio vigente
-de cada item, calcula la variacion porcentual del historial, avisa cuando un
-precio esta por vencer, y copia la imagen elegida a la carpeta del proyecto.
+de cada item, saca la variacion porcentual del historial, avisa cuando un precio
+esta por vencer y copia la imagen elegida a la carpeta del proyecto.
 """
 
 import shutil
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 from mysql.connector import Error
@@ -15,11 +15,11 @@ from modelo.historial_modelo import registrar_accion
 from utilidades.logger import registrar
 from utilidades.sesion import Sesion
 
-# Raiz del proyecto, para resolver rutas de imagenes con pathlib (multiplataforma).
+# La raiz del proyecto, para resolver las rutas de imagenes con pathlib (anda en cualquier SO).
 RAIZ = Path(__file__).resolve().parent.parent
 DIAS_AVISO_RENOVACION = 10
 # El precio de lista es el de transferencia; en efectivo se aplica este descuento.
-# Un solo lugar por si algun dia cambia el porcentaje.
+# Lo dejo en un solo lugar por si algun dia cambia el porcentaje.
 DESCUENTO_EFECTIVO = 0.10
 
 
@@ -30,7 +30,7 @@ class MenuControlador:
     def listar_items(self, filtro_nombre=None):
         try:
             items = menu_modelo.listar(filtro_nombre)
-            # a cada item le agregamos su precio de lista vigente para mostrarlo
+            # a cada item le pego su precio de lista vigente para mostrarlo
             for item in items:
                 vigente = precio_menu_modelo.obtener_vigente(item["id"])
                 item["precio_vigente"] = float(vigente["precio_lista"]) if vigente else None
@@ -53,16 +53,16 @@ class MenuControlador:
 
     def _copiar_imagen(self, origen):
         # Copia la imagen elegida a recursos/img/menu/ con un nombre unico y
-        # devuelve la ruta relativa a guardar en la base. Si algo falla, avisa.
+        # devuelve la ruta relativa que guardo en la base. Si algo falla, avisa.
         try:
             origen = Path(origen)
             destino_dir = RAIZ / "recursos" / "img" / "menu"
             destino_dir.mkdir(parents=True, exist_ok=True)
-            # se antepone un timestamp para no pisar imagenes de igual nombre
+            # le pongo un timestamp adelante para no pisar imagenes que se llamen igual
             marca = date.today().strftime("%Y%m%d") + "_" + str(abs(hash(origen.name)) % 100000)
             destino = destino_dir / f"{marca}_{origen.name}"
             shutil.copy(origen, destino)
-            # ruta relativa con / (as_posix) para que sirva en Mac y Windows
+            # ruta relativa con / (as_posix) asi sirve en Mac y en Windows
             return (Path("recursos") / "img" / "menu" / destino.name).as_posix()
         except OSError as error:
             registrar(error, "error")
@@ -75,8 +75,8 @@ class MenuControlador:
         if grupo_menu_id is None:
             return False, "Selecciona un grupo de menu."
 
-        # imagen_origen: ruta nueva elegida por el usuario (o None si no cambio).
-        # imagen_actual: la que ya tenia el item (se conserva si no eligio otra).
+        # imagen_origen: la ruta nueva que eligio el usuario (o None si no cambio).
+        # imagen_actual: la que ya tenia el item (la dejo si no eligio otra).
         imagen_path = imagen_actual
         if imagen_origen:
             copiada = self._copiar_imagen(imagen_origen)
@@ -104,7 +104,7 @@ class MenuControlador:
             item = menu_modelo.obtener_por_id(item_id)
             if item is None:
                 return False, "El item ya no existe."
-            # primero su historial de precios (clave foranea), despues el item
+            # primero su historial de precios (por la clave foranea), despues el item
             precio_menu_modelo.eliminar_por_item(item_id)
             menu_modelo.eliminar(item_id)
             registrar_accion(Sesion().usuario_id, f"Elimino item de menu: {item['nombre']}")
@@ -163,8 +163,8 @@ class MenuControlador:
     # ---------------- Precios ----------------
 
     def historial_precios(self, item_id):
-        # Devuelve el historial con la variacion porcentual respecto al precio
-        # de lista anterior, calculada en Python al recorrer las filas.
+        # Devuelve el historial con la variacion porcentual respecto al precio de
+        # lista anterior, que la saco en Python recorriendo las filas.
         try:
             filas = precio_menu_modelo.listar_historial(item_id)
         except Error:
@@ -174,15 +174,15 @@ class MenuControlador:
         for fila in filas:
             actual = float(fila["precio_lista"])
             if anterior is None or anterior == 0:
-                fila["variacion"] = None   # el primer precio no tiene con que compararse
+                fila["variacion"] = None   # el primer precio no tiene contra que compararse
             else:
                 fila["variacion"] = (actual - anterior) / anterior * 100
             anterior = actual
         return True, filas
 
     def aviso_renovacion(self, item_id):
-        # Si el precio vigente tiene fecha_fin definida y faltan 10 dias o menos,
-        # devuelve un texto de aviso; si no, None.
+        # Si el precio vigente tiene fecha_fin y faltan 10 dias o menos, devuelve
+        # un texto de aviso; si no, None.
         try:
             vigente = precio_menu_modelo.obtener_vigente(item_id)
         except Error:
@@ -195,20 +195,20 @@ class MenuControlador:
         return None
 
     def _precio_efectivo(self, precio_lista):
-        # El especial se calcula solo: lista (transferencia) menos el descuento.
+        # El especial sale solo: precio de lista (transferencia) menos el descuento.
         return round(precio_lista * (1 - DESCUENTO_EFECTIVO), 2)
 
     def guardar_precio(self, item_id, precio_lista, fecha_fin=None):
         if precio_lista <= 0:
             return False, "El precio de lista debe ser mayor a cero."
-        # El precio arranca hoy; si se define un fin de vigencia, no puede quedar
+        # El precio arranca hoy; si le pongo un fin de vigencia, no puede quedar
         # antes de esa fecha de inicio.
         hoy = date.today()
         if fecha_fin is not None and fecha_fin < hoy:
             return False, "La fecha de fin de vigencia no puede ser anterior a hoy."
 
-        # Se guarda el especial ya calculado (efectivo) para que el historial
-        # quede con el numero real y no dependa del porcentaje a futuro.
+        # Guardo el especial ya calculado (efectivo) para que el historial quede
+        # con el numero real y no dependa del porcentaje que haya a futuro.
         precio_especial = self._precio_efectivo(precio_lista)
         try:
             precio_menu_modelo.crear_precio(
@@ -222,8 +222,8 @@ class MenuControlador:
             return False, "No se pudo guardar el precio."
 
     def editar_precio_vigente(self, item_id, precio_lista, fecha_fin=None):
-        # Corrige el precio vigente sin crear una fila nueva (para el caso de
-        # haber cargado mal un precio). Recalcula el especial y la variacion sola.
+        # Corrige el precio vigente sin crear una fila nueva (para cuando cargue mal
+        # un precio). Recalcula el especial y la variacion sola.
         if precio_lista <= 0:
             return False, "El precio de lista debe ser mayor a cero."
         hoy = date.today()
@@ -249,7 +249,7 @@ class MenuControlador:
             return False, "No se pudo editar el precio vigente."
 
     def precio_vigente(self, item_id):
-        # Lo usa la ventana de precios para precargar el form al editar.
+        # Lo usa la ventana de precios para precargar el formulario cuando edito.
         try:
             return True, precio_menu_modelo.obtener_vigente(item_id)
         except Error:

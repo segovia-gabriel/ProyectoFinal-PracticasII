@@ -1,7 +1,6 @@
 """
-Acceso a datos de la tabla usuarios. Cada funcion hace una sola operacion SQL
-y devuelve datos planos (dict/tupla/None), nunca widgets.
-Por ahora solo lo que necesita el login; el CRUD completo llega en la Fase 2.
+Acceso a datos de la tabla usuarios. Cada funcion hace una sola cosa en SQL y
+devuelve datos pelados (dict/tupla/None), nunca widgets.
 """
 
 from mysql.connector import Error
@@ -11,12 +10,12 @@ from utilidades.logger import registrar
 
 
 def obtener_por_nombre(nombre_usuario):
-    # Devuelve el usuario (id + hash) para verificar el login, o None si no existe.
-    # Se piden solo las columnas que hacen falta, no SELECT *.
+    # Devuelve el usuario (id + hash) para chequear el login, o None si no existe.
+    # Pido solo las columnas que necesito, nada de SELECT *.
     conexion = None
     try:
         conexion = abrir_conexion()
-        cursor = conexion.cursor(dictionary=True)  # dict para leer por nombre de columna
+        cursor = conexion.cursor(dictionary=True)
         cursor.execute(
             "SELECT id, nombre_usuario, contrasena_hash FROM usuarios WHERE nombre_usuario = %s",
             (nombre_usuario,),
@@ -24,14 +23,14 @@ def obtener_por_nombre(nombre_usuario):
         return cursor.fetchone()
     except Error as error:
         registrar(error, "error")
-        raise  # el controlador decide que mensaje mostrar al usuario
+        raise
     finally:
         if conexion is not None and conexion.is_connected():
             conexion.close()
 
 
 def actualizar_ultimo_acceso(usuario_id):
-    # Se llama despues de un login correcto para dejar registro de cuando entro.
+    # Lo llamo despues de un login OK para dejar anotado cuando entro.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -50,7 +49,7 @@ def actualizar_ultimo_acceso(usuario_id):
 
 
 def listar(filtro_nombre=None):
-    # Devuelve los usuarios para el listado. Nunca trae la contrasena_hash:
+    # Devuelve los usuarios para el listado. Nunca trae la contrasena_hash porque
     # no se muestra en pantalla. Si viene filtro_nombre, filtra por coincidencia.
     conexion = None
     try:
@@ -74,7 +73,7 @@ def listar(filtro_nombre=None):
 
 
 def obtener_por_id(usuario_id):
-    # Para precargar el formulario al editar. Sin la contrasena (no se re-muestra).
+    # Para precargar el formulario cuando edito. Sin la contrasena, que no se vuelve a mostrar.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -92,8 +91,8 @@ def obtener_por_id(usuario_id):
 
 
 def existe_nombre(nombre_usuario, excluir_id=None):
-    # Chequea unicidad del nombre antes de guardar. Al editar se excluye el
-    # propio id, para que no choque consigo mismo.
+    # Chequea que el nombre no este repetido antes de guardar. Al editar excluyo
+    # el propio id, asi no choca consigo mismo.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -118,7 +117,7 @@ def existe_nombre(nombre_usuario, excluir_id=None):
 
 
 def contar():
-    # Se usa para no permitir borrar el ultimo usuario (quedaria sin acceso).
+    # Lo uso para no dejar borrar el ultimo usuario, sino nos quedariamos sin acceso.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -134,8 +133,8 @@ def contar():
 
 
 def crear(nombre_usuario, contrasena_hash):
-    # Inserta un usuario nuevo. Recibe el hash ya calculado por el controlador;
-    # el modelo nunca ve la contrasena en texto plano. Devuelve el id nuevo.
+    # Inserta un usuario nuevo. El hash ya viene calculado del controlador, el
+    # modelo nunca ve la contrasena en texto plano. Devuelve el id nuevo.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -155,9 +154,9 @@ def crear(nombre_usuario, contrasena_hash):
 
 
 def modificar(usuario_id, nombre_usuario, contrasena_hash=None):
-    # Actualiza el nombre y, solo si se paso una contrasena nueva, tambien el
-    # hash. Si contrasena_hash es None se deja la que ya tenia (no se pisa por
-    # vacio). fecha_modificacion se pone al momento del cambio.
+    # Actualiza el nombre y, solo si mandaron una contrasena nueva, tambien el
+    # hash. Si contrasena_hash es None dejo la que ya tenia, no la piso con un
+    # vacio. La fecha_modificacion se pone al momento del cambio.
     conexion = None
     try:
         conexion = abrir_conexion()

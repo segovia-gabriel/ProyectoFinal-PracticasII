@@ -117,3 +117,4 @@ class VentanaMenu(QWidget):
             QMessageBox.warning(self, "Error", "No se pudo abrir el item.")
             return
         VentanaPrecios(item, self.controlador, self).exec_()
+        self.cargar_items()

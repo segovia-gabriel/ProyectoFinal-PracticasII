@@ -1,8 +1,8 @@
 """
 Acceso a datos de historial_acciones (auditoria).
 registrar_accion() es la funcion comun que llaman todos los modulos (login,
-usuarios, clientes, reservas...) al hacer alta/baja/modificacion, para no
-repetir el mismo INSERT en cada uno. El listado con filtros llega en la Fase 2.
+usuarios, clientes, reservas...) cuando hacen un alta/baja/modificacion, asi no
+repito el mismo INSERT en cada uno.
 """
 
 from mysql.connector import Error
@@ -12,8 +12,8 @@ from utilidades.logger import registrar
 
 
 def registrar_accion(usuario_id, descripcion):
-    # Guarda una linea de auditoria. fecha_hora la pone la base con su DEFAULT
-    # CURRENT_TIMESTAMP, asi que no la mandamos desde Python.
+    # Guarda una linea de auditoria. La fecha_hora la pone la base con su DEFAULT
+    # CURRENT_TIMESTAMP, asi que no la mando desde Python.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -33,8 +33,8 @@ def registrar_accion(usuario_id, descripcion):
 
 def listar_con_filtros(usuario_id=None, fecha_desde=None, fecha_hasta=None):
     # Listado de auditoria (solo lectura) con filtros opcionales. Hace JOIN con
-    # usuarios para mostrar el nombre de quien hizo cada accion. El WHERE se arma
-    # sumando condiciones solo para los filtros que vinieron con valor.
+    # usuarios para mostrar quien hizo cada accion. El WHERE lo armo sumando
+    # condiciones solo para los filtros que vinieron con valor.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -53,7 +53,7 @@ def listar_con_filtros(usuario_id=None, fecha_desde=None, fecha_hasta=None):
             condiciones.append("h.fecha_hora >= %s")
             parametros.append(fecha_desde)
         if fecha_hasta is not None:
-            # se suma un dia y se usa < para incluir todo el dia 'hasta' completo
+            # sumo un dia y uso < para que entre el dia 'hasta' completo
             condiciones.append("h.fecha_hora < %s")
             parametros.append(fecha_hasta)
         if condiciones:

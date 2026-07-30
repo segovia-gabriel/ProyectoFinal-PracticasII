@@ -1,8 +1,10 @@
 """
-Acceso a datos de reservas. El listado trae nombre del cliente y codigo de mesa
-con JOINs. El precio (precio_mesa_aplicado) llega ya calculado por el controlador
-y se guarda como snapshot: no se recalcula aunque despues cambie el valor del grupo.
+Acceso a datos de reservas. El listado trae el nombre del cliente y el codigo de
+mesa con JOINs. El precio (precio_mesa_aplicado) ya viene calculado del controlador
+y lo guardo como una foto: no lo vuelvo a calcular aunque despues cambie el valor del grupo.
 """
+
+from datetime import time
 
 from mysql.connector import Error
 
@@ -36,8 +38,8 @@ def listar(filtro_nombre=None, fecha_desde=None, fecha_hasta=None):
             parametros.append(fecha_hasta)
         if condiciones:
             sql += " WHERE " + " AND ".join(condiciones)
-        # De la mas proxima a la mas lejana: la pantalla arranca mostrando la
-        # semana en curso, asi que arriba queda lo que esta por pasar.
+        # De la mas cercana a la mas lejana: la pantalla arranca en la semana en
+        # curso, asi que arriba queda lo que esta por pasar.
         sql += " ORDER BY r.fecha ASC, r.hora_inicio ASC"
         cursor.execute(sql, tuple(parametros))
         return cursor.fetchall()
@@ -70,17 +72,32 @@ def obtener_por_id(reserva_id):
 
 
 def hay_superposicion(mesa_id, fecha, hora_inicio, hora_fin, excluir_id=None):
-    # Dos reservas se pisan si comparten mesa y dia y sus horarios se cruzan:
-    # (inicio_existente < fin_nuevo) AND (fin_existente > inicio_nuevo).
+    # Dos reservas se pisan si comparten mesa, fecha y se cruzan los horarios.
+    # Usamos TIME_TO_SEC con CASE WHEN para normalizar horas post-medianoche
+    # (00:00-09:59) sumandoles 86400 seg, de modo que la comparacion funciona
+    # correctamente aunque hora_fin < hora_inicio en el TYPE TIME de MySQL
+    # (caso de reservas que cruzan la medianoche, ej: 23:20 -> 01:20).
     conexion = None
+
+    def _norm_sec(t):
+        s = t.hour * 3600 + t.minute * 60
+        if t < time(10, 0):
+            s += 86400
+        return s
+
     try:
         conexion = abrir_conexion()
         cursor = conexion.cursor()
         sql = (
             "SELECT COUNT(*) FROM reservas WHERE mesa_id = %s AND fecha = %s "
-            "AND hora_inicio < %s AND hora_fin > %s"
+            "AND (CASE WHEN hora_inicio < '10:00:00' "
+            "     THEN TIME_TO_SEC(hora_inicio) + 86400 "
+            "     ELSE TIME_TO_SEC(hora_inicio) END) < %s "
+            "AND (CASE WHEN hora_fin < '10:00:00' "
+            "     THEN TIME_TO_SEC(hora_fin) + 86400 "
+            "     ELSE TIME_TO_SEC(hora_fin) END) > %s"
         )
-        parametros = [mesa_id, fecha, hora_fin, hora_inicio]
+        parametros = [mesa_id, fecha, _norm_sec(hora_fin), _norm_sec(hora_inicio)]
         if excluir_id is not None:
             sql += " AND id <> %s"
             parametros.append(excluir_id)
@@ -137,8 +154,8 @@ def modificar(reserva_id, cliente_id, mesa_id, fecha, hora_inicio, hora_fin,
 
 
 def actualizar_estado(reserva_id, estado_asistencia):
-    # El estado de asistencia se puede cambiar siempre, incluso en reservas
-    # pasadas (para marcar retroactivamente si asistio o falto).
+    # El estado de asistencia lo podes cambiar siempre, hasta en reservas pasadas,
+    # para marcar despues si el cliente asistio o falto.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -157,8 +174,8 @@ def actualizar_estado(reserva_id, estado_asistencia):
 
 
 def obtener_para_consumo(reserva_id):
-    # Datos de una reserva puntual para mostrarla en el combo de Consumo cuando
-    # el dialogo se abre ya apuntando a ella (desde el salon o el panel).
+    # Los datos de una reserva puntual para mostrarla en el combo de Consumo cuando
+    # el dialogo ya se abre apuntando a ella (desde el salon o el panel).
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -181,7 +198,7 @@ def obtener_para_consumo(reserva_id):
 
 
 def contar_consumos(reserva_id):
-    # Para no borrar una reserva que ya tiene un consumo cargado.
+    # Para no borrar una reserva que ya tiene consumo cargado.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -213,9 +230,9 @@ def eliminar(reserva_id):
 
 def vencer_consumos_pendientes(fecha_limite):
     # Marca como vencidas las reservas donde el cliente asistio (o llego tarde)
-    # pero nunca se cargo el consumo y la fecha ya paso. Al cerrar el dia dejan de
-    # figurar como pendientes: esa venta ya no se va a cargar. Devuelve cuantas
-    # marco.
+    # pero nunca se cargo el consumo y la fecha ya paso. Cuando cierro el dia dejan
+    # de figurar como pendientes: esa venta ya no la vamos a cargar. Devuelve
+    # cuantas marco.
     conexion = None
     try:
         conexion = abrir_conexion()

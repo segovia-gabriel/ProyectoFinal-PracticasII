@@ -1,6 +1,6 @@
 """
-Acceso a datos de menu_items. El listado trae el nombre del grupo con JOIN.
-El precio no vive aca: se maneja en historial_precios_menu (precio_menu_modelo).
+Acceso a datos de menu_items. El listado trae el nombre del grupo con un JOIN.
+El precio no vive aca, se maneja en historial_precios_menu (precio_menu_modelo).
 """
 
 from mysql.connector import Error
@@ -54,7 +54,7 @@ def obtener_por_id(item_id):
 
 
 def contar_consumos(item_id):
-    # Para no borrar un item que ya fue consumido (esta en consumo_detalle).
+    # Para no borrar un item que ya se consumio alguna vez (esta en consumo_detalle).
     conexion = None
     try:
         conexion = abrir_conexion()

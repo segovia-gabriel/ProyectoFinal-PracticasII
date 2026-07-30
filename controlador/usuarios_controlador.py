@@ -1,8 +1,8 @@
 """
-Controlador de Usuarios. Valida, aplica las reglas de negocio (unicidad del
-nombre, criterio de contrasena, no borrar el ultimo usuario ni el propio),
-llama al modelo y registra cada alta/baja/modificacion en el historial.
-No conoce widgets: devuelve (exito, mensaje) o (exito, datos) a la vista.
+Controlador de Usuarios. Valida, aplica las reglas de negocio (nombre unico,
+criterio de contrasena, no borrar el ultimo usuario ni el propio), llama al
+modelo y anota cada alta/baja/modificacion en el historial.
+No sabe nada de widgets: devuelve (exito, mensaje) o (exito, datos) a la vista.
 """
 
 from mysql.connector import Error
@@ -24,7 +24,7 @@ class UsuariosControlador:
             return False, "No se pudieron cargar los usuarios."
 
     def obtener(self, usuario_id):
-        # Para precargar el formulario al editar.
+        # Para precargar el formulario cuando edito.
         try:
             return True, usuario_modelo.obtener_por_id(usuario_id)
         except Error:
@@ -44,8 +44,8 @@ class UsuariosControlador:
         except Error:
             return False, "No se pudo verificar el nombre de usuario."
 
-        # En alta la contrasena es obligatoria; en edicion, dejarla vacia
-        # significa "no cambiar la contrasena".
+        # En el alta la contrasena es obligatoria; al editar, si la dejo vacia es
+        # porque no quiero cambiarla.
         es_alta = usuario_id is None
         cambia_contrasena = es_alta or contrasena != ""
 
@@ -71,12 +71,12 @@ class UsuariosControlador:
             return False, "No se pudo guardar el usuario en la base de datos."
 
     def eliminar(self, usuario_id):
-        # Regla: no puede borrarse a si mismo (perderia la sesion activa)...
+        # Regla: no se puede borrar a si mismo, sino pierde la sesion activa...
         if usuario_id == Sesion().usuario_id:
             return False, "No podes eliminar tu propio usuario mientras estas logueado."
 
         try:
-            # ...ni el ultimo usuario del sistema (nadie podria volver a entrar).
+            # ...ni al ultimo usuario del sistema, sino nadie podria volver a entrar.
             if usuario_modelo.contar() <= 1:
                 return False, "No se puede eliminar el unico usuario del sistema."
 

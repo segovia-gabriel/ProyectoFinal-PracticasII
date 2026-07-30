@@ -1,7 +1,7 @@
 """
-Controlador de Mesas y Grupos de mesa. Genera el codigo de la mesa (letra del
-piso + numero), valida, llama a los modelos y registra en el historial.
-El codigo se arma aca (no lo escribe el usuario) para que sea consistente.
+Controlador de Mesas y Grupos de mesa. Arma el codigo de la mesa (letra del piso
++ numero), valida, llama a los modelos y anota en el historial.
+El codigo lo genero aca y no lo escribe el usuario, asi queda siempre consistente.
 """
 
 from mysql.connector import Error
@@ -34,7 +34,7 @@ class MesasControlador:
             return False, "No se pudo obtener la mesa."
 
     def siguiente_numero_mesa(self):
-        # Sugerencia para el alta: uno mas que el ultimo numero de mesa cargado.
+        # Sugerencia para el alta: uno mas que el ultimo numero de mesa que cargue.
         try:
             return mesa_modelo.maximo_numero() + 1
         except Error:
@@ -53,15 +53,15 @@ class MesasControlador:
             return False, "El numero de mesa debe ser mayor a cero."
         if numero_sillas <= 0:
             return False, "El numero de sillas debe ser mayor a cero."
-        # El piso viene de un combo cerrado, pero se revalida por las dudas.
+        # El piso viene de un combo cerrado, pero igual lo revalido por las dudas.
         if piso not in (0, 1):
             return False, "El piso solo puede ser 0 (planta baja) o 1 (primer piso)."
         if grupo_mesa_id is None:
             return False, "Selecciona un grupo de mesa."
 
         try:
-            if mesa_modelo.existe_numero(numero_mesa, excluir_id=mesa_id):
-                return False, "Ya existe una mesa con ese numero."
+            if mesa_modelo.existe_numero(numero_mesa, piso, excluir_id=mesa_id):
+                return False, "Ya existe una mesa con ese numero en ese piso."
         except Error:
             return False, "No se pudo verificar el numero de mesa."
 

@@ -1,5 +1,5 @@
 """
-Acceso a datos de grupos_menu (Bebidas, Picadas, Pastas...). Solo tienen nombre.
+Acceso a datos de grupos_menu (Bebidas, Picadas, Pastas...). Solo tienen un nombre.
 """
 
 from mysql.connector import Error
@@ -9,8 +9,8 @@ from utilidades.logger import registrar
 
 
 def listar(filtro_nombre=None):
-    # El filtro por nombre lo usa la pantalla de grupos; los combos la llaman
-    # sin filtro para traerlos todos.
+    # El filtro por nombre lo usa la pantalla de grupos; los combos la llaman sin
+    # filtro para traer todos.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -68,7 +68,7 @@ def existe_nombre(nombre, excluir_id=None):
 
 
 def contar_items(grupo_id):
-    # Para no borrar un grupo que todavia tiene items de menu asignados.
+    # Para no borrar un grupo que todavia tiene items de menu colgados.
     conexion = None
     try:
         conexion = abrir_conexion()

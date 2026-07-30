@@ -1,7 +1,7 @@
 """
-Controlador del Historial de acciones. Es un modulo de solo lectura: arma los
-filtros (usuario, rango de fechas) y devuelve las filas a la vista. No registra
-acciones ni permite editar (el historial no se toca).
+Controlador del Historial de acciones. Es de solo lectura: arma los filtros
+(usuario, rango de fechas) y devuelve las filas a la vista. No registra acciones
+ni deja editar, el historial no se toca.
 """
 
 from datetime import timedelta
@@ -22,9 +22,9 @@ class HistorialControlador:
             return False, "No se pudieron cargar los usuarios."
 
     def listar(self, usuario_id=None, fecha_desde=None, fecha_hasta=None):
-        # usuario_id None => todos los usuarios. Las fechas llegan como date de
-        # los QDateEdit; a 'hasta' le sumamos un dia para incluir ese dia completo
-        # (el modelo compara con < fecha_hasta).
+        # usuario_id None => todos los usuarios. Las fechas vienen como date de los
+        # QDateEdit; al 'hasta' le sumo un dia para que entre ese dia completo (el
+        # modelo compara con < fecha_hasta).
         if fecha_hasta is not None:
             fecha_hasta = fecha_hasta + timedelta(days=1)
         try:

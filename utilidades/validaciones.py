@@ -1,17 +1,12 @@
 """
-Validadores reutilizables por varios modulos. Cada uno devuelve una tupla
-(valido, mensaje): si valido es False, mensaje explica que corregir para
-mostrarlo en pantalla. Se hacen con chequeos simples (len, isupper, isdigit)
-en vez de expresiones regulares para poder explicarlos en la defensa.
-
-Por ahora estan los de Usuarios; los de Clientes (DNI, telefono, fechas) se
-agregan cuando se programe ese modulo, sin borrar estos.
+Validaciones que reuso en un monton de modulos. Cada una devuelve la tupla
+(valido, mensaje): si valido es False, el mensaje dice que hay que corregir y va
+derecho a la pantalla. Uso chequeos simples (len, isupper, isdigit), nada de regex.
 """
 
 
 def validar_nombre_usuario(nombre):
-    # Debe existir la persona en el sistema con un nombre corto y sin espacios,
-    # porque se usa para loguear.
+    # Con esto se loguea, asi que lo quiero corto, sin espacios y que no venga vacio.
     if not nombre:
         return False, "El nombre de usuario no puede estar vacio."
     if " " in nombre:
@@ -22,8 +17,7 @@ def validar_nombre_usuario(nombre):
 
 
 def validar_contrasena(contrasena):
-    # Mismo criterio que ya usaba sistema_ejemplo: 8+ caracteres, con al menos
-    # una mayuscula y un numero, para que no sea trivial de adivinar.
+    # Minimo 8 caracteres, con una mayuscula y un numero, para que no sea facil de adivinar.
     if len(contrasena) < 8:
         return False, "La contrasena debe tener al menos 8 caracteres."
     if not any(c.isupper() for c in contrasena):
@@ -36,7 +30,7 @@ def validar_contrasena(contrasena):
 # ---------- Validadores de Clientes ----------
 
 def validar_texto_obligatorio(valor, etiqueta):
-    # Generico: no vacio y de largo razonable.
+    # El generico: que no venga vacio y que no se pase de largo.
     valor = valor.strip()
     if not valor:
         return False, f"El campo {etiqueta} no puede estar vacio."
@@ -46,7 +40,7 @@ def validar_texto_obligatorio(valor, etiqueta):
 
 
 def validar_nombre_persona(valor, etiqueta):
-    # Nombre y apellido: obligatorios, sin numeros (un nombre no lleva digitos).
+    # Nombre y apellido: obligatorios y sin numeros, obvio que un nombre no lleva digitos.
     valido, mensaje = validar_texto_obligatorio(valor, etiqueta)
     if not valido:
         return False, mensaje
@@ -56,7 +50,7 @@ def validar_nombre_persona(valor, etiqueta):
 
 
 def validar_direccion(direccion):
-    # La direccion tambien es obligatoria (ningun dato del cliente queda vacio).
+    # La direccion tambien va si o si, no dejo ningun dato del cliente vacio.
     direccion = direccion.strip()
     if not direccion:
         return False, "La direccion no puede estar vacia."
@@ -66,7 +60,7 @@ def validar_direccion(direccion):
 
 
 def validar_dni(dni):
-    # Argentina: solo numeros, 7 u 8 digitos.
+    # DNI argentino: solo numeros, 7 u 8 digitos.
     dni = dni.strip()
     if not dni.isdigit():
         return False, "El DNI debe contener solo numeros."
@@ -76,8 +70,8 @@ def validar_dni(dni):
 
 
 def validar_telefono(telefono):
-    # Obligatorio. Se aceptan numeros y separadores simples (-, +, espacio) y se
-    # exige entre 6 y 20 digitos (formato telefonico razonable).
+    # Obligatorio. Acepto numeros y separadores comunes (-, +, espacio), y pido
+    # entre 6 y 20 digitos para que sea un telefono de verdad.
     telefono = telefono.strip()
     if not telefono:
         return False, "El telefono no puede estar vacio."
@@ -93,7 +87,7 @@ def validar_telefono(telefono):
 # ---------- Validador comun de filtros por rango de fechas ----------
 
 def validar_rango_fechas(fecha_desde, fecha_hasta):
-    # Usado por todos los listados con filtro Desde/Hasta: el "Desde" nunca puede
+    # Lo usan todos los listados con filtro Desde/Hasta: el "Desde" nunca puede
     # quedar despues del "Hasta".
     if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
         return False, "La fecha 'Desde' no puede ser posterior a la fecha 'Hasta'."

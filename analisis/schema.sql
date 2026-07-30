@@ -63,12 +63,13 @@ CREATE TABLE grupos_mesa (
 -- ------------------------------------------------------------
 CREATE TABLE mesas (
     id              INT AUTO_INCREMENT PRIMARY KEY,
-    numero_mesa     INT NOT NULL UNIQUE,
+    numero_mesa     INT NOT NULL,
     numero_sillas   INT NOT NULL,
     piso            INT NOT NULL,             -- 0 = planta baja, 1 = primer piso, ...
     codigo          VARCHAR(10) NOT NULL UNIQUE, -- letra de piso + numero_mesa (ej: A5)
     grupo_mesa_id   INT NOT NULL,
-    CONSTRAINT fk_mesa_grupo FOREIGN KEY (grupo_mesa_id) REFERENCES grupos_mesa(id)
+    CONSTRAINT fk_mesa_grupo FOREIGN KEY (grupo_mesa_id) REFERENCES grupos_mesa(id),
+    UNIQUE KEY uq_mesa_piso (numero_mesa, piso)
 ) ENGINE=InnoDB;
 
 -- ------------------------------------------------------------

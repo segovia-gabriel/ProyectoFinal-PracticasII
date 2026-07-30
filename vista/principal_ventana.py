@@ -1,9 +1,9 @@
 """
-Ventana principal (unica ventana de trabajo). A la izquierda el menu y a la
-derecha un QStackedWidget: la pagina de inicio muestra el panel con el resumen
-del dia (agenda de hoy, notificaciones, indicadores de reservas) y cada modulo
-se muestra como otra pagina del stack. Desde el Inicio se puede cambiar el
-estado de asistencia y cargar el consumo de cualquier reserva de la agenda.
+Ventana principal (la unica ventana de trabajo). A la izquierda el menu y a la
+derecha un QStackedWidget: la pagina de inicio es el panel con el resumen del dia
+(agenda de hoy, notificaciones, indicadores de reservas) y cada modulo aparece
+como otra pagina del stack. Desde el Inicio ya podes cambiar el estado de
+asistencia y cargar el consumo de cualquier reserva de la agenda.
 """
 
 import sys
@@ -18,7 +18,6 @@ from PyQt5.QtWidgets import (QButtonGroup, QDialog, QHeaderView, QListWidgetItem
 
 from controlador.panel_controlador import PanelControlador
 from controlador.reservas_controlador import ReservasControlador
-from utilidades import formato
 from utilidades.logger import registrar
 from utilidades.sesion import Sesion
 
@@ -27,9 +26,9 @@ RUTA_UI = Path(__file__).resolve().parent / "principal.ui"
 
 class _AgendaDelegate(QStyledItemDelegate):
     """
-    Con QStyleSheetStyle activo, initStyleOption no alcanza: el motor QSS
-    pinta sus propios colores encima. Sobreescribir paint() es la unica forma
-    de garantizar que los colores de fila se vean.
+    Con el QStyleSheetStyle activo, initStyleOption no alcanza: el motor de QSS
+    pinta sus propios colores encima. Pisar paint() es la unica forma de asegurar
+    que se vean los colores de cada fila.
     """
     _BG_NORMAL   = QColor("#ffffff")
     _BG_SELECTED = QColor("#dbeafe")
@@ -50,7 +49,7 @@ class _AgendaDelegate(QStyledItemDelegate):
         else:
             painter.fillRect(option.rect, self._BG_NORMAL)
 
-        # Borde inferior (igual que el QSS global)
+        # El borde de abajo, igual que el QSS global
         painter.setPen(QPen(self._BORDER, 1))
         r = option.rect
         painter.drawLine(r.left(), r.bottom(), r.right(), r.bottom())
@@ -80,49 +79,48 @@ class VentanaPrincipal(QMainWindow):
             sys.exit(1)
 
         self.controlador = PanelControlador()
-        # se usa para cambiar la asistencia desde la agenda del panel
+        # lo uso para cambiar la asistencia desde la agenda del panel
         self.reservas_controlador = ReservasControlador()
 
         # El area de contenido pasa a ser un QStackedWidget: el panel de inicio
-        # es la pagina 0 y cada modulo se muestra como una pagina mas, todo
-        # dentro de esta misma ventana (el navbar cambia de pagina, no abre
-        # ventanas nuevas).
+        # es la pagina 0 y cada modulo va como una pagina mas, todo dentro de la
+        # misma ventana (el navbar cambia de pagina, no abre ventanas nuevas).
         layout_central = self.widget_central.layout()
         layout_central.removeWidget(self.widget_contenido)
         self.stack_contenido = QStackedWidget()
         self.stack_contenido.addWidget(self.widget_contenido)  # pagina 0: inicio
         layout_central.addWidget(self.stack_contenido)
-        self._modulo_actual = None  # modulo visible ahora (fuera del inicio)
+        self._modulo_actual = None  # el modulo que se ve ahora (fuera del inicio)
 
-        # Usuario logueado al pie del navbar: solo el nombre (el rol es fijo en el .ui).
+        # El usuario logueado al pie del navbar: solo el nombre (el rol esta fijo en el .ui).
         self.label_nombreUsuario.setText(Sesion().nombre_usuario or "")
 
-        # Al abrir el sistema, cierra lo que haya quedado abierto de dias
-        # anteriores (por si ayer no se cerro a mano). Silencioso: solo actua si
-        # hay algo que cerrar.
+        # Al abrir el sistema, cierro lo que haya quedado abierto de dias
+        # anteriores (por si ayer no lo cerraron a mano). Va en silencio: solo
+        # hace algo si hay algo que cerrar.
         from controlador.cierre_controlador import CierreControlador
         CierreControlador().barrido_inicial()
 
-        # Las cuatro columnas se reparten el ancho en partes iguales: si solo
-        # estirara la del cliente, con la ventana maximizada quedaba un hueco
-        # enorme entre el nombre y la mesa.
+        # Las cuatro columnas se reparten el ancho por igual: si estiraba solo la
+        # del cliente, con la ventana maximizada quedaba un hueco enorme entre el
+        # nombre y la mesa.
         self.tableWidget_agenda.verticalHeader().setVisible(False)
         self.tableWidget_agenda.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget_agenda.setToolTip(
             "Doble clic en una reserva para marcar la asistencia del cliente.")
-        # El delegate hace que los colores de fila funcionen aunque haya QSS global.
+        # El delegate hace que anden los colores de fila aunque haya QSS global.
         self.tableWidget_agenda.setItemDelegate(_AgendaDelegate(self))
         self.tableWidget_agenda.setAlternatingRowColors(False)
 
-        # Los avisos son textos largos: se cortan en varias lineas dentro del
-        # ancho del panel, sin barra de scroll horizontal.
+        # Los avisos son textos largos: los corto en varias lineas dentro del
+        # ancho del panel, sin scroll horizontal.
         self.listWidget_avisos.setWordWrap(True)
         self.listWidget_avisos.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.listWidget_avisos.setToolTip(
             "Doble clic en un pendiente para resolverlo.")
 
         # El navbar cambia la pagina del stack: "Inicio" vuelve al panel de
-        # resumen y cada modulo se muestra como su propia pagina.
+        # resumen y cada modulo aparece como su propia pagina.
         self.pushButton_inicio.clicked.connect(self.ir_al_inicio)
         self.pushButton_usuarios.clicked.connect(self.abrir_usuarios)
         self.pushButton_historial.clicked.connect(self.abrir_historial)
@@ -133,9 +131,9 @@ class VentanaPrincipal(QMainWindow):
         self.pushButton_consumo.clicked.connect(self.abrir_consumo)
         self.pushButton_estadisticas.clicked.connect(self.abrir_estadisticas)
 
-        # Grupo exclusivo del navbar: hace que un solo boton quede marcado
-        # (checked) a la vez. El CSS pinta de azul el :checked, asi se ve en que
-        # modulo estamos. Arranca marcado "Inicio", que es la pagina que se muestra.
+        # Grupo exclusivo del navbar: deja un solo boton marcado (checked) a la
+        # vez. El CSS pinta de azul el :checked, asi se ve en que modulo estas
+        # parado. Arranca marcado "Inicio", que es la pagina que se ve al abrir.
         self._grupo_navbar = QButtonGroup(self)
         self._grupo_navbar.setExclusive(True)
         for boton in (self.pushButton_inicio,
@@ -147,9 +145,9 @@ class VentanaPrincipal(QMainWindow):
             self._grupo_navbar.addButton(boton)
         self.pushButton_inicio.setChecked(True)
 
-        # Doble clic para resolver desde el panel, sin entrar al modulo:
-        # en la agenda cambia el estado de asistencia, en los pendientes abre
-        # la pantalla que corresponde segun el tipo de aviso.
+        # Doble clic para resolver desde el panel sin entrar al modulo: en la
+        # agenda cambia el estado de asistencia, y en los pendientes abre la
+        # pantalla que corresponde segun el tipo de aviso.
         self.tableWidget_agenda.doubleClicked.connect(self.cambiar_estado_agenda)
         self.pushButton_cambiarEstado.clicked.connect(self.cambiar_estado_agenda)
         self.pushButton_cargarConsumo.clicked.connect(self.cargar_consumo_agenda)
@@ -157,13 +155,13 @@ class VentanaPrincipal(QMainWindow):
 
         self.pushButton_cerrarDia.clicked.connect(self.cerrar_dia)
         self.pushButton_cerrarSesion.clicked.connect(self.cerrar_sesion)
-        # El panel se carga en showEvent, que corre tanto al abrir la ventana
-        # como al volver de un modulo, asi los numeros nunca quedan viejos.
+        # El panel se carga en showEvent, que corre tanto al abrir la ventana como
+        # al volver de un modulo, asi los numeros nunca quedan desactualizados.
 
     # ---------- Panel de resumen ----------
 
     def cargar_panel(self):
-        # Encabezado: saludo segun la hora y fecha de hoy en texto largo.
+        # Encabezado: el saludo segun la hora y la fecha de hoy en texto largo.
         self.label_titulo.setText(self.controlador.saludo(Sesion().nombre_usuario or ""))
         self.label_fecha.setText(self.controlador.fecha_larga())
 
@@ -218,7 +216,7 @@ class VentanaPrincipal(QMainWindow):
                     if tabla.item(i, col):
                         tabla.item(i, col).setBackground(color)
 
-        # Si no hay reservas se avisa en el titulo, para no dejar una tabla vacia
+        # Si no hay reservas lo aviso en el titulo, para no dejar una tabla vacia
         # sin explicacion.
         if filas:
             self.label_subtituloAgenda.setText(f"Agenda de hoy ({len(filas)})")
@@ -237,7 +235,7 @@ class VentanaPrincipal(QMainWindow):
 
         for aviso in avisos:
             item = QListWidgetItem(aviso["texto"])
-            # se guarda el aviso entero para saber que abrir en el doble clic
+            # guardo el aviso entero para saber que abrir en el doble clic
             item.setData(Qt.UserRole, aviso)
             lista.addItem(item)
         self.label_subtituloAvisos.setText(f"Notificaciones ({len(avisos)})")
@@ -275,8 +273,8 @@ class VentanaPrincipal(QMainWindow):
             QMessageBox.warning(self, "Error", mensaje)
 
     def cerrar_dia(self):
-        # Cierre manual del dia: pide confirmacion porque cierra mesas y vence
-        # reservas sin consumo. Al terminar, refresca el panel.
+        # Cierre manual del dia: pido confirmacion porque cierra mesas y vence
+        # reservas sin consumo. Al terminar, refresco el panel.
         from controlador.cierre_controlador import CierreControlador
 
         resp = QMessageBox.question(
@@ -300,8 +298,8 @@ class VentanaPrincipal(QMainWindow):
         self.cargar_panel()
 
     def resolver_aviso(self, item):
-        # Doble clic sobre un pendiente: se abre la pantalla donde se resuelve,
-        # asi el aviso desaparece del panel apenas se completa.
+        # Doble clic sobre un pendiente: abro la pantalla donde se resuelve, asi el
+        # aviso desaparece del panel apenas se completa.
         aviso = item.data(Qt.UserRole)
         if not aviso:
             return
@@ -320,8 +318,8 @@ class VentanaPrincipal(QMainWindow):
             self.cargar_panel()
 
     def _renovar_precio(self, item_id):
-        # Se abre el historial de precios del item, que es donde se carga el
-        # precio nuevo. Al cerrarse, esa ventana vuelve a mostrar esta.
+        # Abro el historial de precios del item, que es donde se carga el precio
+        # nuevo. Cuando se cierra, esa ventana vuelve a mostrar esta.
         from controlador.menu_controlador import MenuControlador
         from vista.menu.precios_ventana import VentanaPrecios
 
@@ -330,16 +328,16 @@ class VentanaPrincipal(QMainWindow):
         if not exito or item is None:
             QMessageBox.warning(self, "Error", "No se pudo abrir el item de menu.")
             return
-        VentanaPrecios(item, controlador, self).exec_()  # ahora es un dialogo modal
-        self.cargar_panel()  # el aviso de renovacion pudo resolverse
+        VentanaPrecios(item, controlador, self).exec_()  # dialogo modal
+        self.cargar_panel()  # capaz ya se resolvio el aviso de renovacion
 
     # ---------- Navegacion ----------
-    # Todo pasa dentro de la misma ventana: cada modulo se muestra como una
-    # pagina del QStackedWidget en vez de abrir una ventana nueva.
+    # Todo pasa dentro de la misma ventana: cada modulo va como una pagina del
+    # QStackedWidget en vez de abrir una ventana nueva.
 
     def _mostrar_modulo(self, fabrica):
-        # Crea el modulo fresco (datos al dia) y descarta el anterior, para no
-        # acumular widgets ni mostrar datos viejos. Fuera del inicio vive uno solo.
+        # Crea el modulo de cero (datos al dia) y tira el anterior, para no ir
+        # acumulando widgets ni mostrar datos viejos. Fuera del inicio vive uno solo.
         if self._modulo_actual is not None:
             self.stack_contenido.removeWidget(self._modulo_actual)
             self._modulo_actual.deleteLater()
@@ -349,12 +347,12 @@ class VentanaPrincipal(QMainWindow):
         self.stack_contenido.setCurrentWidget(modulo)
 
     def ir_al_inicio(self):
-        # El boton "Inicio" del navbar trae de vuelta el panel de resumen.
+        # El boton "Inicio" del navbar te trae de vuelta el panel de resumen.
         self.stack_contenido.setCurrentWidget(self.widget_contenido)
         self.cargar_panel()  # los numeros pudieron cambiar mientras estabas adentro
 
     def showEvent(self, evento):
-        # Carga inicial del panel cuando se muestra la ventana.
+        # La carga inicial del panel cuando se muestra la ventana.
         super().showEvent(evento)
         self.cargar_panel()
 

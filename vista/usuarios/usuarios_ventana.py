@@ -1,7 +1,6 @@
 """
-Ventana de listado de Usuarios. Muestra la tabla, el filtro y los botones, y
-coordina las acciones con UsuariosControlador. Sigue el patron del profesor
-(sistema_ejemplo/user_list_window): al cerrarse vuelve a mostrar la principal.
+Ventana de listado de Usuarios: muestra la tabla, el filtro y los botones, y
+coordina las acciones con UsuariosControlador.
 """
 
 from pathlib import Path
@@ -25,8 +24,8 @@ class VentanaUsuarios(QWidget):
 
         self.controlador = UsuariosControlador()
 
-        # La numeracion de filas de la izquierda no aporta y compite con el
-        # encabezado; la ocultamos. Todas las columnas reparten el ancho por
+        # La numeracion de filas de la izquierda no aporta nada y compite con el
+        # encabezado, asi que la oculto. Todas las columnas reparten el ancho por
         # igual, asi no queda una gigante con la ventana maximizada.
         self.tableWidget_usuarios.verticalHeader().setVisible(False)
         self.tableWidget_usuarios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -36,7 +35,7 @@ class VentanaUsuarios(QWidget):
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
         self.pushButton_editar.clicked.connect(self.abrir_editar)
         self.pushButton_eliminar.clicked.connect(self.eliminar_seleccionado)
-        # Doble clic en una fila abre la edicion, es lo que uno espera de una tabla.
+        # Doble clic en una fila abre la edicion, que es lo que uno espera de una tabla.
         self.tableWidget_usuarios.doubleClicked.connect(self.abrir_editar)
 
         self.cargar_usuarios()
@@ -53,7 +52,7 @@ class VentanaUsuarios(QWidget):
         for fila, usuario in enumerate(resultado):
             tabla.insertRow(fila)
             item_nombre = QTableWidgetItem(usuario["nombre_usuario"])
-            # Guardamos el id (invisible) en el item para saber a quien editar/borrar.
+            # Guardo el id (invisible) en el item para saber a quien editar o borrar.
             item_nombre.setData(Qt.UserRole, usuario["id"])
             tabla.setItem(fila, 0, item_nombre)
             tabla.setItem(fila, 1, QTableWidgetItem(self._fecha(usuario["fecha_creacion"])))

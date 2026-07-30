@@ -1,13 +1,11 @@
 """
-Helpers de presentacion compartidos por varios modulos (Clientes, Reservas,
-Consumo). Traducen los valores tecnicos de la base a texto lindo para la UI, en
-un solo lugar para no repetir los mismos diccionarios en cada modulo.
+Helpers de presentacion que comparten Clientes, Reservas y Consumo. Pasan lo que
+hay guardado en la base a texto lindo para la UI. Los junte todos aca para no
+repetir los mismos diccionarios en cada modulo.
 """
 
-# Estados de asistencia en orden (etiqueta visible, clave en la base). Es la
-# unica fuente: los combos de Reservas y del panel usan la lista, y las tablas
-# la traducen con estado_asistencia(). Antes esta lista estaba repetida en cada
-# formulario que arma el combo de estado.
+# Un solo lugar para los estados de asistencia (etiqueta visible, clave en la base):
+# los combos usan la lista y las tablas la traducen con estado_asistencia().
 ESTADOS_ASISTENCIA = [
     ("En espera", "en_espera"),
     ("Asistio", "asistio"),
@@ -16,8 +14,7 @@ ESTADOS_ASISTENCIA = [
 ]
 _ESTADOS = {clave: etiqueta for etiqueta, clave in ESTADOS_ASISTENCIA}
 
-# Duraciones de reserva (etiqueta visible, clave en la base). Misma idea: unica
-# fuente para el combo del formulario y para mostrar la duracion en la tabla.
+# Lo mismo para las duraciones de reserva (etiqueta visible, clave en la base).
 DURACIONES = [("2 horas", "2h"), ("3 horas", "3h")]
 _DURACIONES = {clave: etiqueta for etiqueta, clave in DURACIONES}
 
@@ -40,7 +37,7 @@ def medio_pago(clave):
 
 
 def hora(valor):
-    # MySQL devuelve las columnas TIME como timedelta; lo pasamos a "HH:MM".
+    # MySQL me devuelve las columnas TIME como timedelta, asi que lo paso a "HH:MM".
     if valor is None:
         return ""
     total = int(valor.total_seconds())
@@ -48,21 +45,17 @@ def hora(valor):
 
 
 def moneda(valor):
-    # Importes con formato argentino: punto para los miles y coma para los
-    # decimales ($ 37.900,00). Se hace en un solo lugar porque los precios se
-    # muestran en Mesas, Menu, Reservas, Consumo y Estadisticas, y antes estaba
-    # el mismo f-string repetido en cada pantalla.
+    # Formato argentino: punto para los miles y coma para los decimales ($ 37.900,00).
     if valor is None:
         return "—"
-    # se formatea al estilo ingles (1,234.56) y despues se dan vuelta los
-    # separadores, que es la forma mas corta de no depender de locale (locale
-    # varia entre la Mac y la maquina con Windows).
+    # Lo formateo al estilo ingles (1,234.56) y despues doy vuelta los separadores.
+    # Asi no dependo del locale, que cambia de una maquina a otra.
     texto = f"{float(valor):,.2f}"
     return "$ " + texto.replace(",", "_").replace(".", ",").replace("_", ".")
 
 
-# DAYNAME de MySQL viene en ingles; lo pasamos a espanol y damos el orden natural
-# de la semana para poder ordenar las filas de estadisticas.
+# El DAYNAME de MySQL viene en ingles: lo traduzco y fijo el orden de la semana
+# para poder ordenar las filas en estadisticas.
 _DIAS = {
     "Monday": "Lunes", "Tuesday": "Martes", "Wednesday": "Miercoles",
     "Thursday": "Jueves", "Friday": "Viernes", "Saturday": "Sabado", "Sunday": "Domingo",

@@ -1,7 +1,7 @@
 """
 Acceso a datos de mesas. El codigo (letra de piso + numero) lo arma el
-controlador y se guarda ya calculado. El listado trae el nombre del grupo con
-un JOIN para mostrarlo sin que la vista tenga que resolverlo.
+controlador y se guarda ya listo. El listado trae el nombre del grupo con un JOIN
+para mostrarlo sin que la vista tenga que resolverlo.
 """
 
 from mysql.connector import Error
@@ -54,17 +54,21 @@ def obtener_por_id(mesa_id):
             conexion.close()
 
 
-def existe_numero(numero_mesa, excluir_id=None):
+def existe_numero(numero_mesa, piso, excluir_id=None):
+    # El numero de mesa solo tiene que ser unico dentro del mismo piso.
     conexion = None
     try:
         conexion = abrir_conexion()
         cursor = conexion.cursor()
         if excluir_id is None:
-            cursor.execute("SELECT COUNT(*) FROM mesas WHERE numero_mesa = %s", (numero_mesa,))
+            cursor.execute(
+                "SELECT COUNT(*) FROM mesas WHERE numero_mesa = %s AND piso = %s",
+                (numero_mesa, piso),
+            )
         else:
             cursor.execute(
-                "SELECT COUNT(*) FROM mesas WHERE numero_mesa = %s AND id <> %s",
-                (numero_mesa, excluir_id),
+                "SELECT COUNT(*) FROM mesas WHERE numero_mesa = %s AND piso = %s AND id <> %s",
+                (numero_mesa, piso, excluir_id),
             )
         return cursor.fetchone()[0] > 0
     except Error as error:
@@ -76,8 +80,8 @@ def existe_numero(numero_mesa, excluir_id=None):
 
 
 def maximo_numero():
-    # Mayor numero_mesa cargado, para sugerir el siguiente en el alta. Si no hay
-    # mesas todavia, MAX devuelve NULL y se traduce a 0.
+    # El numero_mesa mas alto cargado, para sugerir el siguiente en el alta. Si
+    # todavia no hay mesas, MAX devuelve NULL y lo paso a 0.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -94,7 +98,7 @@ def maximo_numero():
 
 
 def contar_reservas(mesa_id):
-    # Para avisar antes de borrar una mesa que tiene reservas asociadas.
+    # Para avisar antes de borrar una mesa que tiene reservas colgadas.
     conexion = None
     try:
         conexion = abrir_conexion()

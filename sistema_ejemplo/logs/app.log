@@ -1,2 +1,0 @@
-{"name": "util.logger", "filename": "logger.py", "lineno": 27, "message": "[Errno 2] No such file or directory: 'login.ui'", "severity": "ERROR", "timestamp": "2024-09-18T15:34:44Z"}
-{"name": "util.logger", "filename": "logger.py", "lineno": 27, "message": "1146 (42S02): Table 'practicas2.usuarios' doesn't exist", "severity": "ERROR", "timestamp": "2024-10-23T12:12:06Z"}

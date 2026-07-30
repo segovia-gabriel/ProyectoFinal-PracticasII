@@ -1,9 +1,9 @@
 """
-Cierre de mesas del restaurante. Al cerrar el dia (boton) o al abrir el sistema
-(barrido de lo que quedo de dias anteriores) se consolidan las mesas abiertas:
-las que tienen consumo cargado pasan a 'cerrada', las vacias se descartan y las
-reservas que quedaron sin consumo se marcan como vencidas. Orquesta consumo +
-reservas, por eso vive en su propio controlador.
+Cierre de mesas del restaurante. Al cerrar el dia (con el boton) o al abrir el
+sistema (barrido de lo que quedo de dias anteriores) se cierran las mesas
+abiertas: las que tienen consumo cargado pasan a 'cerrada', las vacias se
+descartan y las reservas que quedaron sin consumo se marcan como vencidas.
+Coordina consumo + reservas, por eso vive en su propio controlador.
 """
 
 from datetime import date, timedelta
@@ -23,7 +23,7 @@ class CierreControlador:
 
     def barrido_inicial(self):
         # Al iniciar sesion: cierra solo lo que quedo de dias ANTERIORES, por si
-        # el dia anterior no se cerro a mano. No toca las mesas abiertas de hoy.
+        # ayer no lo cerraron a mano. No toca las mesas abiertas de hoy.
         limite = date.today() - timedelta(days=1)
         return self._cerrar_hasta(limite, "Cierre automatico de mesas de dias anteriores")
 
@@ -35,8 +35,8 @@ class CierreControlador:
         except Error:
             return False, "No se pudo completar el cierre de mesas."
 
-        # Solo se registra en el historial si de verdad hubo algo que cerrar, para
-        # no ensuciar el log con un cierre vacio cada vez que se abre el sistema.
+        # Solo anoto en el historial si de verdad hubo algo que cerrar, asi no
+        # ensucio el log con un cierre vacio cada vez que abren el sistema.
         if cerradas + descartadas + vencidas > 0:
             registrar_accion(
                 Sesion().usuario_id,

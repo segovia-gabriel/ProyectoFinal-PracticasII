@@ -1,7 +1,7 @@
 """
-Formulario modal de alta/edicion de reserva. La hora de fin y el precio se
-calculan solos a partir de la mesa, la hora de inicio y la duracion (2h = 100%,
-3h = 125% del valor del grupo). El precio se guarda como snapshot al crear.
+Formulario modal de alta/edicion de reserva. La hora de fin y el precio salen
+solos a partir de la mesa, la hora de inicio y la duracion (2h = 100%, 3h = 125%
+del valor del grupo). El precio se guarda como una foto al crear.
 """
 
 from datetime import date
@@ -19,8 +19,8 @@ RUTA_UI = Path(__file__).resolve().parent / "reserva_form.ui"
 class DialogoReserva(QDialog):
     def __init__(self, controlador, reserva=None, parent=None,
                  mesa_id=None, hora_inicio=None):
-        # mesa_id/hora_inicio: precarga opcional al dar de alta desde el Salon
-        # (mesa elegida en el plano y horario que se esta viendo). Se ignoran al editar.
+        # mesa_id/hora_inicio: precarga opcional cuando el alta viene del Salon (la
+        # mesa que elegiste en el plano y el horario que estas viendo). Al editar los ignoro.
         super().__init__(parent)
         uic.loadUi(RUTA_UI, self)
 
@@ -36,9 +36,9 @@ class DialogoReserva(QDialog):
         if exito:
             for cid, texto in clientes:
                 self.comboBox_cliente.addItem(texto, cid)
-        # Buscador de cliente: el combo se vuelve editable con autocompletar que
-        # filtra por cualquier parte del texto, asi se puede tipear el nombre o
-        # el DNI (el DNI va incluido en el texto de cada opcion).
+        # Buscador de cliente: hago el combo editable con autocompletar que filtra
+        # por cualquier parte del texto, asi podes tipear el nombre o el DNI (el
+        # DNI va metido en el texto de cada opcion).
         self.comboBox_cliente.setEditable(True)
         self.comboBox_cliente.setInsertPolicy(QComboBox.NoInsert)
         completer = self.comboBox_cliente.completer()
@@ -66,14 +66,14 @@ class DialogoReserva(QDialog):
             self.timeEdit_inicio.setTime(QTime(total // 3600, (total % 3600) // 60))
             self._seleccionar(self.comboBox_duracion, reserva["duracion_tipo"])
             self._seleccionar(self.comboBox_estado, reserva["estado_asistencia"])
-            # El estado solo se puede modificar el mismo dia de la reserva.
+            # El estado solo lo podes tocar el mismo dia de la reserva.
             self.comboBox_estado.setEnabled(reserva["fecha"] == date.today())
         else:
-            # Alta: la fecha arranca hoy y el estado queda en "en espera" fijo.
+            # Alta: la fecha arranca hoy y el estado queda fijo en "en espera".
             self.dateEdit_fecha.setDate(QDate.currentDate())
             self.comboBox_estado.setEnabled(False)
-            # Precarga cuando el alta viene del Salon: ahorra elegir la mesa y la
-            # hora a mano. Todo lo demas (cliente, duracion) se completa igual.
+            # Precarga cuando el alta viene del Salon: te ahorra elegir la mesa y
+            # la hora a mano. El resto (cliente, duracion) lo completas igual.
             if mesa_id is not None:
                 self._seleccionar(self.comboBox_mesa, mesa_id)
             if hora_inicio is not None:
@@ -108,8 +108,8 @@ class DialogoReserva(QDialog):
             self.lineEdit_precio.setText("—")
 
     def guardar(self):
-        # Como el combo de cliente es editable, se resuelve el texto tipeado
-        # contra la lista: si no coincide con ningun cliente, se avisa.
+        # Como el combo de cliente es editable, matcheo el texto tipeado contra la
+        # lista: si no coincide con ningun cliente, aviso.
         indice_cliente = self.comboBox_cliente.findText(self.comboBox_cliente.currentText())
         if indice_cliente < 0:
             self.label_error.setText("Elegi un cliente valido de la lista (por nombre o DNI).")

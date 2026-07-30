@@ -7,7 +7,7 @@ from pathlib import Path
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QHeaderView, QMessageBox, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 
 from controlador.mesas_controlador import MesasControlador
 from vista.mesas.grupo_mesa_form_ventana import DialogoGrupoMesa

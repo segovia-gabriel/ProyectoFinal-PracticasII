@@ -1,8 +1,8 @@
 """
-Consultas del panel principal (solo lectura). Son los numeros y listas que se
-muestran apenas se inicia sesion, para que la pantalla de inicio sirva de resumen
-del dia en vez de estar vacia. No duplica las de estadisticas_modelo: aca van las
-que miran "hoy" y "este mes", alla las que arman los informes por periodo.
+Consultas del panel principal (solo lectura). Son los numeros y listas que
+aparecen apenas iniciar sesion, para que la pantalla de inicio sea un resumen del
+dia y no algo vacio. No repite las de estadisticas_modelo: aca van las que miran
+"hoy" y "este mes", alla las que arman los informes por periodo.
 """
 
 from mysql.connector import Error
@@ -44,7 +44,7 @@ def contar_reservas_manana():
 
 
 def contar_reservas_futuras():
-    # Desde pasado manana en adelante (manana se cuenta aparte).
+    # De pasado manana en adelante (manana lo cuento aparte).
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -62,7 +62,7 @@ def contar_reservas_futuras():
 
 
 def reservas_de_hoy():
-    # Agenda del dia, ordenada por hora, para la tabla del panel.
+    # La agenda del dia, ordenada por hora, para la tabla del panel.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -88,7 +88,7 @@ def reservas_de_hoy():
 
 
 def ingresos_del_mes():
-    # COALESCE para que devuelva 0 y no None cuando todavia no hubo consumos.
+    # COALESCE para que devuelva 0 y no None cuando todavia no hubo ningun consumo.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -123,9 +123,9 @@ def total_clientes():
 
 
 def precios_por_vencer(dias):
-    # Items cuyo precio vigente vence dentro de los proximos 'dias' dias. Es el
-    # mismo aviso de renovacion que muestra el modulo Menu, pero adelantado al
-    # panel para que se vea al entrar sin tener que buscar item por item.
+    # Los items cuyo precio vigente vence dentro de los proximos 'dias' dias. Es el
+    # mismo aviso de renovacion del modulo Menu, pero adelantado al panel para
+    # verlo al entrar sin andar buscando item por item.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -152,10 +152,9 @@ def precios_por_vencer(dias):
 
 def reservas_cumplidas_sin_consumo():
     # Reservas ya cumplidas (el cliente asistio o llego tarde) a las que todavia
-    # no se les cargo el consumo: es trabajo pendiente para el usuario. Es la
-    # misma condicion que usa el combo de Nuevo consumo, incluidas las de hoy,
-    # para que lo que el panel marca como pendiente sea exactamente lo que se
-    # puede cargar.
+    # no les cargue el consumo: es laburo pendiente. Es la misma condicion que usa
+    # el combo de Nuevo consumo, incluidas las de hoy, asi lo que el panel marca
+    # como pendiente es exactamente lo que se puede cargar.
     conexion = None
     try:
         conexion = abrir_conexion()

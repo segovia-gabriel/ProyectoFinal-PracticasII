@@ -1,7 +1,7 @@
 """
-Acceso a datos de clientes. Incluye la consulta de reservas del cliente (con
-JOIN a mesas para mostrar el codigo) que usa la vista de detalle, y el conteo
-de reservas actuales/futuras que necesita la regla de baja.
+Acceso a datos de clientes. Tiene la consulta de reservas del cliente (con JOIN
+a mesas para mostrar el codigo) que usa la vista de detalle, y el conteo de
+reservas actuales/futuras que hace falta para la regla de baja.
 """
 
 from mysql.connector import Error
@@ -11,8 +11,8 @@ from utilidades.logger import registrar
 
 
 def listar(filtro_nombre=None, filtro_dni=None, fecha_desde=None, fecha_hasta=None):
-    # Los tres filtros que pide el enunciado: nombre, codigo de registro (el DNI,
-    # que es lo que identifica al cliente) y rango de fecha de registro.
+    # Filtros del listado: nombre, DNI (con eso identifico al cliente) y rango de
+    # fecha de registro.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -22,7 +22,7 @@ def listar(filtro_nombre=None, filtro_dni=None, fecha_desde=None, fecha_hasta=No
         condiciones = []
         parametros = []
         if filtro_nombre:
-            # busca en nombre o apellido, para que el filtro sea util
+            # busca en nombre o apellido, asi el filtro sirve de algo
             condiciones.append("(nombre LIKE %s OR apellido LIKE %s)")
             parametros += [f"%{filtro_nombre}%", f"%{filtro_nombre}%"]
         if filtro_dni:
@@ -88,8 +88,7 @@ def existe_dni(dni, excluir_id=None):
 
 
 def contar_reservas_futuras(cliente_id):
-    # Reservas de hoy en adelante: si tiene, no se puede borrar el cliente
-    # (regla de negocio de la consigna).
+    # Reservas de hoy para adelante: si tiene aunque sea una, no puedo borrar el cliente.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -108,9 +107,9 @@ def contar_reservas_futuras(cliente_id):
 
 
 def contar_reservas_totales(cliente_id):
-    # Cualquier reserva (tambien pasadas): aunque la regla de negocio mire solo
-    # las futuras, la clave foranea impide borrar un cliente con reservas en su
-    # historial, asi que se chequea antes para dar un mensaje claro.
+    # Cualquier reserva, tambien las pasadas: aunque la regla de negocio mire solo
+    # las futuras, la clave foranea no te deja borrar un cliente con reservas en el
+    # historial, asi que lo chequeo antes para tirar un mensaje claro.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -126,7 +125,7 @@ def contar_reservas_totales(cliente_id):
 
 
 def listar_reservas(cliente_id):
-    # Para la vista de detalle del cliente: sus reservas con codigo de mesa y estado.
+    # Para la vista de detalle del cliente: sus reservas con el codigo de mesa y el estado.
     conexion = None
     try:
         conexion = abrir_conexion()

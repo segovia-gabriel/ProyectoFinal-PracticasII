@@ -1,7 +1,7 @@
 """
 Controlador de Estadisticas. Junta las consultas del modelo y las deja listas
-para mostrar en tablas: pasa los dias de la semana a espanol, ordena, y arma el
-top 5 de items por dia. Es solo lectura.
+para las tablas: pasa los dias de la semana a espanol, ordena y arma el top 5 de
+items por dia. Es solo lectura.
 """
 
 from mysql.connector import Error
@@ -24,7 +24,7 @@ class EstadisticasControlador:
         try:
             conteo = estadisticas_modelo.reservas_actuales_y_futuras()
             por_mes = estadisticas_modelo.reservas_por_mes()
-            # agregamos el nombre del mes en espanol para mostrarlo
+            # le pego el nombre del mes en espanol para mostrarlo
             for fila in por_mes:
                 fila["mes_nombre"] = formato.nombre_mes(fila["mes"])
             return True, {
@@ -43,12 +43,12 @@ class EstadisticasControlador:
         except Error:
             return False, "No se pudieron cargar las estadisticas de consumo."
 
-        # Ingresos: dia a espanol y ordenados de Lunes a Domingo.
+        # Ingresos: paso el dia a espanol y los ordeno de Lunes a Domingo.
         ingresos_es = [(formato.dia_semana(f["dia"]), float(f["ingreso"])) for f in ingresos]
         ingresos_es.sort(key=lambda x: formato.ORDEN_DIAS.index(x[0]) if x[0] in formato.ORDEN_DIAS else 99)
 
         # Top 5 items por dia: la consulta ya viene ordenada por total desc dentro
-        # de cada dia; agrupamos y nos quedamos con los primeros 5 de cada uno.
+        # de cada dia; agrupo y me quedo con los primeros 5 de cada uno.
         por_dia = {}
         for fila in items:
             dia = formato.dia_semana(fila["dia"])

@@ -1,9 +1,9 @@
 """
 Controlador de Reservas. Calcula la hora de fin y el precio (2h = 100% del valor
-del grupo de la mesa, 3h = 125%), valida superposicion de horarios, y hace
-cumplir la regla de que las reservas pasadas no se modifican ni se eliminan, y
-que el estado de asistencia solo se cambia el mismo dia de la reserva. El precio
-se guarda como snapshot al crear la reserva.
+del grupo de la mesa, 3h = 125%), valida que no se pisen los horarios, y hace
+cumplir que las reservas pasadas no se tocan ni se borran y que el estado de
+asistencia solo se cambia el mismo dia de la reserva. El precio se guarda como
+una foto al crear la reserva.
 """
 
 from datetime import date, datetime, time, timedelta
@@ -11,15 +11,15 @@ from decimal import Decimal
 
 from mysql.connector import Error
 
-from modelo import cliente_modelo, grupo_mesa_modelo, mesa_modelo, reserva_modelo
+from modelo import cliente_modelo, consumo_modelo, grupo_mesa_modelo, mesa_modelo, reserva_modelo
 from modelo.historial_modelo import registrar_accion
 from utilidades.sesion import Sesion
 
 ESTADOS = ("en_espera", "asistio", "tardanza", "falto")
 
-# Turnos de atencion del restaurante. La reserva puede EMPEZAR solo dentro de
-# estas franjas. El turno noche cruza la medianoche (19:00 a 02:00), por eso su
-# chequeo usa un OR en vez de un rango simple.
+# Los turnos de atencion del restaurante. La reserva puede EMPEZAR solo dentro de
+# estas franjas. El turno noche cruza la medianoche (19:00 a 02:00), por eso lo
+# chequeo con un OR en vez de un rango simple.
 _TURNO_MANANA = (time(10, 30), time(13, 30))
 _TURNO_NOCHE_DESDE = time(19, 0)
 _TURNO_NOCHE_HASTA = time(2, 0)
@@ -30,8 +30,8 @@ def _horas_de(duracion_tipo):
 
 
 def _hora_en_turno(hora_inicio):
-    # True si la hora de inicio cae en el turno manana (10:30–13:30) o en el
-    # turno noche (19:00–02:00, que pasa la medianoche).
+    # True si la hora de inicio cae en el turno manana (10:30-13:30) o en el turno
+    # noche (19:00-02:00, que pasa la medianoche).
     if _TURNO_MANANA[0] <= hora_inicio <= _TURNO_MANANA[1]:
         return True
     return hora_inicio >= _TURNO_NOCHE_DESDE or hora_inicio <= _TURNO_NOCHE_HASTA
@@ -52,8 +52,8 @@ class ReservasControlador:
             return False, "No se pudo obtener la reserva."
 
     def listar_clientes_combo(self):
-        # Se incluye el DNI en el texto para poder buscar el cliente por nombre o
-        # por DNI desde el buscador del formulario de reserva.
+        # Meto el DNI en el texto asi puedo buscar el cliente por nombre o por DNI
+        # desde el buscador del formulario de reserva.
         try:
             clientes = cliente_modelo.listar()
             return True, [(c["id"], f"{c['apellido']}, {c['nombre']} — DNI {c['dni']}")
@@ -69,12 +69,12 @@ class ReservasControlador:
             return False, "No se pudieron cargar las mesas."
 
     def es_pasada(self, reserva):
-        # Una reserva es pasada si su fecha ya quedo atras respecto de hoy.
+        # Una reserva es pasada si su fecha ya quedo atras.
         return reserva["fecha"] < date.today()
 
     def calcular_precio(self, mesa_id, duracion_tipo):
-        # Precio segun el valor del grupo de la mesa y la duracion. Devuelve
-        # Decimal para no perder centavos. None si no se pudo resolver la mesa.
+        # Precio segun el valor del grupo de la mesa y la duracion. Devuelve Decimal
+        # para no perder centavos, o None si no se pudo resolver la mesa.
         mesa = mesa_modelo.obtener_por_id(mesa_id)
         if mesa is None:
             return None
@@ -87,8 +87,8 @@ class ReservasControlador:
         return valor
 
     def _hora_fin(self, hora_inicio, duracion_tipo):
-        # hora_inicio es un time; se le suman 2 o 3 horas. Se usa una fecha
-        # cualquiera solo para poder sumar con timedelta.
+        # hora_inicio es un time y le sumo 2 o 3 horas. Uso una fecha cualquiera
+        # solo para poder sumar con timedelta.
         fin = datetime.combine(date.today(), hora_inicio) + timedelta(hours=_horas_de(duracion_tipo))
         return fin.time()
 
@@ -98,11 +98,11 @@ class ReservasControlador:
         if mesa_id is None:
             return False, "Selecciona una mesa."
 
-        # No crear ni mover una reserva al pasado.
+        # No dejo crear ni mover una reserva al pasado.
         if reserva_id is None and fecha < date.today():
             return False, "No se puede crear una reserva en una fecha pasada."
 
-        # Al editar, si la reserva original es pasada, no se toca (regla dura).
+        # Al editar, si la reserva original es pasada, no la toco.
         if reserva_id is not None:
             try:
                 original = reserva_modelo.obtener_por_id(reserva_id)
@@ -118,18 +118,20 @@ class ReservasControlador:
             return False, ("El horario elegido esta fuera de los turnos de atencion. "
                            "Turno manana: 10:30 a 13:30. Turno noche: 19:00 a 02:00.")
 
-        # El horario no puede cruzar la medianoche: la reserva tiene una sola
-        # fecha y hora_inicio/hora_fin son TIME del mismo dia, asi que si
-        # terminara a las 00:00 o mas tarde, hora_fin quedaria ANTES que
-        # hora_inicio y la deteccion de superposicion dejaria de funcionar.
-        # Se compara en minutos para tener en cuenta tambien los minutos de
-        # inicio (22:30 + 2h termina 00:30, no 24:30).
+        # Validamos que la reserva no supere el cierre del restaurante (02:00).
+        # Normalizamos los minutos: horas entre 00:00 y 09:59 se tratan como
+        # "dia siguiente" (el restaurante no atiende entre 02:00 y 10:00, por lo
+        # que ese rango no puede ser inicio valido, y si aparece como fin es porque
+        # la reserva cruza la medianoche).
         horas = _horas_de(duracion_tipo)
-        fin_en_minutos = hora_inicio.hour * 60 + hora_inicio.minute + horas * 60
-        if fin_en_minutos >= 24 * 60:
-            return False, ("El horario elegido se pasa de la medianoche. "
-                           f"Una reserva de {horas} horas tiene que empezar como "
-                           f"maximo a las {(24 - horas - 1):02d}:59.")
+        inicio_min = hora_inicio.hour * 60 + hora_inicio.minute
+        if hora_inicio < time(10, 0):
+            inicio_min += 24 * 60
+        fin_min = inicio_min + horas * 60
+        if fin_min > 24 * 60 + 2 * 60:  # supera las 02:00
+            return False, (f"El horario elegido supera el cierre del restaurante (02:00). "
+                           f"Una reserva de {horas}h a partir de las "
+                           f"{hora_inicio.strftime('%H:%M')} terminaría después de las 02:00.")
         hora_fin = self._hora_fin(hora_inicio, duracion_tipo)
 
         try:
@@ -156,8 +158,8 @@ class ReservasControlador:
             return False, "No se pudo guardar la reserva."
 
     def cambiar_estado(self, reserva_id, estado):
-        # El estado de asistencia solo se puede cambiar el mismo dia de la reserva
-        # (no en las de otros dias, sean pasadas o futuras).
+        # El estado de asistencia solo lo podes cambiar el mismo dia de la reserva,
+        # no en las de otros dias (pasadas o futuras).
         if estado not in ESTADOS:
             return False, "Estado de asistencia invalido."
         try:
@@ -168,6 +170,12 @@ class ReservasControlador:
             return False, "La reserva ya no existe."
         if reserva["fecha"] != date.today():
             return False, "Solo se puede cambiar el estado de las reservas del dia de hoy."
+        try:
+            consumo = consumo_modelo.obtener_por_reserva(reserva_id)
+        except Error:
+            return False, "No se pudo verificar el estado de la mesa."
+        if consumo is not None and consumo["estado"] == "cerrada":
+            return False, "La mesa ya tiene la cuenta cerrada; no se puede modificar el estado."
         try:
             reserva_modelo.actualizar_estado(reserva_id, estado)
             registrar_accion(Sesion().usuario_id, f"Cambio estado de reserva #{reserva_id} a {estado}")

@@ -1,7 +1,6 @@
 """
 Ventana del Historial de acciones (solo lectura). Llena el combo de usuarios,
-aplica los filtros de usuario y rango de fechas, y muestra las filas. Sigue el
-patron del profesor: al cerrarse vuelve la ventana principal.
+aplica los filtros de usuario y rango de fechas, y muestra las filas.
 """
 
 from pathlib import Path

@@ -1,9 +1,9 @@
 """
-Acceso a datos de consumos y su detalle. Un consumo por reserva (la columna
-reserva_id es UNIQUE). Un consumo arranca 'abierta' (mesa en curso, se le pueden
-agregar/editar items) y pasa a 'cerrada' cuando se consolida la cuenta. Los
-precios se guardan ya resueltos (snapshot en precio_unitario_aplicado) para que
-el historial de ventas no cambie si despues se modifica el precio del item.
+Acceso a datos de consumos y su detalle. Un consumo por reserva (reserva_id es
+UNIQUE). Arranca 'abierta' (la mesa esta en curso y le podes agregar o editar
+items) y pasa a 'cerrada' cuando se cierra la cuenta. Los precios los guardo ya
+resueltos (una foto en precio_unitario_aplicado) para que el historial de ventas
+no se mueva si despues cambio el precio del item.
 """
 
 from mysql.connector import Error
@@ -13,8 +13,8 @@ from utilidades.logger import registrar
 
 
 def listar(filtro_nombre=None, fecha_desde=None, fecha_hasta=None):
-    # Filtros que pide el enunciado para todos los listados: por nombre (del
-    # cliente o el codigo de mesa) y por rango de fechas del consumo.
+    # Filtros del listado: por nombre (del cliente o el codigo de mesa) y por el
+    # rango de fechas del consumo.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -52,11 +52,10 @@ def listar(filtro_nombre=None, fecha_desde=None, fecha_hasta=None):
 
 
 def reservas_sin_consumo():
-    # Reservas a las que todavia se les puede cargar el consumo. El enunciado
-    # dice que el consumo lo hacen "las personas que asistieron a la reserva",
-    # asi que solo entran las que ya ocurrieron y en las que el cliente estuvo
-    # (asistio o llego tarde). Quedan afuera las futuras, las de hoy que siguen
-    # en espera y aquellas en las que el cliente falto.
+    # Reservas a las que todavia les puedo cargar el consumo: solo consume el
+    # cliente que asistio, asi que entran las que ya pasaron y donde estuvo
+    # (asistio o llego tarde). Quedan afuera las futuras, las de hoy que siguen en
+    # espera y las que el cliente falto.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -83,8 +82,8 @@ def reservas_sin_consumo():
 
 
 def obtener_por_reserva(reserva_id):
-    # Devuelve el consumo de una reserva (con su estado) o None si no tiene. Sirve
-    # para saber si la mesa ya esta abierta y para precargar el dialogo al editar.
+    # Devuelve el consumo de una reserva (con su estado) o None si no tiene. Me
+    # sirve para saber si la mesa ya esta abierta y para precargar el dialogo cuando edito.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -104,7 +103,7 @@ def obtener_por_reserva(reserva_id):
 
 
 def obtener_detalle(consumo_id):
-    # Items de un consumo, con el nombre del item, para la vista de detalle.
+    # Los items de un consumo, con el nombre de cada uno, para la vista de detalle.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -125,9 +124,9 @@ def obtener_detalle(consumo_id):
 
 
 def crear_consumo(reserva_id, medio_pago, precio_total, detalles, estado="abierta"):
-    # Inserta el consumo y sus detalles en una sola transaccion. 'detalles' es
-    # una lista de tuplas (menu_item_id, cantidad, precio_unitario_aplicado) con
-    # el precio ya resuelto por el controlador. Por defecto la mesa nace 'abierta'.
+    # Mete el consumo y sus detalles en una sola transaccion. 'detalles' viene como
+    # lista de tuplas (menu_item_id, cantidad, precio_unitario_aplicado) con el
+    # precio ya resuelto por el controlador. Por defecto la mesa nace 'abierta'.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -154,9 +153,9 @@ def crear_consumo(reserva_id, medio_pago, precio_total, detalles, estado="abiert
 
 
 def reemplazar_detalle(consumo_id, medio_pago, precio_total, detalles):
-    # Reemplaza los items de un consumo abierto: borra los detalles anteriores y
-    # carga los nuevos, y actualiza el medio de pago y el total. Todo en una
-    # transaccion para que la cuenta nunca quede a medias.
+    # Reemplaza los items de un consumo abierto: borro los detalles viejos, cargo
+    # los nuevos y actualizo el medio de pago y el total. Todo en una transaccion
+    # para que la cuenta nunca quede a medias.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -181,7 +180,7 @@ def reemplazar_detalle(consumo_id, medio_pago, precio_total, detalles):
 
 
 def cerrar(consumo_id):
-    # Consolida la cuenta: la mesa pasa a 'cerrada' y recien ahi cuenta como venta.
+    # Cierra la cuenta: la mesa pasa a 'cerrada' y recien ahi cuenta como venta.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -197,7 +196,7 @@ def cerrar(consumo_id):
 
 
 def cerrar_abiertas_con_items(fecha_limite):
-    # Cierra las mesas todavia abiertas que tienen consumo cargado (total > 0)
+    # Cierra las mesas que quedaron abiertas y tienen consumo cargado (total > 0)
     # hasta 'fecha_limite' inclusive: pasan a 'cerrada' y recien ahi cuentan como
     # venta. Devuelve cuantas cerro.
     conexion = None
@@ -220,9 +219,9 @@ def cerrar_abiertas_con_items(fecha_limite):
 
 
 def eliminar_abiertas_vacias(fecha_limite):
-    # Descarta las mesas abiertas sin consumo cargado (total 0): se abrieron por
-    # error y no son una venta. Borra primero el detalle (por la clave foranea) y
-    # despues el consumo. Devuelve cuantos consumos borro.
+    # Descarta las mesas abiertas sin nada cargado (total 0): se abrieron por error
+    # y no son una venta. Borro primero el detalle (por la clave foranea) y despues
+    # el consumo. Devuelve cuantos consumos borro.
     conexion = None
     try:
         conexion = abrir_conexion()

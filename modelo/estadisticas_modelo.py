@@ -1,7 +1,7 @@
 """
-Consultas de estadisticas (solo lectura). Cada funcion devuelve datos planos que
-el controlador arma para mostrar en tablas. Se agrupan aca las consultas con
-agregados (COUNT, SUM, GROUP BY) que piden las pantallas de estadisticas.
+Consultas de estadisticas (solo lectura). Cada funcion devuelve datos pelados que
+el controlador despues arma en tablas. Junte aca las consultas con agregados
+(COUNT, SUM, GROUP BY) que piden las pantallas de estadisticas.
 """
 
 from mysql.connector import Error
@@ -46,9 +46,8 @@ def top_clientes(limite=5):
 
 
 def reservas_actuales_y_futuras():
-    # El enunciado pide "reservas actuales y futuras": se devuelven separadas
-    # (actuales = las de hoy, futuras = de manana en adelante) y la pantalla
-    # muestra las dos y el total.
+    # Las devuelvo separadas (actuales = las de hoy, futuras = de manana en
+    # adelante); la pantalla muestra las dos y el total.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -60,7 +59,7 @@ def reservas_actuales_y_futuras():
             "FROM reservas"
         )
         fila = cursor.fetchone()
-        # SUM devuelve NULL si la tabla esta vacia; lo pasamos a 0.
+        # SUM devuelve NULL si la tabla esta vacia, asi que lo paso a 0.
         return {
             "actuales": int(fila["actuales"] or 0),
             "futuras": int(fila["futuras"] or 0),
@@ -114,8 +113,8 @@ def ingresos_por_dia_semana(anio, mes):
 
 
 def items_por_dia_semana(anio, mes):
-    # Cantidad consumida de cada item por dia de la semana; el top 5 por dia lo
-    # arma el controlador en Python.
+    # La cantidad consumida de cada item por dia de la semana; el top 5 de cada dia
+    # lo arma el controlador en Python.
     conexion = None
     try:
         conexion = abrir_conexion()

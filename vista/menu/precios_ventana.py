@@ -1,7 +1,7 @@
 """
 Ventana de historial de precios de un item. Muestra cada precio con su variacion
-porcentual respecto al anterior y avisa si el precio vigente esta por vencer.
-Se abre desde Menu; al cerrarse vuelve a Menu.
+porcentual respecto al anterior y avisa si el vigente esta por vencer. Se abre
+desde Menu y al cerrarse vuelve a Menu.
 """
 
 from pathlib import Path
@@ -27,8 +27,8 @@ class VentanaPrecios(QDialog):
         self.label_titulo.setText(f"Precios — {item['nombre']}")
 
         self.tableWidget_precios.verticalHeader().setVisible(False)
-        # Columnas parejas: son todas cortas (importes y fechas) y asi no queda
-        # scroll horizontal ni una ultima columna desproporcionada.
+        # Columnas parejas: son todas cortas (importes y fechas), asi no queda
+        # scroll horizontal ni una ultima columna gigante.
         self.tableWidget_precios.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.pushButton_nuevo.clicked.connect(self.abrir_nuevo)
@@ -54,7 +54,7 @@ class VentanaPrecios(QDialog):
             tabla.setItem(i, 2, QTableWidgetItem(fila["fecha_inicio"].strftime("%d/%m/%Y")))
             hasta = fila["fecha_fin"].strftime("%d/%m/%Y") if fila["fecha_fin"] else "Vigente"
             tabla.setItem(i, 3, QTableWidgetItem(hasta))
-            # variacion con signo; el primer precio no tiene con que compararse
+            # la variacion con signo; el primer precio no tiene contra que compararse
             variacion = "—" if fila["variacion"] is None else f"{fila['variacion']:+.1f}%"
             tabla.setItem(i, 4, QTableWidgetItem(variacion))
 
@@ -66,13 +66,13 @@ class VentanaPrecios(QDialog):
         else:
             self.label_aviso.setText("")
             self.label_aviso.setProperty("class", "")
-        # refresca el estilo para que tome (o suelte) el color de aviso
+        # refresco el estilo para que agarre (o suelte) el color de aviso
         self.label_aviso.style().unpolish(self.label_aviso)
         self.label_aviso.style().polish(self.label_aviso)
 
     def abrir_nuevo(self):
-        # Precarga la fecha fin del precio vigente para que el usuario
-        # sepa desde donde empieza a contar el nuevo vencimiento.
+        # Precargo la fecha fin del precio vigente para que sepas desde donde
+        # arranca a contar el nuevo vencimiento.
         _, vigente = self.controlador.precio_vigente(self.item_id)
         fecha_fin_ant = vigente["fecha_fin"] if vigente and vigente.get("fecha_fin") else None
         dialogo = DialogoPrecio(self.controlador, self.item_id,
@@ -82,7 +82,7 @@ class VentanaPrecios(QDialog):
             QMessageBox.information(self, "Listo", dialogo.mensaje_exito)
 
     def abrir_editar(self):
-        # Edita el precio vigente (para corregir uno cargado mal). Precarga el
+        # Edita el precio vigente (para corregir uno cargado mal). Precargo el
         # form con el precio actual del item.
         exito, vigente = self.controlador.precio_vigente(self.item_id)
         if not exito:

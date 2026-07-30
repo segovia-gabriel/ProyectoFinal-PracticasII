@@ -1,7 +1,7 @@
 """
 Acceso a datos de grupos_mesa (Simple, VIP, Terraza...). El 'valor' es el precio
-base de 2 horas; el de 3 horas se calcula, no se guarda otro valor.
-Una funcion = una operacion SQL.
+base de 2 horas; el de 3 horas se calcula, no guardo otro valor.
+Una funcion = una sola cosa en SQL.
 """
 
 from mysql.connector import Error
@@ -11,8 +11,8 @@ from utilidades.logger import registrar
 
 
 def listar(filtro_nombre=None):
-    # El filtro por nombre lo usa la pantalla de grupos; los combos la llaman
-    # sin filtro para traerlos todos.
+    # El filtro por nombre lo usa la pantalla de grupos; los combos la llaman sin
+    # filtro para traer todos.
     conexion = None
     try:
         conexion = abrir_conexion()
@@ -70,7 +70,7 @@ def existe_nombre(nombre, excluir_id=None):
 
 
 def contar_mesas(grupo_id):
-    # Se usa para no permitir borrar un grupo que todavia tiene mesas asignadas.
+    # Lo uso para no dejar borrar un grupo que todavia tiene mesas colgadas.
     conexion = None
     try:
         conexion = abrir_conexion()

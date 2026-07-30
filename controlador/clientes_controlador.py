@@ -1,7 +1,7 @@
 """
-Controlador de Clientes. Valida los datos, aplica la regla de baja (no se puede
-eliminar un cliente con reservas actuales o futuras), llama al modelo y registra
-en el historial. Tambien expone las reservas del cliente para la vista de detalle.
+Controlador de Clientes. Valida los datos, aplica la regla de baja (no puedo
+eliminar un cliente con reservas actuales o futuras), llama al modelo y anota en
+el historial. Ademas expone las reservas del cliente para la vista de detalle.
 """
 
 from datetime import date
@@ -51,7 +51,7 @@ class ClientesControlador:
         if not valido:
             return False, mensaje
 
-        # Ningun dato del cliente es opcional: direccion y telefono obligatorios.
+        # Ningun dato del cliente es opcional: direccion y telefono tambien van si o si.
         valido, mensaje = validaciones.validar_direccion(direccion)
         if not valido:
             return False, mensaje
@@ -85,13 +85,12 @@ class ClientesControlador:
 
     def eliminar(self, cliente_id):
         try:
-            # Regla de negocio de la consigna: no borrar si tiene reservas de hoy
-            # en adelante.
+            # No borro un cliente con reservas de hoy en adelante.
             if cliente_modelo.contar_reservas_futuras(cliente_id) > 0:
                 return False, ("No se puede eliminar el cliente porque tiene reservas "
                                "actuales o futuras.")
-            # Integridad: aunque solo tenga reservas pasadas, la clave foranea
-            # impide borrarlo; se avisa claro en vez de dejar reventar el DELETE.
+            # Integridad: aunque solo tenga reservas pasadas, la clave foranea no lo
+            # deja borrar; aviso claro en vez de dejar que reviente el DELETE.
             if cliente_modelo.contar_reservas_totales(cliente_id) > 0:
                 return False, ("No se puede eliminar el cliente porque tiene reservas "
                                "registradas en su historial.")

@@ -1,8 +1,7 @@
 """
-Sesion del usuario logueado. Adaptado del UserSession de sistema_ejemplo.
-Es un singleton: haya la instancia que haya, siempre es la misma, asi cualquier
-modulo puede preguntar quien esta logueado sin pasar el usuario por parametro.
-Guardamos el id ademas del nombre porque historial_acciones referencia usuario_id.
+Sesion del usuario logueado, hecha como singleton: cualquier modulo puede
+preguntar quien esta adentro sin andar pasando el usuario por parametro. Guardo el
+id ademas del nombre porque historial_acciones apunta a usuario_id.
 """
 
 
@@ -10,8 +9,8 @@ class Sesion:
     _instancia = None
 
     def __new__(cls):
-        # __new__ (no __init__) para que la segunda vez que alguien haga Sesion()
-        # devuelva la instancia ya creada en vez de pisar los datos.
+        # Uso __new__ y no __init__ para que un segundo Sesion() te devuelva la
+        # instancia que ya existe en vez de pisar los datos.
         if cls._instancia is None:
             cls._instancia = super().__new__(cls)
             cls._instancia.usuario_id = None

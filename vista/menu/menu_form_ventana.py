@@ -1,7 +1,7 @@
 """
 Formulario modal de alta/edicion de item de menu. Deja elegir una imagen con
-QFileDialog y muestra una previsualizacion; la copia real al proyecto la hace el
-controlador. El precio no se carga aca (se maneja en la pantalla de Precios).
+QFileDialog y muestra una preview; la copia real al proyecto la hace el
+controlador. El precio no se carga aca, eso va en la pantalla de Precios.
 """
 
 from pathlib import Path
@@ -12,7 +12,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QFileDialog
 
 RUTA_UI = Path(__file__).resolve().parent / "menu_form.ui"
-# Raiz del proyecto para resolver la ruta relativa guardada de la imagen.
+# La raiz del proyecto para resolver la ruta relativa que guardo de la imagen.
 RAIZ = Path(__file__).resolve().parents[2]
 
 
@@ -49,9 +49,9 @@ class DialogoItemMenu(QDialog):
         self.pushButton_cancelar.clicked.connect(self.reject)
 
     def _mostrar_aviso_renovacion(self):
-        # El enunciado pide avisar al ver los datos de un item cuando faltan 10
-        # dias o menos para que venza su precio. El calculo esta en el
-        # controlador (mismo que usa la pantalla de precios), aca solo se muestra.
+        # Avisa, al ver los datos de un item, cuando faltan 10 dias o menos para
+        # que venza su precio. El calculo esta en el controlador (el mismo que usa
+        # la pantalla de precios); aca solo se muestra.
         aviso = self.controlador.aviso_renovacion(self.item_id)
         if not aviso:
             self.label_aviso.setText("")
