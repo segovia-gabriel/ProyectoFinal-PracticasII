@@ -1,8 +1,3 @@
-"""
-Ventana de Consumos. Listado con filtros (cliente o codigo de mesa y rango de
-fechas) y vista de detalle. Alta y edicion se hacen desde el modulo Salon.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

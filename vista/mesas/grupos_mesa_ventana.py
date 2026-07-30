@@ -1,8 +1,3 @@
-"""
-Ventana de Grupos de mesa. Se abre desde la ventana de Mesas. Muestra el valor
-de 2h (el guardado) y el de 3h calculado (125%). Al cerrarse vuelve a Mesas.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

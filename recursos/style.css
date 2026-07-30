@@ -1,36 +1,4 @@
-/*
-  ============================================================
-  Hoja de estilos unica de todo el sistema (Qt Style Sheets).
-  Se carga una sola vez desde main.py con app.setStyleSheet(...), como mostro
-  el profesor, para que los 8 modulos se vean iguales sin repetir estilos.
 
-  Qt Style Sheets no soporta variables (nada de var()), asi que los "tokens"
-  van documentados aca y se aplican como valor en cada selector. Si hay que
-  cambiar un color, se busca y reemplaza el hex en este unico archivo.
-
-  PALETA (azul profesional, estilo panel de datos)
-    primary        #2563EB   azul principal (botones, encabezados de tabla)
-    primary-hover  #1D4ED8
-    primary-press  #1E40AF
-    background      #F8FAFC   fondo de ventanas
-    surface         #FFFFFF   fondo de campos, tablas y tarjetas
-    foreground      #0F172A   texto principal
-    muted           #64748B   texto secundario / ayudas
-    border          #E2E8F0   bordes y lineas de tabla
-    success         #059669   confirmaciones / estados OK
-    warning         #D97706   avisos (ej. renovacion de precio proxima)
-    danger          #DC2626   errores y acciones destructivas
-    ring            #2563EB   resaltado del campo con foco
-
-  TIPOGRAFIA
-    familia: la del sistema (San Francisco en Mac, Segoe UI en Windows) para
-    no depender de fuentes externas y verse nativo en ambas maquinas.
-    escala:  titulo 20pt / subtitulo 14pt / cuerpo 11pt (minimo exigido) /
-             ayuda 10pt.  Peso 700 en titulos, 600 en labels, 400 en cuerpo.
-  ============================================================
-*/
-
-/* ---------- Base ---------- */
 QWidget {
     background-color: #f8fafc;
     color: #0f172a;

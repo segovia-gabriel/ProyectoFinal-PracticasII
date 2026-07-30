@@ -1,10 +1,4 @@
-"""
-Controlador de Consumo. Maneja la cuenta de la mesa con la idea de mesa abierta /
-cerrada: mientras esta abierta le agrego o edito items, y al cerrarla la cuenta
-pasa al historial de ventas. Resuelve el precio de cada item segun el medio de
-pago (el especial si el medio coincide, si no el de lista), arma el detalle con
-esos precios como foto y calcula el total. Un consumo por reserva.
-"""
+
 
 from datetime import date
 from decimal import Decimal

@@ -1,8 +1,3 @@
-"""
-Dialogo chico para cambiar solo el estado de asistencia de una reserva. Se puede
-usar en cualquier reserva, incluso pasadas (para marcar retroactivamente).
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

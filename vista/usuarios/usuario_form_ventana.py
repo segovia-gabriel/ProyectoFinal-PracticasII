@@ -1,9 +1,3 @@
-"""
-Formulario de alta/edicion de usuario. Es un QDialog modal (se abre con exec_,
-bloquea la ventana de atras y no se pierde). Muestra los errores de validacion
-en label_error, debajo de los campos. La logica la resuelve UsuariosControlador.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

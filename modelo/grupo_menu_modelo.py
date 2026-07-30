@@ -1,7 +1,3 @@
-"""
-Acceso a datos de grupos_menu (Bebidas, Picadas, Pastas...). Solo tienen un nombre.
-"""
-
 from mysql.connector import Error
 
 from modelo.conexion import abrir_conexion

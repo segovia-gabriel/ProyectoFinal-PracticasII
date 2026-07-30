@@ -1,7 +1,3 @@
-"""
-Acceso a la base MySQL. Junto aca la lectura del config.ini y la apertura de la
-conexion, asi ningun otro archivo tiene que saber donde estan las credenciales.
-"""
 
 from configparser import ConfigParser
 from pathlib import Path

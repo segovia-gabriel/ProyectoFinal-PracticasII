@@ -1,8 +1,3 @@
-"""
-Ventana de listado de Usuarios: muestra la tabla, el filtro y los botones, y
-coordina las acciones con UsuariosControlador.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

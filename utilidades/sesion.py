@@ -1,10 +1,3 @@
-"""
-Sesion del usuario logueado, hecha como singleton: cualquier modulo puede
-preguntar quien esta adentro sin andar pasando el usuario por parametro. Guardo el
-id ademas del nombre porque historial_acciones apunta a usuario_id.
-"""
-
-
 class Sesion:
     _instancia = None
 

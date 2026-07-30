@@ -1,8 +1,3 @@
-"""
-Ventana de Menu (items). Listado con precio vigente y acceso a Grupos de menu y
-a Precios de cada item. Al cerrarse vuelve la ventana principal.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

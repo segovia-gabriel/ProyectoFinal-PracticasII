@@ -1,8 +1,3 @@
-"""
-Acceso a datos de clientes. Tiene la consulta de reservas del cliente (con JOIN
-a mesas para mostrar el codigo) que usa la vista de detalle, y el conteo de
-reservas actuales/futuras que hace falta para la regla de baja.
-"""
 
 from mysql.connector import Error
 

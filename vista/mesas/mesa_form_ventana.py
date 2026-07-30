@@ -1,8 +1,3 @@
-"""
-Formulario modal de alta/edicion de mesa. El codigo se muestra en vivo (solo
-lectura) a medida que se cambia el piso o el numero, y lo arma el controlador.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

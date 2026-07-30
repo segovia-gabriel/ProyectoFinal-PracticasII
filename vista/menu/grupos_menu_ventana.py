@@ -1,5 +1,3 @@
-"""Ventana de Grupos de menu. Se abre desde Menu; al cerrarse vuelve a Menu."""
-
 from pathlib import Path
 
 from PyQt5 import uic

@@ -1,9 +1,3 @@
-"""
-Acceso a datos de reservas. El listado trae el nombre del cliente y el codigo de
-mesa con JOINs. El precio (precio_mesa_aplicado) ya viene calculado del controlador
-y lo guardo como una foto: no lo vuelvo a calcular aunque despues cambie el valor del grupo.
-"""
-
 from datetime import time
 
 from mysql.connector import Error

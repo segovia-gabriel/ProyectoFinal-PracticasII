@@ -1,10 +1,3 @@
-"""
-Acceso a datos de historial_acciones (auditoria).
-registrar_accion() es la funcion comun que llaman todos los modulos (login,
-usuarios, clientes, reservas...) cuando hacen un alta/baja/modificacion, asi no
-repito el mismo INSERT en cada uno.
-"""
-
 from mysql.connector import Error
 
 from modelo.conexion import abrir_conexion

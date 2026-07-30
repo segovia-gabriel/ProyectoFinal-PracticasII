@@ -1,8 +1,3 @@
-"""
-Ventana de Mesas. Listado con filtro por codigo y CRUD. Desde aca se entra a la
-pantalla de Grupos de mesa. Al cerrarse vuelve la ventana principal.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

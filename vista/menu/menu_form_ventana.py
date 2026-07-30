@@ -1,9 +1,3 @@
-"""
-Formulario modal de alta/edicion de item de menu. Deja elegir una imagen con
-QFileDialog y muestra una preview; la copia real al proyecto la hace el
-controlador. El precio no se carga aca, eso va en la pantalla de Precios.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

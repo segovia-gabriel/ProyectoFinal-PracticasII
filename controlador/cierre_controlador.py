@@ -1,10 +1,4 @@
-"""
-Cierre de mesas del restaurante. Al cerrar el dia (con el boton) o al abrir el
-sistema (barrido de lo que quedo de dias anteriores) se cierran las mesas
-abiertas: las que tienen consumo cargado pasan a 'cerrada', las vacias se
-descartan y las reservas que quedaron sin consumo se marcan como vencidas.
-Coordina consumo + reservas, por eso vive en su propio controlador.
-"""
+
 
 from datetime import date, timedelta
 

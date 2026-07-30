@@ -1,9 +1,3 @@
-"""
-Formulario modal de alta/edicion de reserva. La hora de fin y el precio salen
-solos a partir de la mesa, la hora de inicio y la duracion (2h = 100%, 3h = 125%
-del valor del grupo). El precio se guarda como una foto al crear.
-"""
-
 from datetime import date
 from pathlib import Path
 

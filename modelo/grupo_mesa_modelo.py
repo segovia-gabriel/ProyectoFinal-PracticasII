@@ -1,9 +1,3 @@
-"""
-Acceso a datos de grupos_mesa (Simple, VIP, Terraza...). El 'valor' es el precio
-base de 2 horas; el de 3 horas se calcula, no guardo otro valor.
-Una funcion = una sola cosa en SQL.
-"""
-
 from mysql.connector import Error
 
 from modelo.conexion import abrir_conexion

@@ -1,10 +1,3 @@
-"""
-Hash y verificacion de contrasenas con bcrypt.
-En la base solo va el hash (columna contrasena_hash), nunca el texto plano.
-Lo centralizo aca para que ningun modulo llame a bcrypt por su cuenta y todos
-usen el mismo criterio.
-"""
-
 import bcrypt
 
 

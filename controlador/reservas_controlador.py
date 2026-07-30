@@ -1,10 +1,4 @@
-"""
-Controlador de Reservas. Calcula la hora de fin y el precio (2h = 100% del valor
-del grupo de la mesa, 3h = 125%), valida que no se pisen los horarios, y hace
-cumplir que las reservas pasadas no se tocan ni se borran y que el estado de
-asistencia solo se cambia el mismo dia de la reserva. El precio se guarda como
-una foto al crear la reserva.
-"""
+
 
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal

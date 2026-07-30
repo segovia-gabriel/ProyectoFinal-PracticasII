@@ -1,7 +1,3 @@
-"""
-Logging a archivo con el modulo 'logging' de la estandar, nada de dependencias extra.
-"""
-
 import logging
 from pathlib import Path
 

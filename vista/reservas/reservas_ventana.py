@@ -1,9 +1,3 @@
-"""
-Ventana de Reservas. Listado con filtros (cliente y rango de fechas) y ABM, con
-la regla de que las reservas pasadas no se editan ni se borran (pero el estado de
-asistencia si se puede cambiar). Al cerrarse vuelve la principal.
-"""
-
 from datetime import date
 from pathlib import Path
 

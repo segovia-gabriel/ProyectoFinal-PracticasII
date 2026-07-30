@@ -1,10 +1,3 @@
-"""
-Validaciones que reuso en un monton de modulos. Cada una devuelve la tupla
-(valido, mensaje): si valido es False, el mensaje dice que hay que corregir y va
-derecho a la pantalla. Uso chequeos simples (len, isupper, isdigit), nada de regex.
-"""
-
-
 def validar_nombre_usuario(nombre):
     # Con esto se loguea, asi que lo quiero corto, sin espacios y que no venga vacio.
     if not nombre:

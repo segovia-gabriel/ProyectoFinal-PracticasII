@@ -1,9 +1,4 @@
-"""
-Controlador del login. No sabe nada de widgets: recibe usuario y contrasena como
-texto, valida, consulta el modelo y devuelve (exito, mensaje) para que la vista
-muestre el resultado. Si el login sale bien, deja la sesion abierta y anota la
-accion en el historial antes de volver.
-"""
+
 
 from mysql.connector import Error
 

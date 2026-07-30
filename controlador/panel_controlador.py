@@ -1,8 +1,4 @@
-"""
-Controlador del panel principal. Junta en una sola llamada los numeros y listas
-del resumen del dia, ya formateados, asi la vista no arma textos ni sabe nada de
-SQL. Es solo lectura: el panel no toca nada.
-"""
+
 
 from datetime import date
 

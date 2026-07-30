@@ -1,10 +1,3 @@
-"""
-Consultas del panel principal (solo lectura). Son los numeros y listas que
-aparecen apenas iniciar sesion, para que la pantalla de inicio sea un resumen del
-dia y no algo vacio. No repite las de estadisticas_modelo: aca van las que miran
-"hoy" y "este mes", alla las que arman los informes por periodo.
-"""
-
 from mysql.connector import Error
 
 from modelo.conexion import abrir_conexion

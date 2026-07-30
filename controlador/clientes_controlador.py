@@ -1,8 +1,4 @@
-"""
-Controlador de Clientes. Valida los datos, aplica la regla de baja (no puedo
-eliminar un cliente con reservas actuales o futuras), llama al modelo y anota en
-el historial. Ademas expone las reservas del cliente para la vista de detalle.
-"""
+
 
 from datetime import date
 

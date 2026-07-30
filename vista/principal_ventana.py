@@ -1,10 +1,3 @@
-"""
-Ventana principal (la unica ventana de trabajo). A la izquierda el menu y a la
-derecha un QStackedWidget: la pagina de inicio es el panel con el resumen del dia
-(agenda de hoy, notificaciones, indicadores de reservas) y cada modulo aparece
-como otra pagina del stack. Desde el Inicio ya podes cambiar el estado de
-asistencia y cargar el consumo de cualquier reserva de la agenda.
-"""
 
 import sys
 from pathlib import Path

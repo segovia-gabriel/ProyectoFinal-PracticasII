@@ -1,8 +1,3 @@
-"""
-Controlador del Historial de acciones. Es de solo lectura: arma los filtros
-(usuario, rango de fechas) y devuelve las filas a la vista. No registra acciones
-ni deja editar, el historial no se toca.
-"""
 
 from datetime import timedelta
 

@@ -1,5 +1,3 @@
-"""Dialogo de solo lectura con el detalle (items) de un consumo ya cargado."""
-
 from pathlib import Path
 
 from PyQt5 import uic

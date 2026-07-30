@@ -1,10 +1,3 @@
-"""
-Formulario modal para cargar o editar el precio de un item. Se carga solo el
-precio de lista; el precio en efectivo (10% menos) lo calcula el controlador.
-La fecha de fin siempre es obligatoria; se avisa 10 dias antes del vencimiento.
-Si se abre con precio_actual, funciona en modo edicion del vigente.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

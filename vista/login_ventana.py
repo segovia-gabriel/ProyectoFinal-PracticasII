@@ -1,9 +1,3 @@
-"""
-Ventana de login. Solo UI: carga el .ui, engancha el boton al controlador y
-muestra el resultado. La logica (verificar la contrasena, anotar en el historial)
-vive en LoginControlador.
-"""
-
 import sys
 from pathlib import Path
 

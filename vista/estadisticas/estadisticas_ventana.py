@@ -1,10 +1,3 @@
-"""
-Ventana de Estadisticas, con tres pestanas: Clientes, Reservas y Consumo. La de
-Consumo depende del mes y ano elegidos (con boton Actualizar). Todo con tablas,
-sin graficos, para que sea simple de mostrar y explicar. Al cerrarse vuelve la
-ventana principal.
-"""
-
 from datetime import date
 from pathlib import Path
 

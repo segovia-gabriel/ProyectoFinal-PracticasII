@@ -1,8 +1,4 @@
-"""
-Consultas de estadisticas (solo lectura). Cada funcion devuelve datos pelados que
-el controlador despues arma en tablas. Junte aca las consultas con agregados
-(COUNT, SUM, GROUP BY) que piden las pantallas de estadisticas.
-"""
+
 
 from mysql.connector import Error
 

@@ -1,9 +1,3 @@
-"""
-Controlador de Usuarios. Valida, aplica las reglas de negocio (nombre unico,
-criterio de contrasena, no borrar el ultimo usuario ni el propio), llama al
-modelo y anota cada alta/baja/modificacion en el historial.
-No sabe nada de widgets: devuelve (exito, mensaje) o (exito, datos) a la vista.
-"""
 
 from mysql.connector import Error
 

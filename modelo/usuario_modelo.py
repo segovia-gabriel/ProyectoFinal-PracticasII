@@ -1,8 +1,3 @@
-"""
-Acceso a datos de la tabla usuarios. Cada funcion hace una sola cosa en SQL y
-devuelve datos pelados (dict/tupla/None), nunca widgets.
-"""
-
 from mysql.connector import Error
 
 from modelo.conexion import abrir_conexion

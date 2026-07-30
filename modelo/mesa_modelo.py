@@ -1,9 +1,3 @@
-"""
-Acceso a datos de mesas. El codigo (letra de piso + numero) lo arma el
-controlador y se guarda ya listo. El listado trae el nombre del grupo con un JOIN
-para mostrarlo sin que la vista tenga que resolverlo.
-"""
-
 from mysql.connector import Error
 
 from modelo.conexion import abrir_conexion

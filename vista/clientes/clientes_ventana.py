@@ -1,8 +1,3 @@
-"""
-Ventana de Clientes. Listado con filtros (nombre/apellido y DNI), CRUD y acceso
-a la vista de reservas de cada cliente. Al cerrarse vuelve la principal.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

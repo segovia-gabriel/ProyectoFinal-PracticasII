@@ -1,11 +1,4 @@
-"""
-Helpers de presentacion que comparten Clientes, Reservas y Consumo. Pasan lo que
-hay guardado en la base a texto lindo para la UI. Los junte todos aca para no
-repetir los mismos diccionarios en cada modulo.
-"""
 
-# Un solo lugar para los estados de asistencia (etiqueta visible, clave en la base):
-# los combos usan la lista y las tablas la traducen con estado_asistencia().
 ESTADOS_ASISTENCIA = [
     ("En espera", "en_espera"),
     ("Asistio", "asistio"),

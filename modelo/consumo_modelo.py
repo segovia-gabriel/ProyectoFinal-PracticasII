@@ -1,10 +1,4 @@
-"""
-Acceso a datos de consumos y su detalle. Un consumo por reserva (reserva_id es
-UNIQUE). Arranca 'abierta' (la mesa esta en curso y le podes agregar o editar
-items) y pasa a 'cerrada' cuando se cierra la cuenta. Los precios los guardo ya
-resueltos (una foto en precio_unitario_aplicado) para que el historial de ventas
-no se mueva si despues cambio el precio del item.
-"""
+
 
 from mysql.connector import Error
 

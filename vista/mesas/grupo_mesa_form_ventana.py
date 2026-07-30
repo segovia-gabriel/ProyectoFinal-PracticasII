@@ -1,7 +1,3 @@
-"""
-Formulario modal de alta/edicion de grupo de mesa (nombre + valor de 2 horas).
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

@@ -1,8 +1,3 @@
-"""
-Acceso a datos de menu_items. El listado trae el nombre del grupo con un JOIN.
-El precio no vive aca, se maneja en historial_precios_menu (precio_menu_modelo).
-"""
-
 from mysql.connector import Error
 
 from modelo.conexion import abrir_conexion

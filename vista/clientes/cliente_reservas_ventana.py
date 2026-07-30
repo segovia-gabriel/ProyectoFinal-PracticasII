@@ -1,8 +1,3 @@
-"""
-Dialogo de solo lectura con las reservas de un cliente (pasadas, actuales y
-futuras). Recibe la lista ya resuelta por el controlador y solo la muestra.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

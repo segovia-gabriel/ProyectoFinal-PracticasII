@@ -1,5 +1,3 @@
-"""Formulario modal de alta/edicion de grupo de menu (solo nombre)."""
-
 from pathlib import Path
 
 from PyQt5 import uic

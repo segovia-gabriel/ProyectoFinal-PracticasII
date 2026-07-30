@@ -1,8 +1,4 @@
-"""
-Controlador de Estadisticas. Junta las consultas del modelo y las deja listas
-para las tablas: pasa los dias de la semana a espanol, ordena y arma el top 5 de
-items por dia. Es solo lectura.
-"""
+
 
 from mysql.connector import Error
 

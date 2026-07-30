@@ -1,8 +1,3 @@
-"""
-Controlador de Mesas y Grupos de mesa. Arma el codigo de la mesa (letra del piso
-+ numero), valida, llama a los modelos y anota en el historial.
-El codigo lo genero aca y no lo escribe el usuario, asi queda siempre consistente.
-"""
 
 from mysql.connector import Error
 

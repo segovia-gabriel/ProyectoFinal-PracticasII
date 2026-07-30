@@ -1,9 +1,3 @@
-"""
-Dialogo de confirmacion que usan todos los modulos cuando hay que borrar algo.
-Armo el QMessageBox a mano (y no QMessageBox.question) porque Qt no traduce los
-"Yes"/"No" y los quiero en espanol.
-"""
-
 from PyQt5.QtWidgets import QMessageBox
 
 

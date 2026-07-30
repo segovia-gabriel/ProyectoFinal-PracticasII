@@ -1,9 +1,3 @@
-"""
-Formulario modal de alta/edicion de cliente. La fecha de nacimiento no permite
-fechas futuras (se limita el QDateEdit a hoy). Los errores de validacion se
-muestran en label_error.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

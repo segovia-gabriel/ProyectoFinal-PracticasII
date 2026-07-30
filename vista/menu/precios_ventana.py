@@ -1,9 +1,3 @@
-"""
-Ventana de historial de precios de un item. Muestra cada precio con su variacion
-porcentual respecto al anterior y avisa si el vigente esta por vencer. Se abre
-desde Menu y al cerrarse vuelve a Menu.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

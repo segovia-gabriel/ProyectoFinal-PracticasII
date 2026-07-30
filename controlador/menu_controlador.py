@@ -1,8 +1,4 @@
-"""
-Controlador de Menu: items, grupos de menu y precios. Resuelve el precio vigente
-de cada item, saca la variacion porcentual del historial, avisa cuando un precio
-esta por vencer y copia la imagen elegida a la carpeta del proyecto.
-"""
+
 
 import shutil
 from datetime import date

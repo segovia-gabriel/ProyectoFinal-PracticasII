@@ -1,12 +1,3 @@
-"""
-Formulario modal de la cuenta de una mesa (consumo). Elegis la reserva y el medio
-de pago, agregas items con cantidad, y el precio de cada uno se resuelve segun el
-medio (el especial si coincide, si no el de lista). El total se recalcula solo,
-tambien al cambiar el medio de pago. Mientras la mesa esta abierta guardas con
-"Guardar (mesa abierta)"; "Cerrar mesa" cierra la cuenta y la manda al historial
-de ventas. El calculo final lo confirma el controlador.
-"""
-
 from pathlib import Path
 
 from PyQt5 import uic

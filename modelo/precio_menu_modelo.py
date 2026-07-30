@@ -1,10 +1,3 @@
-"""
-Acceso a datos de historial_precios_menu. Cada cambio de precio arma una fila
-nueva (fecha_inicio = hoy, fecha_fin = NULL) y cierra la anterior poniendole
-fecha_fin al dia anterior. El precio vigente es el que arranco y todavia no
-cerro. Nunca toco las filas viejas, asi el historial queda intacto.
-"""
-
 from datetime import timedelta
 
 from mysql.connector import Error
